@@ -25,7 +25,7 @@ O sistema permite **agendamentos online**, controle de serviços e gerenciamento
 - **Spring Data JPA (Hibernate)**
 - **Thymeleaf**
 - **Maven**
-- **H2 Database** (ou PostgreSQL, se configurado)
+- **PostgreSQL Database**
 - **HTML5, CSS3**
 
 ---
