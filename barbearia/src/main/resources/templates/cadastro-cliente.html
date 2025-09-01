@@ -1,47 +1,90 @@
-<!-- cadastro.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Cadastro de Cliente</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  
-  <link rel="stylesheet" href="/css/cadastro.css">
-  
+    <meta charset="UTF-8">
+    <title>Cadastro de Cliente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/cadastro.css">
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
     <h2><i class="fas fa-user-plus"></i> Cadastro de Cliente</h2>
     <form th:action="@{/clientes/cadastrar}" th:object="${cliente}" method="post">
-      <label for="nome">Nome Completo</label>
-      <input type="text" id="nome" th:field="*{nome}" required>
-      <div class="error-message" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+        <label for="nome">Nome Completo</label>
+        <input type="text" id="nome" th:field="*{nome}" required>
+        <div class="error-message" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
 
-      <label for="telefone">Telefone</label>
-      <input type="tel" id="telefone" th:field="*{telefone}" required>
-      <div class="error-message" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
+        <label for="telefone">Telefone</label>
+        <input type="tel" id="telefone" th:field="*{telefone}" required>
+        <div class="error-message" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
 
-      <label for="email">Email</label>
-      <input type="email" id="email" th:field="*{email}" required>
-      <div class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-      <div class="error-message" th:if="${erroEmail != null}" th:text="${erroEmail}"></div>
+        <label for="email">Email</label>
+        <input type="email" id="email" th:field="*{email}" required>
+        <div class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        <div class="error-message" th:if="${erroEmail != null}" th:text="${erroEmail}"></div>
 
-      <label for="senha">Senha</label>
-      <input type="password" id="senha" th:field="*{senha}" required>
-      <div class="error-message" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}"></div>
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" th:field="*{senha}" required>
+        <div class="error-message" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}"></div>
 
-      <button type="submit" class="btn"><i class="fas fa-user-check"></i> Cadastrar</button>
+        <!-- Termos de uso -->
+        <div class="terms-container">
+            <div class="terms-check">
+                <input type="checkbox" id="aceitarTermos" required>
+                <label for="aceitarTermos">Aceito os termos de uso</label>
+            </div>
+            <button type="button" onclick="abrirModal()" class="terms-btn">
+                <i class="fas fa-file-alt"></i> Ler termos
+            </button>
+        </div>
+
+        <button type="submit" class="btn"><i class="fas fa-user-check"></i> Cadastrar</button>
     </form>
 
     <div class="link">
-      Já tem uma conta? <a th:href="@{/clientes/login}">Faça login</a>
+        Já tem uma conta? <a th:href="@{/clientes/login}">Faça login</a>
     </div>
 
     <div th:if="${param.cadastroSucesso}" class="success-message">
-      Cadastro realizado com sucesso!
+        Cadastro realizado com sucesso!
     </div>
-  </div>
+</div>
+
+<!-- Modal dos Termos -->
+<div id="modalTermos" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="fecharModal()">&times;</span>
+        <div class="modal-header">Termos de Uso - Barbearia Souza</div>
+        <p>
+            Ao se cadastrar em nossa plataforma de agendamento online, você concorda com os seguintes termos:
+        </p>
+        <ul>
+            <li>Os horários agendados devem ser respeitados. Cancelamentos devem ser feitos com no mínimo 2 horas de antecedência.</li>
+            <li>O não comparecimento sem aviso prévio pode gerar restrições em novos agendamentos.</li>
+            <li>Os dados informados serão utilizados apenas para contato e gerenciamento de agendamentos.</li>
+            <li>A barbearia se reserva o direito de alterar ou cancelar horários em casos excepcionais, sempre avisando o cliente previamente.</li>
+        </ul>
+        <p>
+            Ao marcar a opção "Aceito os termos de uso", você confirma que leu e concorda com as condições acima.
+        </p>
+    </div>
+</div>
+
+<script>
+    function abrirModal() {
+        document.getElementById("modalTermos").style.display = "flex";
+    }
+    function fecharModal() {
+        document.getElementById("modalTermos").style.display = "none";
+    }
+    window.onclick = function(event) {
+        const modal = document.getElementById("modalTermos");
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
 </body>
 </html>

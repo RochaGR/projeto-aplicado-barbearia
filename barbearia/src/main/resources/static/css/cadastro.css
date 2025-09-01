@@ -1,89 +1,194 @@
 body {
-  background-color: #0D121E;
-  font-family: 'Poppins', sans-serif;
-  color: white;
-  margin: 0;
+    background-color: #0D121E;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    margin: 0;
 }
 
 .container {
-  max-width: 600px;
-  margin: 80px auto;
-  background-color: #1a1f2e;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    max-width: 600px;
+    margin: 80px auto;
+    background-color: #1a1f2e;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
 h2 {
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 28px;
-  color: #F0B35B;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: #F0B35B;
 }
 
 label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
 }
 
 input {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  border: none;
-  background-color: #252b3b;
-  color: white;
-  margin-bottom: 20px;
-  font-size: 16px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background-color: #252b3b;
+    color: white;
+    margin-bottom: 20px;
+    font-size: 16px;
 }
 
 input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(240, 179, 91, 0.3);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(240, 179, 91, 0.3);
 }
 
 .btn {
-  background-color: #F0B35B;
-  color: #0D121E;
-  padding: 16px;
-  border: none;
-  border-radius: 10px;
-  width: 100%;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s ease;
+    background-color: #F0B35B;
+    color: #0D121E;
+    padding: 16px;
+    border: none;
+    border-radius: 10px;
+    width: 100%;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
 }
 
 .btn:hover {
-  background-color: #e9a43d;
+    background-color: #e9a43d;
 }
 
 .link {
-  text-align: center;
-  margin-top: 20px;
-  color: #a0a8bd;
+    text-align: center;
+    margin-top: 20px;
+    color: #a0a8bd;
 }
 
 .link a {
-  color: #F0B35B;
-  text-decoration: none;
+    color: #F0B35B;
+    text-decoration: none;
 }
 
 .error-message, .success-message {
-  font-size: 14px;
-  margin-top: 5px;
+    font-size: 14px;
+    margin-top: 5px;
 }
 
 .error-message {
-  color: #dc3545;
+    color: #dc3545;
 }
 
 .success-message {
-  background: #28a745;
-  padding: 12px;
-  text-align: center;
-  border-radius: 8px;
-  margin-top: 20px;
+    background: #28a745;
+    padding: 12px;
+    text-align: center;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+/* --- Estilos do modal e termos --- */
+.terms-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #252b3b;
+    border-radius: 10px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.terms-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a0a8bd;
+    font-size: 14px;
+}
+
+/* Estilizando o checkbox */
+.terms-container input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #F0B35B;
+    border-radius: 4px;
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    margin: 0;
+}
+
+.terms-container input[type="checkbox"]:checked {
+    background-color: #F0B35B;
+    border-color: #F0B35B;
+}
+
+.terms-container input[type="checkbox"]:checked::after {
+    content: "✔";
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    font-size: 14px;
+    color: #0D121E;
+    font-weight: bold;
+}
+
+.terms-btn {
+    background-color: #4a5268;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    white-space: nowrap;
+}
+
+.terms-btn:hover {
+    background-color: #5a637c;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #1a1f2e;
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    text-align: left;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #F0B35B;
+}
+
+.close-btn {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+    color: #dc3545;
 }
