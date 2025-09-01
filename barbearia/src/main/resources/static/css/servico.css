@@ -1,0 +1,165 @@
+/* ------ VARIÁVEIS GLOBAIS ------ */
+:root {
+  --bg-dark: #0D121E;
+  --bg-light: #FAFAFA;
+  --accent-color: #F0B35B;
+  --accent-hover: #e0a34b;
+  --text-light: #ffffff;
+  --text-dark: #0D121E;
+  --border-radius-sm: 8px;
+  --border-radius-lg: 16px;
+  --box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+  --box-shadow-hover: 0 6px 12px rgba(0,0,0,0.3);
+  --transition: all 0.3s ease;
+  --section-padding: 60px 5%;
+}
+
+/* ------ ESTILOS BASE PARA SERVIÇOS ------ */
+.servico-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ------ CARDS DE SERVIÇOS ------ */
+.servico-card {
+  background: #1a1f2e;
+  color: var(--text-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  padding: 20px;
+  transition: var(--transition);
+  border: none;
+  margin-bottom: 20px;
+}
+
+.servico-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.servico-card-header {
+  background-color: #252b3b !important;
+  color: var(--accent-color) !important;
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0 !important;
+  border-bottom: none;
+  font-weight: 600;
+  padding: 15px 20px;
+}
+
+/* ------ FORMULÁRIOS DE SERVIÇOS ------ */
+.servico-form .form-control {
+  background-color: #252b3b;
+  border: 1px solid #2d3446;
+  color: var(--text-light);
+  border-radius: var(--border-radius-sm);
+}
+
+.servico-form .form-control:focus {
+  background-color: #252b3b;
+  color: var(--text-light);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.25rem rgba(240, 179, 91, 0.25);
+}
+
+.servico-form .form-label {
+  color: var(--text-light);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* ------ TABELA DE SERVIÇOS ------ */
+.servico-table {
+  width: 100%;
+  color: var(--text-light);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.servico-table thead th {
+  background-color: #252b3b;
+  color: var(--accent-color);
+  border-bottom: 1px solid #2d3446;
+  padding: 12px 15px;
+  font-weight: 600;
+}
+
+.servico-table tbody td {
+  border-bottom: 1px solid #2d3446;
+  padding: 12px 15px;
+  vertical-align: middle;
+}
+
+.servico-table tbody tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.servico-table tbody tr:hover {
+  background-color: rgba(240, 179, 91, 0.1);
+}
+
+/* ------ BOTÕES ESPECÍFICOS ------ */
+.servico-btn {
+  background: var(--accent-color);
+  color: var(--text-dark);
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-block;
+}
+
+.servico-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow);
+}
+
+.servico-btn-sm {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+}
+
+/* ------ ALERTAS E MENSAGENS ------ */
+.servico-alert {
+  border-radius: var(--border-radius-sm);
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.servico-alert-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.servico-alert-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.servico-alert-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+/* ------ TÍTULOS E CABEÇALHOS ------ */
+.servico-title {
+  color: var(--accent-color);
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+/* ------ LAYOUT RESPONSIVO ------ */
+@media (max-width: 768px) {
+  .servico-card {
+    margin-bottom: 20px;
+  }
+  
+  .servico-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

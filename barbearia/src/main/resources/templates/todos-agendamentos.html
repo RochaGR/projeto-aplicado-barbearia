@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Agendamentos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/index.css}">
+  <link rel="stylesheet" th:href="@{/css/admin-agendamento.css}">
+</head>
+<body>
+<div class="container">
+
+  <nav class="navbar">
+    <a href="/" class="logo">
+      <i class="fas fa-cut"></i>
+      <span>Barbearia Souza</span>
+    </a>
+
+    <div class="nav-buttons" id="nav-buttons">
+      <div sec:authorize="!isAuthenticated()">
+        <a th:href="@{/clientes/login}" class="nav-btn">Login</a>
+        <a th:href="@{/clientes/cadastro}" class="nav-btn">Cadastre-se</a>
+      </div>
+
+      <div sec:authorize="isAuthenticated() && !hasRole('ADMIN') && !hasRole('BARBEIRO')">
+        <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
+        <a th:href="@{/agendamentos}" class="nav-btn">Meus Agendamentos</a>
+      </div>
+
+      <div sec:authorize="hasRole('BARBEIRO')">
+        <a th:href="@{/agendamentos/barbeiro}" class="nav-btn">Agendamentos comigo</a>
+        <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
+      </div>
+
+      <div sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/admin/todos-agendamentos}" class="nav-btn">Todos Agendamentos</a>
+        <a th:href="@{/admin/barbeiros}" class="nav-btn">Gerenciar Barbeiros</a>
+        <a th:href="@{/admin/servicos}" class="nav-btn">Gerenciar Serviços</a>
+      </div>
+
+      <div sec:authorize="isAuthenticated()">
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+          <button type="submit" class="nav-btn">Sair</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <main class="admin-container">
+    <div class="admin-header">
+      <h1 class="admin-title"><i class="fas fa-calendar-alt"></i> Gerenciamento de Agendamentos</h1>
+    </div>
+
+    <div class="filtros">
+      <input type="date" id="dataFiltro" class="filtro-input" th:value="${param.data}">
+      <select id="statusFiltro" class="filtro-input">
+        <option value="">Todos Status</option>
+        <option value="AGENDADO" th:selected="${param.status == 'AGENDADO'}">Agendado</option>
+        <option value="CONFIRMADO" th:selected="${param.status == 'CONFIRMADO'}">Confirmado</option>
+        <option value="CANCELADO" th:selected="${param.status == 'CANCELADO'}">Cancelado</option>
+        <option value="REALIZADO" th:selected="${param.status == 'REALIZADO'}">Realizado</option>
+      </select>
+      <button class="btn" onclick="filtrarAgendamentos()">
+        <i class="fas fa-filter"></i> Filtrar
+      </button>
+    </div>
+
+    <div class="agendamentos-table">
+      <div th:if="${agendamentos == null or #lists.isEmpty(agendamentos)}" class="alert alert-info">
+        Nenhum agendamento encontrado
+      </div>
+
+      <table th:if="${agendamentos != null and !#lists.isEmpty(agendamentos)}">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Barbeiro</th>
+          <th>Serviço</th>
+          <th>Data/Hora</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="agendamento : ${agendamentos}">
+          <td th:text="${agendamento.id}">1</td>
+          <td th:text="${agendamento.cliente != null ? agendamento.cliente.nome : 'N/A'}">João</td>
+          <td th:text="${agendamento.barbeiro != null ? agendamento.barbeiro.nome : 'N/A'}">Pedro</td>
+          <td th:text="${agendamento.servico != null ? agendamento.servico.nome : 'N/A'}">Corte</td>
+          <td th:text="${agendamento.dataHora != null ? #temporals.format(agendamento.dataHora, 'dd/MM/yyyy HH:mm') : 'N/A'}">10/10/2025 15:00</td>
+          <td>
+            <span th:class="'status-badge status-' + ${agendamento.status.toLowerCase()}"
+                  th:text="${agendamento.status}">AGENDADO</span>
+          </td>
+          <td>
+            <button class="action-btn edit"
+                    th:if="${agendamento.status == 'AGENDADO' or agendamento.status == 'CONFIRMADO'}">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn cancel"
+                    th:if="${agendamento.status == 'AGENDADO' or agendamento.status == 'CONFIRMADO'}">
+              <i class="fas fa-times"></i>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script>
+  function filtrarAgendamentos() {
+    const data = document.getElementById('dataFiltro').value;
+    const status = document.getElementById('statusFiltro').value;
+
+    let url = '/admin/todos-agendamentos?';
+    if (data) url += `data=${data}&`;
+    if (status) url += `status=${status}`;
+
+    url = url.endsWith('&') ? url.slice(0, -1) : url;
+    window.location.href = url;
+  }
+</script>
+</body>
+</html>

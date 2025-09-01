@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barbearia Souza - Agendar Corte</title>
+  
+  <!-- Google Fonts - Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <!-- Flatpickr Calendar -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  
+  <!-- CSS Externo -->
+  <link rel="stylesheet" href="/css/agendamento.css">
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/" class="logo">
+      <i class="fas fa-cut"></i>
+      <span>Barbearia Souza</span>
+      <a href="/" class="nav-link">
+        <i class="fas fa-calendar-check"></i> Voltar 
+      </a>
+    </a>
+  </nav>
+
+  <!-- Page Title -->
+  <h1 class="page-title">Agende seu Horário</h1>
+
+  <!-- Main Container -->
+  <div class="container">
+    <div class="header">
+      <h4><i class="fas fa-calendar-plus"></i> Novo Agendamento</h4>
+    </div>
+    <br>
+    
+    <form th:action="@{/agendamentos/salvar}" th:object="${agendamento}" method="post" id="appointment-form">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    
+    <div class="form-group" id="service-group">
+        <label for="servico"><i class="fas fa-cut"></i> Escolha seu corte:</label>
+        <div class="input-container">
+            <i class="fas fa-list-ul input-icon"></i>
+            <select id="servico" th:field="*{servico.id}" required>
+                <option value="">-- Selecione o serviço --</option>
+                <option th:each="servico : ${servicos}" 
+                        th:value="${servico.id}" 
+                        th:text="${servico.nome + ' - R$ ' + servico.preco}"></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group" id="barber-group">
+        <label for="barbeiro"><i class="fas fa-user-tie"></i> Escolha seu barbeiro:</label>
+        <div class="input-container">
+            <i class="fas fa-user input-icon"></i>
+            <select id="barbeiro" th:field="*{barbeiro.id}" required>
+                <option value="">-- Selecione o barbeiro --</option>
+                <option th:each="barbeiro : ${barbeiros}" 
+                        th:value="${barbeiro.id}" 
+                        th:text="${barbeiro.nome}"></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group" id="datetime-group">
+        <label for="dataHora"><i class="fas fa-clock"></i> Data e Horário:</label>
+        <div class="input-container">
+            <i class="fas fa-calendar-alt input-icon"></i>
+            <input type="text" id="dataHora" name="dataHora" th:value="*{dataHora}" placeholder="Clique para selecionar data e hora" required>
+        </div>
+    </div>
+
+    <button type="submit" class="btn">
+        <i class="fas fa-check-circle"></i> Confirmar Agendamento
+    </button>
+</form>
+
+      <div th:if="${erro}" class="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${erro}"></span>
+      </div>
+      
+      <div th:if="${sucesso}" class="success-message">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${sucesso}"></span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <div class="footer">
+    &copy; 2025 Barbearia Souza - Todos os direitos reservados
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="/js/agendamento.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviços - Barbearia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/cadastro-servico.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+
+<body>
+  <!-- Barra de Navegação Dinâmica -->
+  <nav class="navbar" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      <a href="/" class="logo">
+          <i class="fas fa-cut"></i>
+          <span>Barbearia Souza</span>
+      </a>
+      
+      <div class="nav-buttons" id="nav-buttons">
+          <!-- Menu para usuários não logados -->
+          <div sec:authorize="!isAuthenticated()">
+              <a th:href="@{/clientes/login}" class="nav-btn">Login</a>
+              <a th:href="@{/clientes/cadastro}" class="nav-btn">Cadastre-se</a>
+          </div>
+          
+          <!-- Menu para clientes comuns -->
+          <div sec:authorize="isAuthenticated() && !hasRole('ADMIN') && !hasRole('BARBEIRO')">
+              <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
+              <a th:href="@{/agendamentos}" class="nav-btn">Meus Agendamentos</a>
+          </div>
+          
+          <!-- Menu para barbeiros -->
+          <div sec:authorize="hasRole('BARBEIRO')">
+              <a th:href="@{/agendamentos/barbeiro}" class="nav-btn">Agendamentos comigo</a>
+              <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
+          </div>
+          
+          <!-- Menu para admin -->
+          <div sec:authorize="hasRole('ADMIN')">
+              <a th:href="@{/admin/todos-agendamentos}" class="nav-btn">Todos Agendamentos</a>
+              <a th:href="@{/admin/barbeiros}" class="nav-btn">Gerenciar Barbeiros</a>
+              <a th:href="@{/admin/servicos}" class="nav-btn">Gerenciar Serviços</a>
+          </div>
+          
+          <!-- Botão de logout (comum a todos logados) -->
+          <div sec:authorize="isAuthenticated()">
+              <form th:action="@{/logout}" method="post" style="display: inline;">
+                  <button type="submit" class="nav-btn">Sair</button>
+              </form>
+          </div>
+      </div>
+  </nav>
+
+    <div class="container admin-container">
+        
+        <!-- Mensagens de feedback -->
+        <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${sucesso}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${erro}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <h1 class="admin-title">Gerenciamento de Serviços</h1>
+
+        <div class="row">
+            <!-- Formulário de Cadastro -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Cadastrar Novo Serviço</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/servicos}" th:object="${servico}" method="post">
+                            <div class="mb-3">
+                                <label for="nome" class="form-label">Nome do Serviço</label>
+                                <input type="text" class="form-control" id="nome" th:field="*{nome}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="descricao" class="form-label">Descrição</label>
+                                <textarea class="form-control" id="descricao" th:field="*{descricao}" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="preco" class="form-label">Preço (R$)</label>
+                                <input type="number" step="0.01" class="form-control" id="preco" th:field="*{preco}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="duracao" class="form-label">Duração (minutos)</label>
+                                <input type="number" class="form-control" id="duracao" th:field="*{duracaoMinutos}" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Cadastrar Serviço</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Serviços Cadastrados -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Serviços Cadastrados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${servicos.empty}" class="alert alert-info">
+                            Nenhum serviço cadastrado ainda.
+                        </div>
+                        <div th:unless="${servicos.empty}">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Preço</th>
+                                            <th>Duração</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="servico : ${servicos}">
+                                            <td th:text="${servico.nome}"></td>
+                                            <td th:text="'R$ ' + ${#numbers.formatDecimal(servico.preco, 1, 2)}"></td>
+                                            <td th:text="${servico.duracaoMinutos} + ' min'"></td>
+                                            <td>
+                                                <a th:href="@{/admin/servicos/excluir/{id}(id=${servico.id})}" 
+                                                   class="btn btn-danger btn-sm"
+                                                   onclick="return confirm('Tem certeza que deseja excluir este serviço?')">
+                                                    Excluir
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

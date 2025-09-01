@@ -1,0 +1,23 @@
+<!-- confirmacao-agendamento.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmação de Agendamento</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="/css/confirmacao.css">
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h2>Agendamento Confirmado!</h2>
+    <p th:text="'Serviço: ' + ${agendamento.servico.nome}"></p>
+    <p th:text="'Barbeiro: ' + ${agendamento.barbeiro.nome}"></p>
+    <p th:text="'Data e Hora: ' + ${#temporals.format(agendamento.dataHora, 'dd/MM/yyyy HH:mm')}"></p>
+    <p class="text-muted">Um e-mail de confirmação foi enviado para você</p>
+    <a href="/" class="btn"><i class="fas fa-home"></i> Voltar ao Início</a>
+  </div>
+</body>
+</html>

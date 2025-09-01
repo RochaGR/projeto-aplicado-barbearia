@@ -1,0 +1,53 @@
+package com.barbearia.agendamento.repository;
+
+import com.barbearia.agendamento.model.Agendamento;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.lang.NonNull;
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
+
+        @Query("SELECT a FROM Agendamento a WHERE a.barbeiro.email = :email")
+        List<Agendamento> findByBarbeiroEmail(@Param("email") String email);
+
+       ;
+
+        @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
+                        "FROM Agendamento a WHERE a.barbeiro.id = :barbeiroId " +
+                        "AND a.dataHora = :dataHora " +
+                        "AND a.status <> :status")
+        boolean existsByBarbeiroIdAndDataHoraAndStatusNot(
+                        @Param("barbeiroId") Long barbeiroId,
+                        @Param("dataHora") LocalDateTime dataHora,
+                        @Param("status") String status);
+
+        @Query("SELECT a FROM Agendamento a WHERE a.barbeiro.id = :barbeiroId " +
+                        "AND a.dataHora BETWEEN :inicio AND :fim " +
+                        "AND a.status <> 'CANCELADO'")
+        List<Agendamento> findByBarbeiroIdAndPeriodo(
+                        @Param("barbeiroId") Long barbeiroId,
+                        @Param("inicio") LocalDateTime inicio,
+                        @Param("fim") LocalDateTime fim);
+
+        @Query("SELECT a FROM Agendamento a WHERE a.cliente.id = :clienteId")
+        List<Agendamento> findByBarbeiroId(@Param("clienteId") Long clienteId);
+
+        @NonNull
+        Page<Agendamento> findAll(@NonNull Pageable pageable);
+
+        // Adicione estes métodos ao seu AgendamentoRepository
+        Page<Agendamento> findByDataHoraBetween(LocalDateTime inicio, LocalDateTime fim, Pageable pageable);
+
+        Page<Agendamento> findByStatus(String status, Pageable pageable);
+
+        Page<Agendamento> findByDataHoraBetweenAndStatus(
+                        LocalDateTime inicio,
+                        LocalDateTime fim,
+                        String status,
+                        Pageable pageable);
+}
