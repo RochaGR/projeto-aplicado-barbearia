@@ -12,11 +12,13 @@ import java.util.Optional;
 @Service
 public class AdministradorService {
 
-    @Autowired
-    private AdministradorRepository administradorRepository;
+    private final AdministradorRepository administradorRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AdministradorService(AdministradorRepository administradorRepository, PasswordEncoder passwordEncoder) {
+        this.administradorRepository = administradorRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public Administrador salvar(Administrador administrador) {
         administrador.setSenha(passwordEncoder.encode(administrador.getSenha()));
