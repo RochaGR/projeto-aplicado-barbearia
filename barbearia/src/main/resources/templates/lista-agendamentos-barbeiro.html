@@ -1,132 +1,203 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Meus Agendamentos - Barbeiro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <link rel="stylesheet" th:href="@{/css/index.css}">
-  <link rel="stylesheet" th:href="@{/css/admin-agendamento.css}">
+    <meta charset="UTF-8">
+    <title>Meus Agendamentos - Barbeiro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-agendamento.css}">
 </head>
 <body>
-  <div class="container">
+<div class="container">
 
     <nav class="navbar" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <a href="/" class="logo">
-          <i class="fas fa-cut"></i>
-          <span>Barbearia Souza</span>
-      </a>
-    
-    <div class="nav-buttons" id="nav-buttons">
-        <!-- Menu para usuários não logados -->
-        <div sec:authorize="!isAuthenticated()">
-            <a th:href="@{/clientes/login}" class="nav-btn">Login</a>
-            <a th:href="@{/clientes/cadastro}" class="nav-btn">Cadastre-se</a>
-        </div>
-        
-        <!-- Menu para clientes comuns -->
-        <div sec:authorize="isAuthenticated() && !hasRole('ADMIN') && !hasRole('BARBEIRO')">
-            <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
-            <a th:href="@{/agendamentos}" class="nav-btn">Meus Agendamentos</a>
-        </div>
-        
-        <!-- Menu para barbeiros -->
-        <div sec:authorize="hasRole('BARBEIRO')">
-            <a th:href="@{/agendamentos/barbeiro}" class="nav-btn">Agendamentos comigo</a>
-            <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
-        </div>
-        
-        <!-- Menu para admin -->
-        <div sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/admin/todos-agendamentos}" class="nav-btn">Todos Agendamentos</a>
-            <a th:href="@{/admin/barbeiros}" class="nav-btn">Gerenciar Barbeiros</a>
-             <a th:href="@{/admin/servicos}" class="nav-btn">Gerenciar Serviços</a>
+        <a href="/" class="logo">
+            <i class="fas fa-cut"></i>
+            <span>Barbearia Souza</span>
+        </a>
 
-          </div>
-        
-        <!-- Botão de logout (comum a todos logados) -->
-        <div sec:authorize="isAuthenticated()">
-            <form th:action="@{/logout}" method="post" style="display: inline;">
-                <button type="submit" class="nav-btn">Sair</button>
-            </form>
+        <div class="nav-buttons" id="nav-buttons">
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/clientes/login}" class="nav-btn">Login</a>
+                <a th:href="@{/clientes/cadastro}" class="nav-btn">Cadastre-se</a>
+            </div>
+
+            <div sec:authorize="isAuthenticated() && !hasRole('ADMIN') && !hasRole('BARBEIRO')">
+                <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
+                <a th:href="@{/agendamentos}" class="nav-btn">Meus Agendamentos</a>
+            </div>
+
+            <div sec:authorize="hasRole('BARBEIRO')">
+                <a th:href="@{/agendamentos/barbeiro}" class="nav-btn">Agendamentos comigo</a>
+                <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
+            </div>
+
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/admin/todos-agendamentos}" class="nav-btn">Todos Agendamentos</a>
+                <a th:href="@{/admin/barbeiros}" class="nav-btn">Gerenciar Barbeiros</a>
+                <a th:href="@{/admin/servicos}" class="nav-btn">Gerenciar Serviços</a>
+            </div>
+
+            <div sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="nav-btn">Sair</button>
+                </form>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+
     <main class="admin-container">
-      <div class="admin-header">
-        <h1 class="admin-title"><i class="fas fa-calendar-check"></i> Agendamentos Comigo</h1>
-      </div>
-      
-      <div class="filtros mb-4">
-        <input type="date" id="dataFiltro" class="filtro-input" th:value="${param.data}">
-        <button class="btn" onclick="filtrarAgendamentos()">
-          <i class="fas fa-filter"></i> Filtrar
-        </button>
-      </div>
-      
-      <div class="agendamentos-table">
-        <div th:if="${agendamentos.empty}" class="alert alert-info">
-          Nenhum agendamento marcado para você.
+        <div class="admin-header">
+            <h1 class="admin-title"><i class="fas fa-calendar-check"></i> Agendamentos Comigo</h1>
         </div>
-        
-        <div th:unless="${agendamentos.empty}">
-          <table>
-            <thead>
-              <tr>
-                <th>Data/Hora</th>
-                <th>Cliente</th>
-                <th>Serviço</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr th:each="agendamento : ${agendamentos}">
-                <td th:text="${#temporals.format(agendamento.dataHora, 'dd/MM/yyyy HH:mm')}"></td>
-                <td th:text="${agendamento.cliente.nome}"></td>
-                <td th:text="${agendamento.servico.nome}"></td>
-                <td>
-                  <span th:class="${'status-badge status-' + 
-                                  (agendamento.status == 'AGENDADO' ? 'agendado' : 
-                                   agendamento.status == 'CONCLUIDO' ? 'concluido' : 
+
+        <!-- Mensagens de Feedback -->
+        <div th:if="${sucesso}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${sucesso}"></span>
+        </div>
+
+        <div th:if="${erro}" class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${erro}"></span>
+        </div>
+
+        <!-- Filtro por Data -->
+        <div class="filtros mb-4">
+            <input type="date"
+                   id="dataFiltro"
+                   class="filtro-input"
+                   th:value="${dataFiltro != null ? dataFiltro : ''}">
+            <button class="btn" onclick="filtrarPorData()">
+                <i class="fas fa-filter"></i> Filtrar por Data
+            </button>
+            <button class="btn" onclick="limparFiltro()">
+                <i class="fas fa-times"></i> Limpar Filtro
+            </button>
+            <button class="btn" onclick="filtrarHoje()">
+                <i class="fas fa-calendar-day"></i> Hoje
+            </button>
+        </div>
+
+        <div class="agendamentos-table">
+            <div th:if="${agendamentos.empty}" class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Nenhum agendamento marcado para você.
+            </div>
+
+            <div th:unless="${agendamentos.empty}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Cliente</th>
+                        <th>Telefone</th>
+                        <th>Serviço</th>
+                        <th>Duração</th>
+                        <th>Preço</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="agendamento : ${agendamentos}">
+                        <td th:text="${#temporals.format(agendamento.dataHora, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${agendamento.cliente.nome}"></td>
+                        <td th:text="${agendamento.cliente.telefone}"></td>
+                        <td th:text="${agendamento.servico.nome}"></td>
+                        <td th:text="${agendamento.servico.duracaoMinutos} + ' min'"></td>
+                        <td th:text="'R$ ' + ${#numbers.formatDecimal(agendamento.servico.preco, 1, 2)}"></td>
+                        <td>
+                  <span th:class="${'status-badge status-' +
+                                  (agendamento.status == 'AGENDADO' ? 'agendado' :
+                                   agendamento.status == 'CONCLUIDO' ? 'concluido' :
                                    'cancelado')}"
                         th:text="${agendamento.status}"></span>
-                </td>
-                <td>
-                  <div class="d-flex gap-2">
-                    <form th:action="@{/agendamentos/barbeiro/concluir/{id}(id=${agendamento.id})}" 
-                          method="post"
-                          th:if="${agendamento.status == 'AGENDADO'}">
-                      <button type="submit" class="action-btn confirm">
-                        <i class="fas fa-check"></i>
-                      </button>
-                    </form>
-                    
-                    <form th:action="@{/agendamentos/barbeiro/cancelar/{id}(id=${agendamento.id})}" 
-                          method="post"
-                          th:if="${agendamento.status == 'AGENDADO'}">
-                      <button type="submit" class="action-btn cancel">
-                        <i class="fas fa-times"></i>
-                      </button>
-                    </form>
-                    
-                    <span th:if="${agendamento.status != 'AGENDADO'}" 
-                          class="text-muted">Nenhuma ação disponível</span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <form th:action="@{/agendamentos/barbeiro/concluir/{id}(id=${agendamento.id})}"
+                                      method="post"
+                                      th:if="${agendamento.status == 'AGENDADO'}"
+                                      style="display: inline;"
+                                      onsubmit="return confirmarConclusao(event, this)">
+                                    <button type="submit" class="action-btn confirm" title="Marcar como Concluído">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/agendamentos/barbeiro/cancelar/{id}(id=${agendamento.id})}"
+                                      method="post"
+                                      th:if="${agendamento.status == 'AGENDADO'}"
+                                      style="display: inline;"
+                                      onsubmit="return confirmarCancelamento(event, this)">
+                                    <button type="submit" class="action-btn cancel" title="Cancelar Agendamento">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+
+                                <span th:if="${agendamento.status != 'AGENDADO'}"
+                                      class="text-muted" style="font-size: 12px;">
+                      Nenhuma ação disponível
+                    </span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </div>
     </main>
-  </div>
-  
-  <script>
-    function filtrarAgendamentos() {
-      const data = document.getElementById('dataFiltro').value;
-      window.location.href = '/agendamentos/barbeiro?data=' + data;
+</div>
+
+<script>
+    function filtrarPorData() {
+        const data = document.getElementById('dataFiltro').value;
+        if (data) {
+            window.location.href = '/agendamentos/barbeiro?data=' + data;
+        } else {
+            alert('Por favor, selecione uma data para filtrar');
+        }
     }
-  </script>
+
+    function limparFiltro() {
+        window.location.href = '/agendamentos/barbeiro';
+    }
+
+    function filtrarHoje() {
+        const hoje = new Date().toISOString().split('T')[0];
+        window.location.href = '/agendamentos/barbeiro?data=' + hoje;
+    }
+
+    function confirmarConclusao(event, form) {
+        event.preventDefault();
+
+        if (confirm('Confirmar que este agendamento foi concluído?')) {
+            form.submit();
+        }
+
+        return false;
+    }
+
+    function confirmarCancelamento(event, form) {
+        event.preventDefault();
+
+        if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+            form.submit();
+        }
+
+        return false;
+    }
+
+    // Auto-ocultar mensagens após 5 segundos
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 5000);
+</script>
 </body>
 </html>
