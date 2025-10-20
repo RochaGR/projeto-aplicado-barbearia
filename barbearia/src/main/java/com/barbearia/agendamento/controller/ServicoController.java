@@ -20,7 +20,7 @@ public class ServicoController {
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("servicos", service.listarTodos());
-        model.addAttribute("servico", new Servico()); 
+        model.addAttribute("servico", new Servico());
         return "admin/servicos/servicos";
     }
 
