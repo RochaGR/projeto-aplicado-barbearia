@@ -18,51 +18,10 @@
 
 <body>
   <div class="container">
-    <!-- Barra de Navegação Dinâmica -->
-<!-- Barra de Navegação Dinâmica -->
-<nav class="navbar" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <div class="logo">
-        <i class="fas fa-cut"></i>
-        <span>Barbearia Souza</span>
-    </div>
-    
-    <div class="nav-buttons" id="nav-buttons">
-        <!-- Menu para usuários não logados -->
-        <div sec:authorize="!isAuthenticated()">
-            <a th:href="@{/clientes/login}" class="nav-btn">Login</a>
-            <a th:href="@{/clientes/cadastro}" class="nav-btn">Cadastre-se</a>
-        </div>
-        
-        <!-- Menu para clientes comuns -->
-        <div sec:authorize="isAuthenticated() && !hasRole('ADMIN') && !hasRole('BARBEIRO')">
-            <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
-            <a th:href="@{/agendamentos}" class="nav-btn">Meus Agendamentos</a>
-        </div>
-        
-        <!-- Menu para barbeiros -->
-        <div sec:authorize="hasRole('BARBEIRO')">
-            <a th:href="@{/agendamentos/barbeiro}" class="nav-btn">Agendamentos comigo</a>
-            <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
-        </div>
-        
-        <!-- Menu para admin -->
-        <div sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/admin/todos-agendamentos}" class="nav-btn">Todos Agendamentos</a>
-            <a th:href="@{/admin/barbeiros}" class="nav-btn">Gerenciar Barbeiros</a>
-             <a th:href="@{/admin/servicos}" class="nav-btn">Gerenciar Serviços</a>
+      <div th:replace="~{fragments/_navbar :: navbar}"></div>
 
-          </div>
-        
-        <!-- Botão de logout (comum a todos logados) -->
-        <div sec:authorize="isAuthenticated()">
-            <form th:action="@{/logout}" method="post" style="display: inline;">
-                <button type="submit" class="nav-btn">Sair</button>
-            </form>
-        </div>
-    </div>
-</nav>
 
-    <!-- Hero Section -->
+      <!-- Hero Section -->
     <section class="hero-image">
       <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80" alt="Barbearia">
       <div class="hero-text">
@@ -138,7 +97,7 @@
     <!-- Equipe -->
     <section class="team-section">
       <div class="hero-image">
-        <img src="https://scontent.fccm4-1.fna.fbcdn.net/v/t39.30808-6/465732229_8992956477420971_7360684872154466045_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=9CySnYmGhbwQ7kNvwFaYgw7&_nc_oc=AdlaOgFYEMnbXrVNvQCU8bh4TrVzfvWO5xsJiCwUKB_YSjBmh59f3agQ5zOAk3NQ6CQ&_nc_zt=23&_nc_ht=scontent.fccm4-1.fna&_nc_gid=-LQPkHOP5Hrm11hIJx__NA&oh=00_AfMda6y_SS66KuRTU7-Rg1sPPjI901xkPWBTJ3dPPZo5ZQ&oe=6850CF12" alt="Equipe">
+        <img src="https://dipatrones.com.br/images/Equipe/Equipe-Barbearia-Dipatrones-06.jpeg" alt="Equipe">
         <div class="team-text">
           <h2 class="section-title">Nossa Equipe</h2>
           <div class="team-members">

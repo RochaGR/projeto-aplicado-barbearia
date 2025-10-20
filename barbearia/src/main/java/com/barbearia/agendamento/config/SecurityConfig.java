@@ -16,65 +16,68 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-                http
-                                .authorizeHttpRequests(auth -> auth
-                                                // Rotas públicas (GET)
-                                                .requestMatchers(HttpMethod.GET,
-                                                                "/", "/home", "/index",
-                                                                "/clientes/cadastro", "/clientes/login",
-                                                                "/config/inicial",
-                                                                "/css/**", "/js/**", "/images/**")
-                                                .permitAll()
+        http
+                .authorizeHttpRequests(auth -> auth
+                        // Rotas públicas (GET)
+                        .requestMatchers(HttpMethod.GET,
+                                "/", "/home", "/index",
+                                "/clientes/cadastro", "/clientes/login",
+                                "/config/inicial",
+                                "/css/**", "/js/**", "/images/**")
+                        .permitAll()
 
-                                                // Rotas públicas (POST)
-                                                .requestMatchers(HttpMethod.POST,
-                                                                "/clientes/cadastrar",
-                                                                "/config/primeiro-admin",
-                                                                "/admin/pesquisar-clientes",
-                                                                "/admin/selecionar-cliente",
-                                                                "/barbeiros", "/admin", // cadastro barbeiro/admin
-                                                                "/login/barbeiro", "/login/admin" // login personalizado
-                                                ).permitAll()
+                        // Rotas públicas (POST)
+                        .requestMatchers(HttpMethod.POST,
+                                "/clientes/cadastrar",
+                                "/config/primeiro-admin",
+                                "/admin/pesquisar-clientes",
+                                "/admin/selecionar-cliente",
+                                "/barbeiros", "/admin", // cadastro barbeiro/admin
+                                "/login/barbeiro", "/login/admin" // login personalizado
+                        ).permitAll()
 
-                                                // Rotas administrativas
-                                                .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
+                        // Rotas administrativas
+                        .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
 
-                                                // Rotas para barbeiros
-                                                .requestMatchers("/barbeiro/**", "/api/barbeiro/**").hasRole("BARBEIRO")
+                        // Rotas para barbeiros
+                        .requestMatchers("/barbeiro/**", "/api/barbeiro/**").hasRole("BARBEIRO")
 
-                                                // Rotas autenticadas (qualquer usuário logado)
-                                                .requestMatchers(
-                                                                "/agendamentos/**",
-                                                                "/perfil/**",
-                                                                "/api/agendamentos/**")
-                                                .authenticated()
+                        // Rotas para clientes
+                        .requestMatchers("/cliente/**").hasAnyRole("CLIENTE", "ADMIN")
 
-                                                // Todas as outras exigem autenticação
-                                                .anyRequest().authenticated())
-                                .formLogin(form -> form
-                                                .loginPage("/clientes/login") // tela de login personalizada
-                                                .defaultSuccessUrl("/", true)
-                                                .failureUrl("/clientes/login?error=true")
-                                                .permitAll())
-                                .logout(logout -> logout
-                                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                                                .logoutSuccessUrl("/?logout=true")
-                                                .invalidateHttpSession(true)
-                                                .deleteCookies("JSESSIONID")
-                                                .permitAll())
-                                .csrf(csrf -> csrf
-                                                .ignoringRequestMatchers(
-                                                                "/clientes/cadastrar",
-                                                                "/config/primeiro-admin",
-                                                                "/admin/pesquisar-clientes",
-                                                                "/barbeiros", "/admin",
-                                                                "/login/barbeiro", "/login/admin"));
+                        // Rotas autenticadas (qualquer usuário logado)
+                        .requestMatchers(
+                                "/agendamentos/**",
+                                "/perfil/**",
+                                "/api/agendamentos/**")
+                        .authenticated()
 
-                return http.build();
-        }
+                        // Todas as outras exigem autenticação
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/clientes/login") // tela de login personalizada
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/clientes/login?error=true")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(
+                                "/clientes/cadastrar",
+                                "/config/primeiro-admin",
+                                "/admin/pesquisar-clientes",
+                                "/barbeiros", "/admin",
+                                "/login/barbeiro", "/login/admin"));
+
+        return http.build();
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
-        }
+        return new BCryptPasswordEncoder();
+    }
 }
