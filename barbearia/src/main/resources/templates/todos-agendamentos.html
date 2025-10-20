@@ -12,41 +12,8 @@
 <body>
 <div class="container">
 
-    <nav class="navbar">
-        <a href="/" class="logo">
-            <i class="fas fa-cut"></i>
-            <span>Barbearia Souza</span>
-        </a>
+    <div th:replace="~{fragments/_navbar :: navbar}"></div>
 
-        <div class="nav-buttons" id="nav-buttons">
-            <div sec:authorize="!isAuthenticated()">
-                <a th:href="@{/clientes/login}" class="nav-btn">Login</a>
-                <a th:href="@{/clientes/cadastro}" class="nav-btn">Cadastre-se</a>
-            </div>
-
-            <div sec:authorize="isAuthenticated() && !hasRole('ADMIN') && !hasRole('BARBEIRO')">
-                <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
-                <a th:href="@{/agendamentos}" class="nav-btn">Meus Agendamentos</a>
-            </div>
-
-            <div sec:authorize="hasRole('BARBEIRO')">
-                <a th:href="@{/agendamentos/barbeiro}" class="nav-btn">Agendamentos comigo</a>
-                <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
-            </div>
-
-            <div sec:authorize="hasRole('ADMIN')">
-                <a th:href="@{/admin/todos-agendamentos}" class="nav-btn">Todos Agendamentos</a>
-                <a th:href="@{/admin/barbeiros}" class="nav-btn">Gerenciar Barbeiros</a>
-                <a th:href="@{/admin/servicos}" class="nav-btn">Gerenciar Serviços</a>
-            </div>
-
-            <div sec:authorize="isAuthenticated()">
-                <form th:action="@{/logout}" method="post" style="display: inline;">
-                    <button type="submit" class="nav-btn">Sair</button>
-                </form>
-            </div>
-        </div>
-    </nav>
 
     <main class="admin-container">
         <div class="admin-header">

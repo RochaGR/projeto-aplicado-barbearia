@@ -1,25 +1,311 @@
-<!-- confirmacao-agendamento.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Confirmação de Agendamento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Agendamento - Barbearia Souza</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="/css/confirmacao.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0D121E 0%, #1a1f2e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #1a1f2e;
+            border-radius: 20px;
+            padding: 35px 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decoração de fundo */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(240, 179, 91, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .icon-wrapper {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 40px rgba(40, 167, 69, 0.6);
+            }
+        }
+
+        .icon-wrapper i {
+            font-size: 45px;
+            color: white;
+        }
+
+        h2 {
+            color: #F0B35B;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(240, 179, 91, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-item i {
+            color: #F0B35B;
+            font-size: 18px;
+            width: 25px;
+        }
+
+        .info-item strong {
+            color: #F0B35B;
+            margin-right: 6px;
+        }
+
+        .email-notice {
+            background: rgba(10, 124, 255, 0.1);
+            border: 1px solid rgba(10, 124, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #0a7cff;
+            font-size: 14px;
+        }
+
+        .email-notice i {
+            font-size: 16px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: #F0B35B;
+            color: #0D121E;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            flex: 1;
+            min-width: 180px;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: #e9a43d;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(240, 179, 91, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #F0B35B;
+            border: 2px solid #F0B35B;
+        }
+
+        .btn-secondary:hover {
+            background: #F0B35B;
+            color: #0D121E;
+        }
+
+        .success-checkmark {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Confete animado */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #F0B35B;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .info-item {
+                font-size: 14px;
+                flex-direction: column;
+                text-align: center;
+                padding: 8px 0;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="container">
-    <div class="icon">
-        <i class="fas fa-check-circle"></i>
-    </div>
-    <h2>Agendamento Confirmado!</h2>
-    <p th:text="'Serviço: ' + ${agendamento.servico.nome}"></p>
-    <p th:text="'Barbeiro: ' + ${agendamento.barbeiro.nome}"></p>
-    <p th:text="'Data e Hora: ' + ${#temporals.format(agendamento.dataHora, 'dd/MM/yyyy HH:mm')}"></p>
-    <p class="text-muted">Um e-mail de confirmação foi enviado para você</p>
+    <div class="content">
+        <div class="icon-wrapper success-checkmark">
+            <i class="fas fa-check-circle"></i>
+        </div>
 
-    <a href="/" class="btn"><i class="fas fa-home"></i> Voltar ao Início</a>
-    <a href="/agendamentos/novo" class="btn"><i class="fas fa-calendar-plus"></i> Novo Agendamento</a>
+        <h2>🎉 Agendamento Confirmado!</h2>
+
+        <div class="info-card">
+            <div class="info-item">
+                <i class="fas fa-cut"></i>
+                <span><strong>Serviço:</strong> <span th:text="${agendamento.servico.nome}">Corte Masculino</span></span>
+            </div>
+
+            <div class="info-item">
+                <i class="fas fa-user-tie"></i>
+                <span><strong>Barbeiro:</strong> <span th:text="${agendamento.barbeiro.nome}">João Silva</span></span>
+            </div>
+
+            <div class="info-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span><strong>Data:</strong> <span th:text="${#temporals.format(agendamento.dataHora, 'dd/MM/yyyy')}">20/10/2025</span></span>
+            </div>
+
+            <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <span><strong>Horário:</strong> <span th:text="${#temporals.format(agendamento.dataHora, 'HH:mm')}">14:30</span></span>
+            </div>
+
+            <div class="info-item">
+                <i class="fas fa-dollar-sign"></i>
+                <span><strong>Valor:</strong> R$ <span th:text="${#numbers.formatDecimal(agendamento.servico.preco, 1, 2)}">50,00</span></span>
+            </div>
+        </div>
+
+        <div class="email-notice">
+            <i class="fas fa-envelope"></i>
+            <span>Um e-mail de confirmação foi enviado para você</span>
+        </div>
+
+        <div class="buttons">
+            <a th:href="@{/}" class="btn">
+                <i class="fas fa-home"></i> Voltar ao Início
+            </a>
+            <a th:href="@{/agendamentos/novo}" class="btn btn-secondary">
+                <i class="fas fa-calendar-plus"></i> Novo Agendamento
+            </a>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Animação de sucesso
+    setTimeout(() => {
+        document.querySelector('.success-checkmark').style.animation = 'pulse 2s ease-in-out infinite';
+    }, 500);
+</script>
 </body>
 </html>
