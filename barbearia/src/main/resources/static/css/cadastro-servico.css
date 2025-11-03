@@ -41,6 +41,25 @@ body {
   padding: 20px;
 }
 
+/* ------ FORCE READABLE TEXT IN ALL INPUTS ------ */
+input, textarea, select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"] {
+  color: #ffffff !important;
+  background-color: #2d3246 !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: #a0a8bd !important;
+  opacity: 1 !important;
+}
+
+
 a {
   text-decoration: none;
   color: inherit;
@@ -63,6 +82,72 @@ img {
 
 .admin-container {
   padding: 40px 5%;
+}
+
+/* Cabeçalho */
+.admin-header {
+  width: 100%;
+  padding: 15px 0;
+  text-align: center;
+}
+
+/* Layout do conteúdo */
+.admin-content-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  align-items: flex-start;
+}
+
+.service-form-container {
+  width: 100%;
+  max-width: 450px;
+}
+
+.service-list-container {
+  width: 100%;
+  max-width: 650px;
+  flex: 1;
+}
+
+/* Formulário */
+.service-form h2 {
+  color: var(--primary-color);
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.service-form h2 i {
+  margin-right: 10px;
+}
+
+.service-list h3 {
+  color: var(--primary-color);
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.service-list h3 i {
+  margin-right: 10px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  font-size: 15px;
 }
 
 /* ------ TÍTULOS ------ */
@@ -154,6 +239,7 @@ img {
   margin-bottom: 20px;
   height: 100%;
   transition: var(--transition);
+  padding: 25px;
 }
 
 .card:hover {
@@ -180,31 +266,54 @@ img {
 
 /* ------ FORMULÁRIO ------ */
 .form-label {
+  display: block;
   color: var(--light-color);
   font-weight: 500;
   font-size: 14px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .form-control {
-  background-color: #2d3246;
+  background-color: #2d3246 !important;
   border: 1px solid var(--border-color);
-  color: #fff;
+  color: #ffffff !important;
   border-radius: var(--border-radius-sm);
-  padding: 10px 12px;
+  padding: 12px 14px;
   font-size: 14px;
   transition: var(--transition);
+  width: 100%;
 }
 
 .form-control:focus {
-  background-color: #2d3246;
-  color: #fff;
+  background-color: #2d3246 !important;
+  color: #ffffff !important;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 0.25rem rgba(252, 163, 17, 0.25);
 }
 
+.form-control::placeholder {
+  color: #a0a8bd !important;
+  opacity: 0.8;
+}
+
+/* Força cor do texto em todos os estados */
+input.form-control,
+textarea.form-control,
+select.form-control {
+  color: #ffffff !important;
+}
+
+input.form-control:-webkit-autofill,
+input.form-control:-webkit-autofill:hover,
+input.form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px #2d3246 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 textarea.form-control {
-  min-height: 100px;
+  min-height: 90px;
+  resize: vertical;
 }
 
 /* ------ BOTÕES ------ */
@@ -220,24 +329,35 @@ textarea.form-control {
 .btn-primary {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
-  color: #000;
+  color: #000000 !important;
+}
+
+.btn-primary * {
+  color: #000000 !important;
 }
 
 .btn-primary:hover {
   background-color: #e69100;
   border-color: #e69100;
   transform: translateY(-2px);
+  color: #000000 !important;
 }
 
 .btn-danger {
   background-color: #dc3545;
   border-color: #dc3545;
+  color: #ffffff !important;
 }
 
 .btn-danger:hover {
   background-color: #c82333;
   border-color: #c82333;
   transform: translateY(-2px);
+  color: #ffffff !important;
+}
+
+.btn-danger * {
+  color: #ffffff !important;
 }
 
 .btn-sm {
@@ -247,22 +367,30 @@ textarea.form-control {
 
 /* ------ TABELAS ------ */
 .table {
-  color: #fff;
+  color: #ffffff !important;
   margin-bottom: 0;
+  width: 100%;
 }
 
 .table thead th {
   background-color: rgba(0, 0, 0, 0.2);
-  color: var(--primary-color);
+  color: var(--primary-color) !important;
   border-bottom: 1px solid var(--border-color);
   font-weight: 600;
-  padding: 12px;
+  padding: 14px 12px;
+  text-align: left;
 }
 
 .table tbody td {
   border-top: 1px solid var(--border-color);
-  padding: 12px;
+  padding: 14px 12px;
   vertical-align: middle;
+  color: #ffffff !important;
+  font-size: 14px;
+}
+
+.table tbody tr {
+  color: #ffffff !important;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
@@ -273,11 +401,73 @@ textarea.form-control {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+/* ------ REGRAS ESPECÍFICAS PARA TEXTO LEGÍVEL ------ */
+
+/* Força texto nos inputs e textareas */
+input.form-control,
+textarea.form-control,
+select.form-control {
+  color: #ffffff !important;
+  background-color: #2d3246 !important;
+}
+
+/* Força texto nas células da tabela - BRANCO para contraste com fundo escuro */
+.table tbody td,
+.table tbody tr,
+.table-responsive table td,
+.table-responsive table tbody tr {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+/* Remove fundo branco das linhas alternadas */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Mantém botões e badges com suas cores próprias */
+.table tbody td .btn,
+.table tbody td .status-badge,
+.table tbody td button,
+.table tbody td a {
+  color: inherit !important;
+}
+
+/* Ações na tabela */
+.table-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Mantém cabeçalhos dourados */
+.table thead th {
+  color: var(--primary-color) !important;
+}
+
+/* Labels dos formulários */
+.form-label,
+label {
+  color: #e5e5e5 !important;
+}
+
 /* ------ ALERTAS ------ */
 .alert {
   border-radius: var(--border-radius-sm);
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-left: 4px solid transparent;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.alert i {
+  margin-right: 8px;
+  font-size: 16px;
 }
 
 .alert-success {
@@ -304,6 +494,21 @@ textarea.form-control {
 
 /* ------ RESPONSIVIDADE ------ */
 @media (max-width: 992px) {
+  .admin-content-wrapper {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .service-form-container,
+  .service-list-container {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .container {
+    padding: 15px;
+  }
+  
   .row {
     flex-direction: column;
   }
@@ -347,9 +552,26 @@ textarea.form-control {
     padding: 15px;
   }
 
+  .card {
+    padding: 20px;
+  }
+
   .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .table-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .btn-sm {
+    width: 100%;
+  }
+  
+  .admin-title {
+    font-size: 20px;
   }
 
   .btn {

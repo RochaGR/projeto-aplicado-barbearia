@@ -49,17 +49,36 @@
 
 /* ------ FORMULÁRIOS DE SERVIÇOS ------ */
 .servico-form .form-control {
-  background-color: #252b3b;
+  background-color: #252b3b !important;
   border: 1px solid #2d3446;
-  color: var(--text-light);
+  color: #ffffff !important;
   border-radius: var(--border-radius-sm);
 }
 
 .servico-form .form-control:focus {
-  background-color: #252b3b;
-  color: var(--text-light);
+  background-color: #252b3b !important;
+  color: #ffffff !important;
   border-color: var(--accent-color);
   box-shadow: 0 0 0 0.25rem rgba(240, 179, 91, 0.25);
+}
+
+.servico-form .form-control::placeholder {
+  color: #a0a8bd !important;
+  opacity: 0.8;
+}
+
+.servico-form input.form-control,
+.servico-form textarea.form-control,
+.servico-form select.form-control {
+  color: #ffffff !important;
+}
+
+.servico-form input.form-control:-webkit-autofill,
+.servico-form input.form-control:-webkit-autofill:hover,
+.servico-form input.form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px #252b3b inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .servico-form .form-label {
@@ -71,14 +90,14 @@
 /* ------ TABELA DE SERVIÇOS ------ */
 .servico-table {
   width: 100%;
-  color: var(--text-light);
+  color: #ffffff !important;
   border-collapse: separate;
   border-spacing: 0;
 }
 
 .servico-table thead th {
   background-color: #252b3b;
-  color: var(--accent-color);
+  color: var(--accent-color) !important;
   border-bottom: 1px solid #2d3446;
   padding: 12px 15px;
   font-weight: 600;
@@ -88,14 +107,28 @@
   border-bottom: 1px solid #2d3446;
   padding: 12px 15px;
   vertical-align: middle;
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+.servico-table tbody tr {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+/* Mantém botões com suas cores próprias */
+.servico-table tbody td .btn,
+.servico-table tbody td button,
+.servico-table tbody td a {
+  color: inherit !important;
 }
 
 .servico-table tbody tr:nth-of-type(odd) {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 .servico-table tbody tr:hover {
-  background-color: rgba(240, 179, 91, 0.1);
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ------ BOTÕES ESPECÍFICOS ------ */
