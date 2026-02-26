@@ -1,5 +1,6 @@
 package com.barbearia.agendamento.model;
 
+import com.barbearia.agendamento.validation.SenhaValida;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,14 +35,13 @@ public class Cliente implements UserDetails {
     @Column(unique = true)
     private String email;
 
-    @NotBlank
-    @Size(min = 6)
+    @NotBlank(message = "A senha é obrigatória")
+    @SenhaValida
     private String senha;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     private List<Agendamento> agendamentosComoCliente;
 
-    // Construtores
     public Cliente() {
     }
 
