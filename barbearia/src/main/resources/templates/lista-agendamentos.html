@@ -27,6 +27,7 @@
                 <a th:href="@{/agendamentos/novo}" class="nav-btn">Novo Agendamento</a>
                 <a th:href="@{/agendamentos}" class="nav-btn">Meus Agendamentos</a>
                 <a th:href="@{/cliente/historico}" class="nav-btn"><i class="fas fa-history"></i> Histórico</a>
+                <a th:href="@{/cliente/fidelidade}" class="nav-btn"><i class="fas fa-star"></i> Fidelidade</a>
             </div>
 
             <div sec:authorize="hasRole('BARBEIRO')">
@@ -68,6 +69,13 @@
             <a th:href="@{/agendamentos/novo}" class="btn">
                 <i class="fas fa-plus"></i> Novo Agendamento
             </a>
+        </div>
+
+        <div th:if="${cartao != null}" class="alert alert-info banner-fidelidade">
+            <i class="fas fa-star"></i>
+            <span th:text="${cartao.pontos + '/' + cortesParaDesconto + ' cortes para ' + percentualDescontoAtual + '% de desconto'}"></span>
+            <span th:if="${temDesconto}"> - Voce ja possui um desconto disponivel.</span>
+            <a th:href="@{/cliente/fidelidade}" class="btn" style="margin-left: auto; padding: 6px 12px;">Ver cartao</a>
         </div>
 
         <!-- Filtro por Data -->

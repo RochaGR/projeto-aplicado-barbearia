@@ -2,6 +2,7 @@ package com.barbearia.agendamento.controller;
 
 import com.barbearia.agendamento.model.Agendamento;
 import com.barbearia.agendamento.model.Cliente;
+import com.barbearia.agendamento.repository.DescontoFidelidadeRepository;
 import com.barbearia.agendamento.service.AgendamentoService;
 import com.barbearia.agendamento.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class HistoricoController {
 
     @Autowired
     private ClienteService clienteService;
+
+    @Autowired
+    private DescontoFidelidadeRepository descontoFidelidadeRepository;
 
     @GetMapping("/historico")
     public String historico(
@@ -67,7 +71,7 @@ public class HistoricoController {
                 .sorted((a1, a2) -> a2.getDataHora().compareTo(a1.getDataHora()))
                 .collect(Collectors.toList());
 
-        // Estatísticas do cliente
+        // Estatisticas do cliente
         long totalAgendamentos = historico.size();
         long concluidos = historico.stream()
                 .filter(a -> a.getStatus().equals("CONCLUIDO"))
@@ -76,16 +80,13 @@ public class HistoricoController {
                 .filter(a -> a.getStatus().equals("CANCELADO"))
                 .count();
 
-        double totalGasto = historico.stream()
-                .filter(a -> a.getStatus().equals("CONCLUIDO"))
-                .mapToDouble(a -> a.getServico().getPreco())
-                .sum();
+        Double totalEconomizado = descontoFidelidadeRepository.somarEconomiaByClienteId(cliente.getId());
 
         model.addAttribute("historico", historico);
         model.addAttribute("totalAgendamentos", totalAgendamentos);
         model.addAttribute("concluidos", concluidos);
         model.addAttribute("cancelados", cancelados);
-        model.addAttribute("totalGasto", totalGasto);
+        model.addAttribute("totalEconomizado", totalEconomizado != null ? totalEconomizado : 0.0);
         model.addAttribute("dataInicio", dataInicio);
         model.addAttribute("dataFim", dataFim);
         model.addAttribute("statusFiltro", status);

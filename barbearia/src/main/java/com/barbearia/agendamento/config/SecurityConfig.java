@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -43,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/barbeiro/**", "/api/barbeiro/**").hasRole("BARBEIRO")
 
                         // Rotas para clientes
+                        .requestMatchers("/cliente/fidelidade").hasAnyRole("CLIENTE", "ADMIN")
                         .requestMatchers("/cliente/**").hasAnyRole("CLIENTE", "ADMIN")
 
                         // Rotas autenticadas (qualquer usuário logado)
@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .failureUrl("/clientes/login?error=true")
                         .permitAll())
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/?logout=true")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")

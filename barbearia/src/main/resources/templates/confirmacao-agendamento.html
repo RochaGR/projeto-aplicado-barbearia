@@ -281,8 +281,22 @@
 
             <div class="info-item">
                 <i class="fas fa-dollar-sign"></i>
-                <span><strong>Valor:</strong> R$ <span th:text="${#numbers.formatDecimal(agendamento.servico.preco, 1, 2)}">50,00</span></span>
+                <span>
+                    <strong>Valor:</strong>
+                    <span th:if="${descontoAplicado}">
+                        <span style="text-decoration: line-through; opacity: 0.75;">R$ <span th:text="${#numbers.formatDecimal(agendamento.servico.preco, 1, 2)}">50,00</span></span>
+                        <span style="margin-left: 8px; color: #28a745;">R$ <span th:text="${#numbers.formatDecimal(precoFinal, 1, 2)}">30,00</span></span>
+                    </span>
+                    <span th:unless="${descontoAplicado}">
+                        R$ <span th:text="${#numbers.formatDecimal(agendamento.servico.preco, 1, 2)}">50,00</span>
+                    </span>
+                </span>
             </div>
+        </div>
+
+        <div th:if="${descontoAplicado}" class="email-notice" style="border-color: rgba(40, 167, 69, 0.35); color: #28a745;">
+            <i class="fas fa-star"></i>
+            <span>Desconto fidelidade de <strong th:text="${percentualDesconto} + '%'">40%</strong> aplicado com sucesso.</span>
         </div>
 
         <div class="email-notice">

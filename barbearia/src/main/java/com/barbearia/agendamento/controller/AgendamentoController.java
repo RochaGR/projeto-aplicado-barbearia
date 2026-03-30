@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -28,15 +29,18 @@ public class AgendamentoController {
     private final ServicoService servicoService;
     private final BarbeiroService barbeiroService;
     private final ClienteService clienteService;
+    private final FidelidadeService fidelidadeService;
 
     public AgendamentoController(AgendamentoService agendamentoService,
                                  ServicoService servicoService,
                                  BarbeiroService barbeiroService,
-                                 ClienteService clienteService) {
+                                 ClienteService clienteService,
+                                 FidelidadeService fidelidadeService) {
         this.agendamentoService = agendamentoService;
         this.servicoService = servicoService;
         this.barbeiroService = barbeiroService;
         this.clienteService = clienteService;
+        this.fidelidadeService = fidelidadeService;
     }
 
     @InitBinder
@@ -50,10 +54,10 @@ public class AgendamentoController {
     }
 
     @GetMapping("/novo")
-    public String mostrarFormularioAgendamento(Model model) {
+    public String mostrarFormularioAgendamento(Model model,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
         model.addAttribute("agendamento", new Agendamento());
-        model.addAttribute("servicos", servicoService.listarTodos());
-        model.addAttribute("barbeiros", barbeiroService.listarTodos());
+        carregarDadosFormulario(model, userDetails);
         return "agendamento-cliente-form";
     }
 
@@ -65,23 +69,20 @@ public class AgendamentoController {
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
         if (result.hasErrors()) {
-            model.addAttribute("servicos", servicoService.listarTodos());
-            model.addAttribute("barbeiros", barbeiroService.listarTodos());
+            carregarDadosFormulario(model, userDetails);
             return "agendamento-cliente-form";
         }
 
         if (agendamento.getDataHora().isBefore(LocalDateTime.now())) {
             result.rejectValue("dataHora", "error.dataHora", "A data/hora deve ser futura");
-            model.addAttribute("servicos", servicoService.listarTodos());
-            model.addAttribute("barbeiros", barbeiroService.listarTodos());
+            carregarDadosFormulario(model, userDetails);
             return "agendamento-cliente-form";
         }
 
         if (agendamentoService.existeConflitoHorario(
                 agendamento.getBarbeiro().getId(), agendamento.getDataHora())) {
             result.rejectValue("dataHora", "error.dataHora", "Horário já ocupado para este barbeiro");
-            model.addAttribute("servicos", servicoService.listarTodos());
-            model.addAttribute("barbeiros", barbeiroService.listarTodos());
+            carregarDadosFormulario(model, userDetails);
             return "agendamento-cliente-form";
         }
 
@@ -93,12 +94,25 @@ public class AgendamentoController {
             agendamento.setCliente(cliente);
 
             Agendamento agendamentoSalvo = agendamentoService.agendar(agendamento);
+            double precoOriginal = agendamentoSalvo.getServico().getPreco();
+
+            Optional<DescontoFidelidade> descontoDisponivel =
+                    fidelidadeService.buscarDescontoDisponivel(cliente.getId());
+
+            double precoFinal = fidelidadeService.aplicarDesconto(cliente.getId(), precoOriginal);
+
+            if (descontoDisponivel.isPresent() && precoFinal < precoOriginal) {
+                redirectAttributes.addFlashAttribute("descontoAplicado", true);
+                redirectAttributes.addFlashAttribute("precoFinal", precoFinal);
+                redirectAttributes.addFlashAttribute("percentualDesconto",
+                        descontoDisponivel.get().getPercentualDesconto());
+            }
+
             redirectAttributes.addFlashAttribute("sucesso", "Agendamento realizado com sucesso!");
             return "redirect:/agendamentos/confirmacao?agendamentoId=" + agendamentoSalvo.getId();
         } catch (Exception e) {
             model.addAttribute("erro", "Erro ao agendar: " + e.getMessage());
-            model.addAttribute("servicos", servicoService.listarTodos());
-            model.addAttribute("barbeiros", barbeiroService.listarTodos());
+            carregarDadosFormulario(model, userDetails);
             return "agendamento-cliente-form";
         }
     }
@@ -133,6 +147,11 @@ public class AgendamentoController {
 
         model.addAttribute("agendamentos", agendamentos);
         model.addAttribute("dataFiltro", data);
+        model.addAttribute("cartao", fidelidadeService.buscarCartao(cliente.getId()).orElse(null));
+        model.addAttribute("temDesconto", fidelidadeService.buscarDescontoDisponivel(cliente.getId()).isPresent());
+        ConfiguracaoFidelidade configFidelidade = fidelidadeService.buscarConfiguracaoAtual();
+        model.addAttribute("cortesParaDesconto", configFidelidade.getCortesParaDesconto());
+        model.addAttribute("percentualDescontoAtual", configFidelidade.getPercentualDesconto());
         return "lista-agendamentos";
     }
 
@@ -256,12 +275,33 @@ public class AgendamentoController {
             }
 
             model.addAttribute("agendamento", agendamento);
-            model.addAttribute("servicos", servicoService.listarTodos());
-            model.addAttribute("barbeiros", barbeiroService.listarTodos());
+            carregarDadosFormulario(model, userDetails);
             return "agendamento-cliente-form";
         } catch (Exception e) {
             model.addAttribute("erro", e.getMessage());
             return "redirect:/agendamentos";
         }
     }
+
+    private void carregarDadosFormulario(Model model, UserDetails userDetails) {
+        model.addAttribute("servicos", servicoService.listarTodos());
+        model.addAttribute("barbeiros", barbeiroService.listarTodos());
+
+        if (userDetails == null) {
+            return;
+        }
+
+        String email = userDetails.getUsername();
+        Optional<Cliente> clienteOpt = clienteService.buscarPorEmail(email);
+        if (clienteOpt.isEmpty()) {
+            return;
+        }
+
+        fidelidadeService.buscarDescontoDisponivel(clienteOpt.get().getId()).ifPresent(desconto -> {
+            model.addAttribute("temDesconto", true);
+            model.addAttribute("percentualDesconto", desconto.getPercentualDesconto());
+        });
+    }
 }
+
+

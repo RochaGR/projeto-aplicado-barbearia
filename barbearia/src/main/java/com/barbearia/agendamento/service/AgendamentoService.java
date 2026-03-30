@@ -23,16 +23,19 @@ public class AgendamentoService {
        private final BarbeiroService barbeiroService;
        private final ServicoService servicoService;
        private final ClienteService clienteService;
+       private final FidelidadeService fidelidadeService;
 
        public AgendamentoService(
                      AgendamentoRepository repository,
                      BarbeiroService barbeiroService,
                      ServicoService servicoService,
-                     ClienteService clienteService) {
+                     ClienteService clienteService,
+                     FidelidadeService fidelidadeService) {
               this.repository = repository;
               this.barbeiroService = barbeiroService;
               this.servicoService = servicoService;
               this.clienteService = clienteService;
+              this.fidelidadeService = fidelidadeService;
        }
 
        public Optional<Agendamento> buscarPorId(Long id) {
@@ -81,6 +84,17 @@ public class AgendamentoService {
        }
 
        public Agendamento salvar(Agendamento agendamento) {
+              if (agendamento.getId() != null) {
+                     Agendamento existente = repository.findById(agendamento.getId()).orElse(null);
+                     if (existente != null && existente.isPontoRegistrado()) {
+                            agendamento.setPontoRegistrado(true);
+                     }
+              }
+
+              if ("CONCLUIDO".equalsIgnoreCase(agendamento.getStatus()) && !agendamento.isPontoRegistrado()) {
+                     fidelidadeService.registrarCorte(agendamento.getCliente());
+                     agendamento.setPontoRegistrado(true);
+              }
               return repository.save(agendamento);
        }
 
