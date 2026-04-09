@@ -27,6 +27,7 @@ O sistema permite **agendamentos online**, controle de serviços e gerenciamento
 - **Maven**
 - **PostgreSQL Database**
 - **HTML5, CSS3**
+- **Bootstrap**
 
 ---
 
