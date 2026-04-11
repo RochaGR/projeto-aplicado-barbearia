@@ -1,0 +1,36 @@
+<div class="page page--narrow">
+  <h1 class="page__title">Criar conta</h1>
+  <p class="lead">Cadastre-se como cliente para agendar cortes online.</p>
+
+  <form class="surface card" (ngSubmit)="enviar()">
+    @if (erro()) {
+      <div class="alert alert--err" role="alert">{{ erro() }}</div>
+    }
+    @if (ok()) {
+      <div class="alert alert--ok" role="status">{{ ok() }}</div>
+    }
+    <div class="field">
+      <label for="nome">Nome completo</label>
+      <input id="nome" name="nome" type="text" [(ngModel)]="nome" required autocomplete="name" />
+    </div>
+    <div class="field">
+      <label for="telefone">Telefone</label>
+      <input id="telefone" name="telefone" type="tel" [(ngModel)]="telefone" required autocomplete="tel" />
+    </div>
+    <div class="field">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" [(ngModel)]="email" required autocomplete="email" />
+    </div>
+    <div class="field">
+      <label for="senha">Senha</label>
+      <input id="senha" name="senha" type="password" [(ngModel)]="senha" required autocomplete="new-password" />
+    </div>
+    <button type="submit" class="btn-brand btn-block" [disabled]="carregando()">
+      {{ carregando() ? 'Enviando…' : 'Cadastrar' }}
+    </button>
+    <p class="foot">
+      Já tem conta?
+      <a routerLink="/login">Entrar</a>
+    </p>
+  </form>
+</div>

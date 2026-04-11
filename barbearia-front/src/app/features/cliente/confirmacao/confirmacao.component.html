@@ -1,0 +1,37 @@
+<div class="page page--wide">
+  <h1 class="page__title">Confirmação do agendamento</h1>
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else if (erro()) {
+    <div class="alert alert--err">{{ erro() }}</div>
+  } @else {
+    @if (agendamento(); as ag) {
+      <div class="surface card">
+        <p class="ok"><i class="fas fa-check-circle"></i> Agendamento registrado com sucesso.</p>
+        <dl class="details">
+          <div>
+            <dt>Data e hora</dt>
+            <dd>{{ ag.dataHora | date: 'dd/MM/yyyy HH:mm' }}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>{{ ag.status }}</dd>
+          </div>
+          <div>
+            <dt>Barbeiro</dt>
+            <dd>{{ ag.barbeiro?.nome }}</dd>
+          </div>
+          <div>
+            <dt>Serviço</dt>
+            <dd>{{ ag.servico?.nome }}</dd>
+          </div>
+        </dl>
+        <div class="actions">
+          <a routerLink="/agendamentos" class="btn-brand">Ver meus agendamentos</a>
+          <a routerLink="/agendamentos/novo" class="btn-ghost">Novo agendamento</a>
+        </div>
+      </div>
+    }
+  }
+</div>

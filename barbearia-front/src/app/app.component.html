@@ -1,0 +1,9 @@
+<div class="app-shell">
+  <app-main-navbar />
+  <main class="app-main">
+    <router-outlet />
+  </main>
+  @if (showMiniFooter()) {
+    <app-main-footer />
+  }
+</div>

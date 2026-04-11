@@ -1,0 +1,43 @@
+<div class="page page--wide">
+  <h1 class="page__title">{{ editId() ? 'Alterar agendamento' : 'Novo agendamento' }}</h1>
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else {
+    <form class="surface card" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="alert alert--err" role="alert">{{ erro() }}</div>
+      }
+      <div class="grid">
+        <div class="field">
+          <label for="barbeiro">Barbeiro</label>
+          <select id="barbeiro" name="barbeiro" [(ngModel)]="barbeiroId" required>
+            <option [ngValue]="null">Selecione</option>
+            @for (b of barbeiros(); track b.id) {
+              <option [ngValue]="b.id">{{ b.nome }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="servico">Serviço</label>
+          <select id="servico" name="servico" [(ngModel)]="servicoId" required>
+            <option [ngValue]="null">Selecione</option>
+            @for (s of servicos(); track s.id) {
+              <option [ngValue]="s.id">{{ s.nome }}</option>
+            }
+          </select>
+        </div>
+        <div class="field field--full">
+          <label for="dataHora">Data e hora</label>
+          <input id="dataHora" name="dataHora" type="datetime-local" [(ngModel)]="dataHora" required />
+        </div>
+      </div>
+      <div class="actions">
+        <a routerLink="/agendamentos" class="btn-ghost">Cancelar</a>
+        <button type="submit" class="btn-brand" [disabled]="salvando()">
+          {{ salvando() ? 'Salvando…' : 'Salvar' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -1,0 +1,94 @@
+<div class="page page--wide">
+  <h1 class="page__title">Dashboard</h1>
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else if (erro()) {
+    <div class="alert alert--err">{{ erro() }}</div>
+  } @else {
+    @if (stats(); as s) {
+      <div class="kpis">
+        <div class="surface kpi">
+          <span class="kpi__label">Agendamentos (total)</span>
+          <span class="kpi__value">{{ s.totalAgendamentos }}</span>
+        </div>
+        <div class="surface kpi">
+          <span class="kpi__label">Clientes</span>
+          <span class="kpi__value">{{ s.totalClientes }}</span>
+        </div>
+        <div class="surface kpi">
+          <span class="kpi__label">Barbeiros</span>
+          <span class="kpi__value">{{ s.totalBarbeiros }}</span>
+        </div>
+        <div class="surface kpi">
+          <span class="kpi__label">Receita (mês)</span>
+          <span class="kpi__value">{{ s.receitaMes | number: '1.2-2' }} R$</span>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="surface block">
+          <h2>Por status</h2>
+          <ul class="plain">
+            <li>Agendados: <strong>{{ s.agendados }}</strong></li>
+            <li>Confirmados: <strong>{{ s.confirmados }}</strong></li>
+            <li>Concluídos: <strong>{{ s.concluidos }}</strong></li>
+            <li>Cancelados: <strong>{{ s.cancelados }}</strong></li>
+          </ul>
+        </div>
+        <div class="surface block">
+          <h2>Período</h2>
+          <ul class="plain">
+            <li>Hoje: <strong>{{ s.agendamentosHoje }}</strong></li>
+            <li>Semana: <strong>{{ s.agendamentosSemana }}</strong></li>
+            <li>Mês: <strong>{{ s.agendamentosMes }}</strong></li>
+            <li>Taxa cancelamento: <strong>{{ s.taxaCancelamento }}</strong></li>
+          </ul>
+        </div>
+        <div class="surface block">
+          <h2>Destaques</h2>
+          <ul class="plain">
+            <li>Barbeiro: <strong>{{ s.barbeiroDestaque || '—' }}</strong></li>
+            <li>Serviço: <strong>{{ s.servicoDestaque || '—' }}</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="surface block block--table">
+        <h2>Próximos agendamentos</h2>
+        @if (s.proximosAgendamentos && s.proximosAgendamentos.length > 0) {
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th>Barbeiro</th>
+                <th>Serviço</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of s.proximosAgendamentos; track a.id) {
+                <tr>
+                  <td>{{ a.dataHora | date: 'dd/MM HH:mm' }}</td>
+                  <td>{{ a.cliente?.nome }}</td>
+                  <td>{{ a.barbeiro?.nome }}</td>
+                  <td>{{ a.servico?.nome }}</td>
+                  <td>{{ a.status }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="muted">Nenhum agendamento próximo.</p>
+        }
+      </div>
+
+      <p class="quick">
+        <a routerLink="/admin/agendamentos" class="btn-brand">Ver todos os agendamentos</a>
+        <a routerLink="/admin/barbeiros" class="btn-ghost">Barbeiros</a>
+        <a routerLink="/admin/servicos" class="btn-ghost">Serviços</a>
+      </p>
+    }
+  }
+</div>

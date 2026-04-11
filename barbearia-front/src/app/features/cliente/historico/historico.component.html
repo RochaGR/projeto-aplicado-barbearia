@@ -1,0 +1,58 @@
+<div class="page page--wide">
+  <h1 class="page__title">Histórico</h1>
+
+  <form class="surface filters" (ngSubmit)="buscar()">
+    <div class="field">
+      <label for="ini">Data início</label>
+      <input id="ini" name="ini" type="date" [(ngModel)]="dataInicio" />
+    </div>
+    <div class="field">
+      <label for="fim">Data fim</label>
+      <input id="fim" name="fim" type="date" [(ngModel)]="dataFim" />
+    </div>
+    <div class="field">
+      <label for="st">Status</label>
+      <select id="st" name="st" [(ngModel)]="status">
+        @for (s of statusOpts; track s) {
+          <option [value]="s">{{ s === '' ? 'Todos' : s }}</option>
+        }
+      </select>
+    </div>
+    <button type="submit" class="btn-brand" [disabled]="carregando()">
+      {{ carregando() ? 'Buscando…' : 'Filtrar' }}
+    </button>
+  </form>
+
+  @if (erro()) {
+    <div class="alert alert--err">{{ erro() }}</div>
+  }
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else if (lista().length === 0) {
+    <p class="muted">Nenhum registro com os filtros atuais.</p>
+  } @else {
+    <div class="table-wrap surface">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Barbeiro</th>
+            <th>Serviço</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of lista(); track a.id) {
+            <tr>
+              <td>{{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ a.status }}</td>
+              <td>{{ a.barbeiro?.nome }}</td>
+              <td>{{ a.servico?.nome }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

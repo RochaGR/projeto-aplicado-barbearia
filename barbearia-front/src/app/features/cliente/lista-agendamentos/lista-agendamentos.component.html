@@ -1,0 +1,47 @@
+<div class="page page--wide">
+  <h1 class="page__title">Meus agendamentos</h1>
+
+  <div class="toolbar surface">
+    <div class="field field--inline">
+      <label for="data">Filtrar por data</label>
+      <input id="data" name="data" type="date" [(ngModel)]="filtroData" />
+    </div>
+    <button type="button" class="btn-ghost" (click)="carregar()">Aplicar</button>
+    <a routerLink="/agendamentos/novo" class="btn-brand">Novo agendamento</a>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert--err">{{ erro() }}</div>
+  }
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else if (lista().length === 0) {
+    <p class="muted">Nenhum agendamento encontrado.</p>
+  } @else {
+    <ul class="list">
+      @for (a of lista(); track a.id) {
+        <li class="surface item">
+          <div class="item__main">
+            <strong>{{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}</strong>
+            <span class="badge">{{ a.status }}</span>
+            <p class="meta">{{ a.barbeiro?.nome }} · {{ a.servico?.nome }}</p>
+          </div>
+          <div class="item__actions">
+            @if (podeCancelar(a.status)) {
+              <button
+                type="button"
+                class="btn-ghost btn-danger-ghost"
+                [disabled]="acaoId() === a.id"
+                (click)="cancelar(a)"
+              >
+                {{ acaoId() === a.id ? 'Cancelando…' : 'Cancelar' }}
+              </button>
+            }
+            <a [routerLink]="['/agendamentos/editar', a.id]" class="btn-ghost">Editar</a>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

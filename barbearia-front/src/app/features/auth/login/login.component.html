@@ -1,0 +1,32 @@
+<div class="page page--narrow">
+  <h1 class="page__title">Entrar</h1>
+  <p class="lead">Acesse sua conta para agendar ou gerenciar a barbearia.</p>
+
+  <form class="surface card" (ngSubmit)="entrar()">
+    @if (erro()) {
+      <div class="alert alert--err" role="alert">{{ erro() }}</div>
+    }
+    <div class="field">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" [(ngModel)]="email" required autocomplete="username" />
+    </div>
+    <div class="field">
+      <label for="senha">Senha</label>
+      <input
+        id="senha"
+        name="senha"
+        type="password"
+        [(ngModel)]="senha"
+        required
+        autocomplete="current-password"
+      />
+    </div>
+    <button type="submit" class="btn-brand btn-block" [disabled]="carregando()">
+      {{ carregando() ? 'Entrando…' : 'Entrar' }}
+    </button>
+    <p class="foot">
+      Não tem conta?
+      <a routerLink="/cadastro">Cadastre-se</a>
+    </p>
+  </form>
+</div>

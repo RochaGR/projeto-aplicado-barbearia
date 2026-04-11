@@ -1,0 +1,55 @@
+.muted {
+  color: var(--bb-muted);
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--bb-radius-sm);
+  font-size: 0.9rem;
+}
+
+.alert--err {
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: var(--bb-danger);
+}
+
+.card {
+  padding: 1.75rem;
+}
+
+.ok {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+  color: #34d399;
+}
+
+.details {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 0;
+
+  dt {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--bb-muted);
+    margin: 0 0 0.25rem;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}

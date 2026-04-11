@@ -1,0 +1,68 @@
+<header class="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" routerLink="/" (click)="closeMenu()">
+      <span class="nav__logo" aria-hidden="true"><i class="fas fa-cut"></i></span>
+      <span>Barbearia Souza</span>
+    </a>
+    <button
+      type="button"
+      class="nav__toggle"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="nav-menu"
+      aria-label="Menu"
+      (click)="toggleMenu()"
+    >
+      <i class="fas" [class.fa-bars]="!menuOpen()" [class.fa-times]="menuOpen()"></i>
+    </button>
+    <nav id="nav-menu" class="nav__links" [class.nav__links--open]="menuOpen()">
+      @if (user() === undefined) {
+        <span class="nav__muted">Carregando…</span>
+      } @else if (user() === null) {
+        <a class="btn-brand nav__btn" routerLink="/login" (click)="closeMenu()">
+          <i class="fas fa-sign-in-alt"></i> Entrar
+        </a>
+        <a class="btn-ghost nav__btn" routerLink="/cadastro" (click)="closeMenu()">
+          <i class="fas fa-user-plus"></i> Cadastro
+        </a>
+      } @else if (auth.hasRole('CLIENTE') && !auth.hasRole('ADMIN') && !auth.hasRole('BARBEIRO')) {
+        <a class="btn-brand nav__btn" routerLink="/agendamentos/novo" (click)="closeMenu()">
+          <i class="fas fa-plus"></i> Novo agendamento
+        </a>
+        <a class="nav__link" routerLink="/agendamentos" (click)="closeMenu()">
+          <i class="fas fa-calendar-check"></i> Meus agendamentos
+        </a>
+        <a class="nav__link" routerLink="/cliente/historico" (click)="closeMenu()">
+          <i class="fas fa-history"></i> Histórico
+        </a>
+        <a class="nav__link" routerLink="/cliente/fidelidade" (click)="closeMenu()">
+          <i class="fas fa-star"></i> Fidelidade
+        </a>
+      } @else if (auth.hasRole('BARBEIRO')) {
+        <a class="nav__link" routerLink="/barbeiro/agendamentos" (click)="closeMenu()">
+          <i class="fas fa-calendar-check"></i> Comigo
+        </a>
+      } @else if (auth.hasRole('ADMIN')) {
+        <a class="nav__link" routerLink="/admin/dashboard" (click)="closeMenu()">
+          <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a class="nav__link" routerLink="/admin/agendamentos" (click)="closeMenu()">
+          <i class="fas fa-calendar-alt"></i> Agendamentos
+        </a>
+        <a class="nav__link" routerLink="/admin/barbeiros" (click)="closeMenu()">
+          <i class="fas fa-users"></i> Barbeiros
+        </a>
+        <a class="nav__link" routerLink="/admin/servicos" (click)="closeMenu()">
+          <i class="fas fa-cut"></i> Serviços
+        </a>
+        <a class="nav__link" routerLink="/admin/fidelidade" (click)="closeMenu()">
+          <i class="fas fa-cog"></i> Fidelidade
+        </a>
+      }
+      @if (user()) {
+        <button type="button" class="btn-ghost nav__btn nav__btn--out" (click)="sair(); closeMenu()">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+      }
+    </nav>
+  </div>
+</header>

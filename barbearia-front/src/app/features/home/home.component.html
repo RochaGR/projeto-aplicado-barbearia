@@ -1,0 +1,88 @@
+<section class="hero">
+  <div class="hero__inner">
+    <p class="hero__eyebrow">Barbearia Souza</p>
+    <h1 class="hero__title">Estilo e atenção em cada corte</h1>
+    <p class="hero__text">
+      Agende online, escolha seu barbeiro e chegue no horário. Experiência moderna para quem valoriza tempo e
+      qualidade.
+    </p>
+    <div class="hero__cta">
+      @if (setupNecessario()) {
+        <a routerLink="/config-inicial" class="btn-brand">Configurar sistema</a>
+      }
+      @if (auth.user() === null) {
+        <a routerLink="/cadastro" class="btn-brand">Criar conta</a>
+        <a routerLink="/login" class="btn-ghost hero__ghost">Entrar</a>
+      } @else if (auth.hasRole('CLIENTE') && !auth.hasRole('ADMIN') && !auth.hasRole('BARBEIRO')) {
+        <a routerLink="/agendamentos/novo" class="btn-brand">Agendar agora</a>
+      } @else if (auth.hasRole('BARBEIRO')) {
+        <a routerLink="/barbeiro/agendamentos" class="btn-brand">Meus atendimentos</a>
+      } @else if (auth.hasRole('ADMIN')) {
+        <a routerLink="/admin/dashboard" class="btn-brand">Painel administrativo</a>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="section" id="servicos">
+  <div class="section__inner">
+    <h2 class="section__title">Serviços em destaque</h2>
+    <p class="section__lead">Valores e durações orientativos — confirme no agendamento.</p>
+    @if (carregando()) {
+      <p class="muted">Carregando serviços…</p>
+    } @else {
+      <div class="cards">
+        @for (s of servicos(); track s.id) {
+          <article class="surface card">
+            <h3>{{ s.nome }}</h3>
+            <p class="desc">{{ s.descricao }}</p>
+            <p class="meta">
+              <span>{{ s.preco | number: '1.2-2' }} R$</span>
+              <span>{{ s.duracaoMinutos }} min</span>
+            </p>
+          </article>
+        } @empty {
+          <p class="muted">Serviços serão exibidos assim que estiverem disponíveis.</p>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<section class="section section--alt" id="sobre">
+  <div class="section__inner split">
+    <div>
+      <h2 class="section__title">Por que agendar conosco?</h2>
+      <ul class="bullets">
+        <li><i class="fas fa-clock"></i> Fila organizada e horário respeitado</li>
+        <li><i class="fas fa-user-tie"></i> Barbeiros experientes</li>
+        <li><i class="fas fa-mobile-alt"></i> Tudo pelo celular, sem ligações</li>
+        <li><i class="fas fa-star"></i> Programa de fidelidade para clientes</li>
+      </ul>
+    </div>
+    <div class="surface highlight">
+      <h3>Pronto para renovar o visual?</h3>
+      <p>Cadastre-se em poucos minutos e escolha o melhor horário.</p>
+      <a routerLink="/cadastro" class="btn-brand">Começar</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <strong>Barbearia Souza</strong>
+      <p>Rua Exemplo, 123 — Centro</p>
+      <p>Tel. (00) 0000-0000</p>
+    </div>
+    <div>
+      <strong>Horário</strong>
+      <p>Seg a sáb: 9h às 19h</p>
+    </div>
+    <div>
+      <strong>Links</strong>
+      <p><a routerLink="/login">Entrar</a> · <a routerLink="/cadastro">Cadastro</a></p>
+    </div>
+  </div>
+  <p class="site-footer__copy">© {{ ano }} Barbearia Souza. Todos os direitos reservados.</p>
+</footer>

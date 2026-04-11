@@ -1,0 +1,75 @@
+<div class="page page--wide">
+  <h1 class="page__title">Barbeiros</h1>
+
+  <div class="surface form-block">
+    <h2>Novo barbeiro</h2>
+    <form class="form-grid" (ngSubmit)="cadastrar()">
+      <div class="field">
+        <label for="nome">Nome</label>
+        <input id="nome" name="nome" type="text" [(ngModel)]="nome" required />
+      </div>
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" [(ngModel)]="email" required />
+      </div>
+      <div class="field">
+        <label for="tel">Telefone</label>
+        <input id="tel" name="tel" type="tel" [(ngModel)]="telefone" required />
+      </div>
+      <div class="field">
+        <label for="senha">Senha inicial</label>
+        <input id="senha" name="senha" type="password" [(ngModel)]="senha" required autocomplete="new-password" />
+      </div>
+      <div class="field field--action">
+        <button type="submit" class="btn-brand" [disabled]="criando()">
+          {{ criando() ? 'Salvando…' : 'Cadastrar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert--err">{{ erro() }}</div>
+  }
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else {
+    <div class="table-wrap surface">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Ativo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (b of lista(); track b.id) {
+            <tr>
+              <td>{{ b.nome }}</td>
+              <td>{{ b.email }}</td>
+              <td>{{ b.telefone }}</td>
+              <td>{{ b.ativo ? 'Sim' : 'Não' }}</td>
+              <td class="actions">
+                <button type="button" class="btn-ghost btn--sm" [disabled]="acaoId() === b.id" (click)="toggle(b)">
+                  {{ b.ativo ? 'Desativar' : 'Ativar' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn-ghost btn-danger-ghost btn--sm"
+                  [disabled]="acaoId() === b.id"
+                  (click)="excluir(b)"
+                >
+                  Excluir
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

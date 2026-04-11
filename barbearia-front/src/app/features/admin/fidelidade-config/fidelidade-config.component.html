@@ -1,0 +1,37 @@
+<div class="page page--narrow">
+  <h1 class="page__title">Fidelidade</h1>
+  <p class="lead">Defina quantos cortes o cliente precisa acumular e qual desconto será aplicado.</p>
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else {
+    <form class="surface card" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="alert alert--err">{{ erro() }}</div>
+      }
+      @if (ok()) {
+        <div class="alert alert--ok">{{ ok() }}</div>
+      }
+      <div class="field">
+        <label for="cortes">Cortes para ganhar desconto</label>
+        <input id="cortes" name="cortes" type="number" min="1" [(ngModel)]="cortesParaDesconto" required />
+      </div>
+      <div class="field">
+        <label for="pct">Percentual de desconto (%)</label>
+        <input
+          id="pct"
+          name="pct"
+          type="number"
+          min="0"
+          max="100"
+          step="0.5"
+          [(ngModel)]="percentualDesconto"
+          required
+        />
+      </div>
+      <button type="submit" class="btn-brand btn-block" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando…' : 'Salvar configuração' }}
+      </button>
+    </form>
+  }
+</div>

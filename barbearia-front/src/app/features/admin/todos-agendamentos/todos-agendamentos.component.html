@@ -1,0 +1,72 @@
+<div class="page page--wide">
+  <h1 class="page__title">Todos os agendamentos</h1>
+
+  <div class="toolbar surface">
+    <div class="field field--inline">
+      <label for="data">Data</label>
+      <input id="data" name="data" type="date" [(ngModel)]="filtroData" />
+    </div>
+    <div class="field field--inline">
+      <label for="st">Status</label>
+      <select id="st" name="st" [(ngModel)]="filtroStatus">
+        @for (s of statusOpts; track s) {
+          <option [value]="s">{{ s === '' ? 'Todos' : s }}</option>
+        }
+      </select>
+    </div>
+    <button type="button" class="btn-ghost" (click)="carregar()">Aplicar</button>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert--err">{{ erro() }}</div>
+  }
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else if (lista().length === 0) {
+    <p class="muted">Nenhum resultado.</p>
+  } @else {
+    <div class="table-wrap surface">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Barbeiro</th>
+            <th>Serviço</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of lista(); track a.id) {
+            <tr>
+              <td>{{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ a.cliente?.nome }}</td>
+              <td>{{ a.barbeiro?.nome }}</td>
+              <td>{{ a.servico?.nome }}</td>
+              <td>{{ a.status }}</td>
+              <td class="actions">
+                @if (podeConfirmar(a.status)) {
+                  <button type="button" class="btn-brand btn--sm" [disabled]="acaoId() === a.id" (click)="confirmar(a)">
+                    Confirmar
+                  </button>
+                }
+                @if ((a.status ?? '').toUpperCase() !== 'CANCELADO' && (a.status ?? '').toUpperCase() !== 'CONCLUIDO') {
+                  <button
+                    type="button"
+                    class="btn-ghost btn-danger-ghost btn--sm"
+                    [disabled]="acaoId() === a.id"
+                    (click)="cancelar(a)"
+                  >
+                    Cancelar
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

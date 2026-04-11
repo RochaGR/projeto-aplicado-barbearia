@@ -1,0 +1,123 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 11, 15, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--bb-border);
+}
+
+.nav__inner {
+  max-width: var(--bb-max);
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--bb-text);
+  text-decoration: none;
+  &:hover {
+    color: var(--bb-accent);
+  }
+}
+
+.nav__logo {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--bb-accent-dim);
+  color: var(--bb-accent);
+}
+
+.nav__toggle {
+  display: none;
+  border: 1px solid var(--bb-border);
+  background: var(--bb-surface);
+  color: var(--bb-text);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--bb-radius-sm);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--bb-radius-sm);
+  color: var(--bb-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  &:hover {
+    color: var(--bb-text);
+    background: var(--bb-surface-hover);
+  }
+}
+
+.nav__muted {
+  color: var(--bb-muted);
+  font-size: 0.875rem;
+}
+
+.nav__btn {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+}
+
+.nav__btn--out {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 900px) {
+  .nav__toggle {
+    display: inline-flex;
+  }
+
+  .nav__links {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    background: var(--bb-bg-elevated);
+    border-bottom: 1px solid var(--bb-border);
+    box-shadow: var(--bb-shadow);
+  }
+
+  .nav__links--open {
+    display: flex;
+  }
+
+  .nav__link,
+  .nav__btn {
+    justify-content: center;
+  }
+}
