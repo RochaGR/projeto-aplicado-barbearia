@@ -96,22 +96,18 @@ public class AgendamentoService {
               return repository.existsByBarbeiroIdAndDataHoraAndStatusNot(barbeiroId, dataHora, "CANCELADO");
        }
 
-<<<<<<< HEAD
-       public Agendamento salvar(Agendamento agendamento) {
+       public Agendamento salvar(@NonNull Agendamento agendamento) {
               if (agendamento.getId() != null) {
                      Agendamento existente = repository.findById(agendamento.getId()).orElse(null);
-                     if (existente != null && existente.isPontoRegistrado()) {
+                     if (existente != null && existente.getPontoRegistrado()) {
                             agendamento.setPontoRegistrado(true);
                      }
               }
 
-              if ("CONCLUIDO".equalsIgnoreCase(agendamento.getStatus()) && !agendamento.isPontoRegistrado()) {
+              if ("CONCLUIDO".equalsIgnoreCase(agendamento.getStatus()) && !agendamento.getPontoRegistrado()) {
                      fidelidadeService.registrarCorte(agendamento.getCliente());
                      agendamento.setPontoRegistrado(true);
               }
-=======
-       public Agendamento salvar(@NonNull Agendamento agendamento) {
->>>>>>> 3986e7d
               return repository.save(agendamento);
        }
 

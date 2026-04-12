@@ -11,11 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-<<<<<<< HEAD
-=======
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
->>>>>>> 3986e7d
 
 @Configuration
 @EnableWebSecurity
@@ -94,54 +91,16 @@ public class SecurityConfig {
                                                 .deleteCookies("JSESSIONID")
                                                 .permitAll());
 
-<<<<<<< HEAD
-                        // Rotas para clientes
-                        .requestMatchers("/cliente/fidelidade").hasAnyRole("CLIENTE", "ADMIN")
-                        .requestMatchers("/cliente/**").hasAnyRole("CLIENTE", "ADMIN")
-=======
                 return http.build();
         }
->>>>>>> 3986e7d
 
         @Bean
         PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder();
         }
 
-<<<<<<< HEAD
-                        // Todas as outras exigem autenticação
-                        .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/clientes/login") // tela de login personalizada
-                        .defaultSuccessUrl("/", true)
-                        .failureUrl("/clientes/login?error=true")
-                        .permitAll())
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/?logout=true")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll())
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers(
-                                "/clientes/cadastrar",
-                                "/config/primeiro-admin",
-                                "/admin/pesquisar-clientes",
-                                "/barbeiros", "/admin",
-                                "/login/barbeiro", "/login/admin"));
-
-        return http.build();
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-}
-=======
         @Bean
         AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
                 return configuration.getAuthenticationManager();
         }
 }
->>>>>>> 3986e7d

@@ -32,11 +32,8 @@ O sistema permite **agendamentos online**, controle de serviços e gerenciamento
 - **Angular 19**
 - **TypeScript**
 - **HTML5, CSS3**
-<<<<<<< HEAD
 - **Bootstrap**
-=======
 - **RxJS**
->>>>>>> 3986e7d
 
 ---
 
