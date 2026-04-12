@@ -1,37 +1,213 @@
-.lead {
-  margin: -0.75rem 0 1.5rem;
-  color: var(--bb-muted);
-  font-size: 0.95rem;
+// Admin Fidelidade Page Styles
+.admin-fidelidade-page {
+  --bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920');
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-img) center / cover no-repeat, linear-gradient(180deg, #12151c 0%, #0e1016 100%);
+  color: #fff;
 }
 
-.muted {
-  color: var(--bb-muted);
+.admin-fidelidade-page__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 11, 15, 0.85) 0%, rgba(10, 11, 15, 0.95) 100%);
+  pointer-events: none;
 }
 
-.card {
-  padding: 1.5rem;
+.admin-fidelidade-page__content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.admin-fidelidade-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.admin-fidelidade-header__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  
+  i {
+    color: var(--bb-accent);
+    font-size: 1.1rem;
+  }
+}
+
+.admin-fidelidade-header__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #fff 0%, var(--bb-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.admin-fidelidade-header__subtitle {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.admin-fidelidade-form {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 2rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    
+    i {
+      font-size: 0.9rem;
+      color: var(--bb-accent);
+    }
+  }
+  
+  input {
+    padding: 0.875rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--bb-accent);
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
 }
 
 .alert {
-  padding: 0.75rem 1rem;
-  border-radius: var(--bb-radius-sm);
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  
+  i {
+    font-size: 1.1rem;
+  }
 }
 
 .alert--err {
-  background: rgba(248, 113, 113, 0.12);
-  border: 1px solid rgba(248, 113, 113, 0.35);
-  color: var(--bb-danger);
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #fff;
+  
+  i {
+    color: #f87171;
+  }
 }
 
 .alert--ok {
-  background: rgba(52, 211, 153, 0.12);
-  border: 1px solid rgba(52, 211, 153, 0.35);
-  color: #34d399;
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #fff;
+  
+  i {
+    color: #34d399;
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top: 3px solid var(--bb-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.btn-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--bb-accent) 0%, #d4a574 100%);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232, 165, 75, 0.4);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
 }
 
 .btn-block {
   width: 100%;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
+}
+
+// Animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .admin-fidelidade-page__content {
+    padding: 1rem 0.75rem;
+  }
+  
+  .admin-fidelidade-header__title {
+    font-size: 1.5rem;
+  }
+  
+  .admin-fidelidade-form {
+    padding: 1.5rem;
+  }
 }

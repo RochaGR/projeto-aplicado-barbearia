@@ -1,20 +1,39 @@
-<div class="page page--wide">
-  <h1 class="page__title">Todos os agendamentos</h1>
+<div class="admin-agendamentos-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="admin-agendamentos-page__overlay"></div>
+  
+  <div class="admin-agendamentos-page__content">
+    <div class="admin-agendamentos-header">
+      <div class="admin-agendamentos-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="admin-agendamentos-header__title">Todos os Agendamentos</h1>
+      <p class="admin-agendamentos-header__subtitle">Gerencie todos os agendamentos da barbearia</p>
+    </div>
 
-  <div class="toolbar surface">
+    <div class="admin-agendamentos-toolbar surface">
     <div class="field field--inline">
-      <label for="data">Data</label>
+      <label for="data">
+        <i class="fas fa-calendar"></i>
+        Data
+      </label>
       <input id="data" name="data" type="date" [(ngModel)]="filtroData" />
     </div>
     <div class="field field--inline">
-      <label for="st">Status</label>
+      <label for="st">
+        <i class="fas fa-filter"></i>
+        Status
+      </label>
       <select id="st" name="st" [(ngModel)]="filtroStatus">
         @for (s of statusOpts; track s) {
           <option [value]="s">{{ s === '' ? 'Todos' : s }}</option>
         }
       </select>
     </div>
-    <button type="button" class="btn-ghost" (click)="carregar()">Aplicar</button>
+    <button type="button" class="btn-ghost" (click)="carregar()">
+      <i class="fas fa-search"></i>
+      Filtrar
+    </button>
   </div>
 
   @if (erro()) {
@@ -30,11 +49,11 @@
       <table>
         <thead>
           <tr>
-            <th>Data</th>
-            <th>Cliente</th>
-            <th>Barbeiro</th>
-            <th>Serviço</th>
-            <th>Status</th>
+            <th><i class="fas fa-calendar"></i> Data</th>
+            <th><i class="fas fa-user"></i> Cliente</th>
+            <th><i class="fas fa-user-tie"></i> Barbeiro</th>
+            <th><i class="fas fa-cut"></i> Serviço</th>
+            <th><i class="fas fa-info-circle"></i> Status</th>
             <th></th>
           </tr>
         </thead>
@@ -69,4 +88,5 @@
       </table>
     </div>
   }
+  </div>
 </div>

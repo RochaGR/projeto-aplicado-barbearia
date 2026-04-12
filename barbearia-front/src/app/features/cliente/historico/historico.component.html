@@ -1,58 +1,177 @@
-<div class="page page--wide">
-  <h1 class="page__title">Histórico</h1>
+<div class="historico-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="historico-page__overlay"></div>
+  
+  <div class="historico-page__content">
+    <div class="historico-header">
+      <div class="historico-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="historico-header__title">Histórico</h1>
+      <p class="historico-header__subtitle">Consulte seu histórico completo de agendamentos</p>
+    </div>
 
-  <form class="surface filters" (ngSubmit)="buscar()">
-    <div class="field">
-      <label for="ini">Data início</label>
-      <input id="ini" name="ini" type="date" [(ngModel)]="dataInicio" />
-    </div>
-    <div class="field">
-      <label for="fim">Data fim</label>
-      <input id="fim" name="fim" type="date" [(ngModel)]="dataFim" />
-    </div>
-    <div class="field">
-      <label for="st">Status</label>
-      <select id="st" name="st" [(ngModel)]="status">
-        @for (s of statusOpts; track s) {
-          <option [value]="s">{{ s === '' ? 'Todos' : s }}</option>
+    <form class="historico-filters" (ngSubmit)="buscar()">
+      <div class="filters-section">
+        <div class="field">
+          <label for="ini">
+            <i class="fas fa-calendar-alt"></i>
+            Data início
+          </label>
+          <input id="ini" name="ini" type="date" [(ngModel)]="dataInicio" />
+        </div>
+        <div class="field">
+          <label for="fim">
+            <i class="fas fa-calendar-check"></i>
+            Data fim
+          </label>
+          <input id="fim" name="fim" type="date" [(ngModel)]="dataFim" />
+        </div>
+        <div class="field">
+          <label for="st">
+            <i class="fas fa-filter"></i>
+            Status
+          </label>
+          <select id="st" name="st" [(ngModel)]="status">
+            @for (s of statusOpts; track s) {
+              <option [value]="s">{{ s === '' ? 'Todos' : s }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-brand" [disabled]="carregando()">
+        @if (carregando()) {
+          <i class="fas fa-spinner fa-spin"></i>
+          Buscando...
+        } @else {
+          <i class="fas fa-search"></i>
+          Filtrar
         }
-      </select>
-    </div>
-    <button type="submit" class="btn-brand" [disabled]="carregando()">
-      {{ carregando() ? 'Buscando…' : 'Filtrar' }}
-    </button>
-  </form>
+      </button>
+    </form>
 
-  @if (erro()) {
-    <div class="alert alert--err">{{ erro() }}</div>
-  }
+    <!-- Estatísticas de Fidelidade -->
+    @if (fidelidadeData()) {
+      <div class="fidelidade-stats">
+        <div class="stats-header">
+          <h3>
+            <i class="fas fa-star"></i>
+            Estatísticas de Fidelidade
+          </h3>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-cut"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ getCortesRealizados(fidelidadeData()) }}</div>
+              <div class="stat-label">Cortes Realizados</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ getPercentualDesconto(fidelidadeData()) }}%</div>
+              <div class="stat-label">Desconto Disponível</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-piggy-bank"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ getEconomiaTotal(fidelidadeData()) | currency:'BRL' }}</div>
+              <div class="stat-label">Total Economizado</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ getCortesParaDesconto(fidelidadeData()) - getCortesRealizados(fidelidadeData()) }}</div>
+              <div class="stat-label">Cortes para Próximo Desconto</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
 
-  @if (carregando()) {
-    <p class="muted">Carregando…</p>
-  } @else if (lista().length === 0) {
-    <p class="muted">Nenhum registro com os filtros atuais.</p>
-  } @else {
-    <div class="table-wrap surface">
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Status</th>
-            <th>Barbeiro</th>
-            <th>Serviço</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (a of lista(); track a.id) {
-            <tr>
-              <td>{{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ a.status }}</td>
-              <td>{{ a.barbeiro?.nome }}</td>
-              <td>{{ a.servico?.nome }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
+    @if (erro()) {
+      <div class="alert alert--err">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ erro() }}</span>
+      </div>
+    }
+
+    @if (carregando()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Carregando...</p>
+      </div>
+    } @else if (lista().length === 0) {
+      <div class="empty-state">
+        <i class="fas fa-history"></i>
+        <h3>Nenhum registro encontrado</h3>
+        <p>Não há agendamentos com os filtros selecionados.</p>
+      </div>
+    } @else {
+      <div class="historico-table-container">
+        <div class="table-header">
+          <h3>
+            <i class="fas fa-list"></i>
+            Registros encontrados: {{ lista().length }}
+          </h3>
+        </div>
+        <div class="table-wrapper">
+          <table class="historico-table">
+            <thead>
+              <tr>
+                <th>
+                  <i class="fas fa-clock"></i>
+                  Data
+                </th>
+                <th>
+                  <i class="fas fa-info-circle"></i>
+                  Status
+                </th>
+                <th>
+                  <i class="fas fa-user-tie"></i>
+                  Barbeiro
+                </th>
+                <th>
+                  <i class="fas fa-scissors"></i>
+                  Serviço
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of lista(); track a.id) {
+                <tr [class]="'status-row status--' + (a.status?.toLowerCase() || '')">
+                  <td class="date-cell">
+                    <i class="fas fa-calendar"></i>
+                    {{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}
+                  </td>
+                  <td class="status-cell">
+                    <span class="badge badge--{{ a.status?.toLowerCase() || '' }}">{{ a.status }}</span>
+                  </td>
+                  <td class="barbeiro-cell">
+                    <i class="fas fa-user"></i>
+                    {{ a.barbeiro?.nome }}
+                  </td>
+                  <td class="servico-cell">
+                    <i class="fas fa-cut"></i>
+                    {{ a.servico?.nome }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </div>
 </div>

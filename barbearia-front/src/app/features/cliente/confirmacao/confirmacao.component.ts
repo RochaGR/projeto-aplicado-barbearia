@@ -28,7 +28,9 @@ export class ConfirmacaoComponent implements OnInit {
     }
     this.api.confirmacaoAgendamento(id).subscribe({
       next: (raw) => {
-        this.agendamento.set(raw as unknown as Agendamento);
+        // Extract appointment data from nested response
+        const response = raw as { agendamento: Agendamento };
+        this.agendamento.set(response.agendamento);
         this.carregando.set(false);
       },
       error: () => {

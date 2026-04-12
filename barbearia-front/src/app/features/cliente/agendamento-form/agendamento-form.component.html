@@ -1,43 +1,111 @@
-<div class="page page--wide">
-  <h1 class="page__title">{{ editId() ? 'Alterar agendamento' : 'Novo agendamento' }}</h1>
+<div class="agendamento-page">
+  <div class="agendamento-page__overlay"></div>
+  
+  <div class="agendamento-page__content">
+    <div class="agendamento-header">
+      <div class="agendamento-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="agendamento-header__title">{{ editId() ? 'Alterar agendamento' : 'Novo agendamento' }}</h1>
+      <p class="agendamento-header__subtitle">Agende seu horário com estilo e conforto</p>
+    </div>
 
-  @if (carregando()) {
-    <p class="muted">Carregando…</p>
-  } @else {
-    <form class="surface card" (ngSubmit)="salvar()">
-      @if (erro()) {
-        <div class="alert alert--err" role="alert">{{ erro() }}</div>
-      }
-      <div class="grid">
-        <div class="field">
-          <label for="barbeiro">Barbeiro</label>
-          <select id="barbeiro" name="barbeiro" [(ngModel)]="barbeiroId" required>
-            <option [ngValue]="null">Selecione</option>
-            @for (b of barbeiros(); track b.id) {
-              <option [ngValue]="b.id">{{ b.nome }}</option>
-            }
-          </select>
-        </div>
-        <div class="field">
-          <label for="servico">Serviço</label>
-          <select id="servico" name="servico" [(ngModel)]="servicoId" required>
-            <option [ngValue]="null">Selecione</option>
-            @for (s of servicos(); track s.id) {
-              <option [ngValue]="s.id">{{ s.nome }}</option>
-            }
-          </select>
-        </div>
-        <div class="field field--full">
-          <label for="dataHora">Data e hora</label>
-          <input id="dataHora" name="dataHora" type="datetime-local" [(ngModel)]="dataHora" required />
-        </div>
+    @if (carregando()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Carregando...</p>
       </div>
-      <div class="actions">
-        <a routerLink="/agendamentos" class="btn-ghost">Cancelar</a>
-        <button type="submit" class="btn-brand" [disabled]="salvando()">
-          {{ salvando() ? 'Salvando…' : 'Salvar' }}
-        </button>
+    } @else {
+      <div class="agendamento-form-container">
+        <form class="agendamento-form" (ngSubmit)="salvar()">
+          @if (erro()) {
+            <div class="alert alert--err" role="alert">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>{{ erro() }}</span>
+            </div>
+          }
+          
+          <div class="form-sections">
+            <div class="form-section">
+              <div class="form-section__header">
+                <i class="fas fa-user-tie"></i>
+                <h3>Escolha seu Barbeiro</h3>
+              </div>
+              <div class="form-section__description">
+                <p>Selecione o profissional de sua preferência</p>
+              </div>
+              <div class="field">
+                <label for="barbeiro">
+                  <i class="fas fa-user-tie"></i>
+                  Barbeiro
+                </label>
+                <select id="barbeiro" name="barbeiro" [(ngModel)]="barbeiroId" required>
+                  <option [ngValue]="null">Selecione um barbeiro</option>
+                  @for (b of barbeiros(); track b.id) {
+                    <option [ngValue]="b.id">{{ b.nome }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="form-section__header">
+                <i class="fas fa-scissors"></i>
+                <h3>Tipo de Serviço</h3>
+              </div>
+              <div class="form-section__description">
+                <p>Escolha o serviço desejado para seu atendimento</p>
+              </div>
+              <div class="field">
+                <label for="servico">
+                  <i class="fas fa-scissors"></i>
+                  Serviço
+                </label>
+                <select id="servico" name="servico" [(ngModel)]="servicoId" required>
+                  <option [ngValue]="null">Selecione um serviço</option>
+                  @for (s of servicos(); track s.id) {
+                    <option [ngValue]="s.id">{{ s.nome }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="form-section__header">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Data e Horário</h3>
+              </div>
+              <div class="form-section__description">
+                <p>Defina o melhor dia e hora para seu agendamento</p>
+              </div>
+              <div class="field field--full">
+                <label for="dataHora">
+                  <i class="fas fa-calendar-alt"></i>
+                  Data e hora
+                </label>
+                <input id="dataHora" name="dataHora" type="datetime-local" [(ngModel)]="dataHora" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a routerLink="/agendamentos" class="btn-ghost">
+              <i class="fas fa-arrow-left"></i>
+              Cancelar
+            </a>
+            <button type="submit" class="btn-brand" [disabled]="salvando()">
+              @if (salvando()) {
+                <i class="fas fa-spinner fa-spin"></i>
+                Salvando...
+              } @else {
+                <i class="fas fa-check"></i>
+                {{ editId() ? 'Atualizar' : 'Agendar' }}
+              }
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
-  }
+    }
+  </div>
 </div>

@@ -1,11 +1,11 @@
-import { DecimalPipe, JsonPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ApiService } from '../../../core/api.service';
 
 @Component({
   selector: 'app-fidelidade',
   standalone: true,
-  imports: [DecimalPipe, JsonPipe],
+  imports: [DecimalPipe],
   templateUrl: './fidelidade.component.html',
   styleUrl: './fidelidade.component.scss',
 })
@@ -40,5 +40,34 @@ export class FidelidadeComponent implements OnInit {
       }
     }
     return null;
+  }
+
+  getCartao(dados: Record<string, unknown>): Record<string, unknown> | null {
+    return dados['cartao'] as Record<string, unknown> | null;
+  }
+
+  getCortesRealizados(dados: Record<string, unknown>): number {
+    const cartao = this.getCartao(dados);
+    return this.num(cartao, 'cortesRealizados') || 0;
+  }
+
+  getCortesParaDesconto(dados: Record<string, unknown>): number {
+    const cartao = this.getCartao(dados);
+    return this.num(cartao, 'cortesParaDesconto') || 5;
+  }
+
+  getPercentualDesconto(dados: Record<string, unknown>): number {
+    const cartao = this.getCartao(dados);
+    return this.num(cartao, 'percentualDesconto') || 10;
+  }
+
+  getTemDesconto(dados: Record<string, unknown>): boolean {
+    const cartao = this.getCartao(dados);
+    return Boolean(cartao?.['temDesconto']);
+  }
+
+  getStarArray(dados: Record<string, unknown>): number[] {
+    const meta = this.getCortesParaDesconto(dados);
+    return Array.from({ length: meta }, (_, i) => i + 1);
   }
 }

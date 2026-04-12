@@ -3,6 +3,68 @@
   color: var(--bb-muted);
 }
 
+// Fidelidade Page Styles
+.fidelidade-page {
+  --bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920');
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-img) center / cover no-repeat, linear-gradient(180deg, #12151c 0%, #0e1016 100%);
+  color: #fff;
+}
+
+.fidelidade-page__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 11, 15, 0.85) 0%, rgba(10, 11, 15, 0.95) 100%);
+  pointer-events: none;
+}
+
+.fidelidade-page__content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.fidelidade-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.fidelidade-header__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  
+  i {
+    color: var(--bb-accent);
+    font-size: 1.1rem;
+  }
+}
+
+.fidelidade-header__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #fff 0%, var(--bb-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.fidelidade-header__subtitle {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
 .muted {
   color: var(--bb-muted);
 }
@@ -72,4 +134,257 @@
   font-size: 0.75rem;
   overflow: auto;
   max-height: 240px;
+}
+
+// Loyalty Card Styles
+.loyalty-card-container {
+  margin: 2rem 0;
+}
+
+.loyalty-card {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(232, 165, 75, 0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  &--complete {
+    background: linear-gradient(135deg, #e8a54b 0%, #d4a574 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+    
+    &::before {
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    }
+  }
+}
+
+.loyalty-card__header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.loyalty-card__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  
+  i {
+    color: var(--bb-accent);
+  }
+}
+
+.loyalty-card__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.loyalty-card__progress {
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.loyalty-card__stamps {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stamp {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  
+  &--filled {
+    background: var(--bb-accent);
+    border-color: var(--bb-accent);
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(232, 165, 75, 0.4);
+  }
+  
+  &--bonus {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #2a2a2a;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  i {
+    font-size: 1rem;
+  }
+}
+
+.loyalty-card__reward {
+  text-align: center;
+}
+
+.reward-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  animation: glow 2s ease-in-out infinite;
+  
+  i {
+    color: #ffd700;
+  }
+}
+
+.reward-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  opacity: 0.8;
+  
+  span:first-child {
+    font-weight: 600;
+  }
+  
+  span:last-child {
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+}
+
+.loyalty-card__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.loyalty-card__stats {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.stat-item {
+  text-align: center;
+  
+  .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  
+  .stat-label {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+  }
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+// Loyalty Info Section
+.loyalty-info {
+  margin-top: 2rem;
+  padding: 2rem;
+  
+  h3 {
+    margin: 0 0 1.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  
+  i {
+    font-size: 1.5rem;
+    color: var(--bb-accent);
+    margin-top: 0.25rem;
+  }
+  
+  h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+  }
+  
+  p {
+    margin: 0;
+    color: var(--bb-muted);
+    line-height: 1.5;
+  }
+}
+
+// Animations
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.6);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+  }
 }

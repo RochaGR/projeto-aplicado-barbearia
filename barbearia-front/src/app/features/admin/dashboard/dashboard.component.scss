@@ -1,3 +1,65 @@
+// Admin Dashboard Page Styles
+.admin-dashboard-page {
+  --bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920');
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-img) center / cover no-repeat, linear-gradient(180deg, #12151c 0%, #0e1016 100%);
+  color: #fff;
+}
+
+.admin-dashboard-page__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 11, 15, 0.85) 0%, rgba(10, 11, 15, 0.95) 100%);
+  pointer-events: none;
+}
+
+.admin-dashboard-page__content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.admin-dashboard-header__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  
+  i {
+    color: var(--bb-accent);
+    font-size: 1.1rem;
+  }
+}
+
+.admin-dashboard-header__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #fff 0%, var(--bb-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.admin-dashboard-header__subtitle {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
 .muted {
   color: var(--bb-muted);
 }
@@ -24,6 +86,17 @@
 
 .kpi {
   padding: 1.1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
 }
 
 .kpi__label {
@@ -50,6 +123,17 @@
 
 .block {
   padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
 
   h2 {
     margin: 0 0 0.75rem;
@@ -57,8 +141,13 @@
   }
 }
 
-.block--table {
+.block--table-wrap {
   overflow: auto;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .plain {

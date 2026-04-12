@@ -13,9 +13,10 @@ public class Servico {
     private String descricao;
     private Double preco;
     private Integer duracaoMinutos;
-    
-     @Column(nullable = false)
-    private boolean ativo = true; 
+    private String imageUrl;
+
+    @Column(nullable = false)
+    private boolean ativo = true;
 
     public Long getId() {
         return id;
@@ -57,4 +58,19 @@ public class Servico {
         this.duracaoMinutos = duracaoMinutos;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
 }

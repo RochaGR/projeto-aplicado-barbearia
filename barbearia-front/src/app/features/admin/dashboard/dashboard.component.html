@@ -1,5 +1,15 @@
-<div class="page page--wide">
-  <h1 class="page__title">Dashboard</h1>
+<div class="admin-dashboard-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="admin-dashboard-page__overlay"></div>
+  
+  <div class="admin-dashboard-page__content">
+    <div class="admin-dashboard-header">
+      <div class="admin-dashboard-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="admin-dashboard-header__title">Dashboard Administrativo</h1>
+      <p class="admin-dashboard-header__subtitle">Gerencie sua barbearia com eficiência</p>
+    </div>
 
   @if (carregando()) {
     <p class="muted">Carregando…</p>
@@ -91,4 +101,5 @@
       </p>
     }
   }
+  </div>
 </div>

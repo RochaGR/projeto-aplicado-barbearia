@@ -10,6 +10,7 @@ export interface Servico {
   preco: number;
   duracaoMinutos: number;
   ativo: boolean;
+  imageUrl?: string;
 }
 
 export interface Barbeiro {
@@ -18,6 +19,7 @@ export interface Barbeiro {
   email: string;
   telefone: string;
   ativo: boolean;
+  senha?: string;
 }
 
 export interface Cliente {

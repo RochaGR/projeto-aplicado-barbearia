@@ -3,6 +3,7 @@ package com.barbearia.agendamento.service;
 import com.barbearia.agendamento.model.Servico;
 import com.barbearia.agendamento.repository.ServicoRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +20,7 @@ public class ServicoService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Servico> buscarPorId(Long id) {
+    public Optional<Servico> buscarPorId(@NonNull Long id) {
         return repository.findById(id);
     }
 
@@ -37,7 +38,7 @@ public class ServicoService {
     }
 
     @Transactional
-    public void excluir(Long id) {
+    public void excluir(@NonNull Long id) {
         try {
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {

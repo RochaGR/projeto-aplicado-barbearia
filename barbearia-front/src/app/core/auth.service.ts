@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { UserInfo } from './models';
@@ -20,45 +20,36 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<UserInfo> {
-    const body = new HttpParams().set('username', email).set('password', password);
-    return this.http
-      .post<UserInfo>('/clientes/login', body.toString(), {
-        headers: new HttpHeaders()
-          .set('Content-Type', 'application/x-www-form-urlencoded')
-          .set('X-SPA-Login', 'true'),
-      })
-      .pipe(
-        switchMap((res) => {
-          if (res?.username && res?.roles) {
-            this.user.set(res);
-            return of(res);
-          }
-          return this.refreshUser().pipe(
-            map((u) => {
-              if (!u) {
-                throw new Error('Não foi possível entrar.');
-              }
-              return u;
-            }),
-          );
-        }),
-        catchError((e: HttpErrorResponse) => {
-          const msg =
-            e.error && typeof e.error === 'object' && 'message' in e.error
-              ? String((e.error as { message: string }).message)
-              : e.status === 401
-                ? 'Email ou senha inválidos.'
-                : 'Não foi possível entrar.';
-          return throwError(() => new Error(msg));
-        }),
-      );
+    return this.http.post<UserInfo>('/api/auth/login', { email, password }).pipe(
+      switchMap((res) => {
+        if (res?.username && res?.roles) {
+          this.user.set(res);
+          return of(res);
+        }
+        return this.refreshUser().pipe(
+          map((u) => {
+            if (!u) {
+              throw new Error('Não foi possível entrar.');
+            }
+            return u;
+          }),
+        );
+      }),
+      catchError((e: HttpErrorResponse) => {
+        const msg =
+          e.error && typeof e.error === 'object' && 'message' in e.error
+            ? String((e.error as { message: string }).message)
+            : e.status === 401
+              ? 'Email ou senha inválidos.'
+              : 'Não foi possível entrar.';
+        return throwError(() => new Error(msg));
+      }),
+    );
   }
 
   logout(): Observable<void> {
     return this.http
-      .post('/logout', new URLSearchParams().toString(), {
-        headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
-      })
+      .post('/logout', null)
       .pipe(
         tap(() => this.user.set(null)),
         map(() => undefined),

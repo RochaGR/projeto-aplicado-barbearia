@@ -45,15 +45,19 @@ export class AdminBarbeirosComponent implements OnInit {
   cadastrar(): void {
     this.erro.set(null);
     this.criando.set(true);
+    
+    const payload = {
+      nome: this.nome.trim(),
+      email: this.email.trim(),
+      telefone: this.telefone.trim(),
+      ativo: true,
+      senha: this.senha,
+    };
+    
+    console.log('Enviando payload:', payload);
+    
     this.api
-      .cadastrarBarbeiroAdmin({
-        id: 0,
-        nome: this.nome.trim(),
-        email: this.email.trim(),
-        telefone: this.telefone.trim(),
-        ativo: true,
-        senha: this.senha,
-      })
+      .cadastrarBarbeiroAdmin(payload)
       .subscribe({
         next: () => {
           this.criando.set(false);
@@ -63,9 +67,11 @@ export class AdminBarbeirosComponent implements OnInit {
           this.senha = '';
           this.carregar();
         },
-        error: () => {
+        error: (err) => {
           this.criando.set(false);
-          this.erro.set('Não foi possível cadastrar o barbeiro.');
+          console.error('Erro completo:', err);
+          const errorMsg = err.error?.message || err.message || 'Não foi possível cadastrar o barbeiro.';
+          this.erro.set(errorMsg);
         },
       });
   }

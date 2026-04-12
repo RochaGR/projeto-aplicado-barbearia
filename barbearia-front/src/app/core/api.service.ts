@@ -119,7 +119,7 @@ export class ApiService {
     return this.http.get<{ barbeiros: Barbeiro[] }>('/api/admin/barbeiros');
   }
 
-  cadastrarBarbeiroAdmin(b: Barbeiro & { senha: string }): Observable<unknown> {
+  cadastrarBarbeiroAdmin(b: Partial<Barbeiro> & { senha: string }): Observable<unknown> {
     return this.http.post('/api/admin/barbeiros', b);
   }
 

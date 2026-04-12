@@ -1,18 +1,16 @@
-<section class="hero">
-  <div class="hero__inner">
-    <p class="hero__eyebrow">Barbearia Souza</p>
-    <h1 class="hero__title">Estilo e atenção em cada corte</h1>
-    <p class="hero__text">
-      Agende online, escolha seu barbeiro e chegue no horário. Experiência moderna para quem valoriza tempo e
-      qualidade.
-    </p>
-    <div class="hero__cta">
+<section class="hero-image" [style.--hero-img]="'url(' + heroImg + ')'">
+  <div class="hero-image__overlay"></div>
+  <div class="hero-image__content">
+    <p class="hero-image__brand">Barbearia Souza</p>
+    <h1 class="hero-image__title">Manifeste a sua originalidade através do seu estilo!</h1>
+    <p class="hero-image__hours"><i class="far fa-clock"></i> Horários de funcionamento das 08:00 às 19:00</p>
+    <div class="hero-image__cta">
       @if (setupNecessario()) {
         <a routerLink="/config-inicial" class="btn-brand">Configurar sistema</a>
       }
       @if (auth.user() === null) {
         <a routerLink="/cadastro" class="btn-brand">Criar conta</a>
-        <a routerLink="/login" class="btn-ghost hero__ghost">Entrar</a>
+        <a routerLink="/login" class="btn-ghost hero-image__ghost">Entrar</a>
       } @else if (auth.hasRole('CLIENTE') && !auth.hasRole('ADMIN') && !auth.hasRole('BARBEIRO')) {
         <a routerLink="/agendamentos/novo" class="btn-brand">Agendar agora</a>
       } @else if (auth.hasRole('BARBEIRO')) {
@@ -24,64 +22,117 @@
   </div>
 </section>
 
-<section class="section" id="servicos">
+<section class="section section--dark" id="quem-somos">
   <div class="section__inner">
-    <h2 class="section__title">Serviços em destaque</h2>
-    <p class="section__lead">Valores e durações orientativos — confirme no agendamento.</p>
+    <h2 class="section__title section__title--center">Quem somos</h2>
+    <div class="about-grid">
+      <div class="about-grid__text">
+        <p>
+          A Barbearia Souza é um espaço onde tradição e modernidade se encontram para oferecer uma experiência única em
+          cuidados masculinos. Equipe qualificada e ambiente acolhedor para realçar o seu estilo.
+        </p>
+        <p>
+          Priorizamos o atendimento personalizado — do corte clássico ao visual mais ousado — para você sair com a melhor
+          versão de si mesmo.
+        </p>
+        <a routerLink="/agendamentos/novo" class="btn-brand about-grid__btn">Conheça nossos serviços</a>
+      </div>
+      <div class="about-grid__media">
+        <img [src]="sobreImg" alt="Interior da barbearia" width="900" height="600" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--light" id="servicos">
+  <div class="section__inner">
+    <h2 class="section__title section__title--center">Selecione um serviço</h2>
+    <p class="section__lead section__lead--center">Valores e tempos da API — confirme no agendamento.</p>
     @if (carregando()) {
-      <p class="muted">Carregando serviços…</p>
+      <p class="muted muted--center">Carregando serviços…</p>
     } @else {
-      <div class="cards">
-        @for (s of servicos(); track s.id) {
-          <article class="surface card">
-            <h3>{{ s.nome }}</h3>
-            <p class="desc">{{ s.descricao }}</p>
-            <p class="meta">
-              <span>{{ s.preco | number: '1.2-2' }} R$</span>
-              <span>{{ s.duracaoMinutos }} min</span>
-            </p>
-          </article>
+      <div class="services-grid">
+        @for (s of servicos(); track s.id; let i = $index) {
+          <a routerLink="/agendamentos/novo" class="service-card-link">
+            <article class="service-card surface">
+              <div class="service-card__img-wrap">
+                <img [src]="s.imageUrl || imagemParaServico(i)" [alt]="s.nome" width="400" height="260" loading="lazy" />
+              </div>
+              <div class="service-card__body">
+                <h3>{{ s.nome }}</h3>
+                @if (s.descricao) {
+                  <p class="service-card__desc">{{ s.descricao }}</p>
+                }
+                <div class="service-card__meta">
+                  <span>{{ s.duracaoMinutos }} min</span>
+                  <span class="service-card__price">{{ s.preco | number: '1.2-2' }} R$</span>
+                </div>
+              </div>
+            </article>
+          </a>
         } @empty {
-          <p class="muted">Serviços serão exibidos assim que estiverem disponíveis.</p>
+          <p class="muted muted--center">Serviços serão exibidos assim que estiverem cadastrados.</p>
         }
       </div>
     }
-  </div>
-</section>
-
-<section class="section section--alt" id="sobre">
-  <div class="section__inner split">
-    <div>
-      <h2 class="section__title">Por que agendar conosco?</h2>
-      <ul class="bullets">
-        <li><i class="fas fa-clock"></i> Fila organizada e horário respeitado</li>
-        <li><i class="fas fa-user-tie"></i> Barbeiros experientes</li>
-        <li><i class="fas fa-mobile-alt"></i> Tudo pelo celular, sem ligações</li>
-        <li><i class="fas fa-star"></i> Programa de fidelidade para clientes</li>
-      </ul>
-    </div>
-    <div class="surface highlight">
-      <h3>Pronto para renovar o visual?</h3>
-      <p>Cadastre-se em poucos minutos e escolha o melhor horário.</p>
-      <a routerLink="/cadastro" class="btn-brand">Começar</a>
+    <div class="section__cta-wrap">
+      <a routerLink="/agendamentos/novo" class="btn-brand"><i class="fas fa-calendar-plus"></i> Agendar agora</a>
     </div>
   </div>
 </section>
 
-<footer class="site-footer">
-  <div class="site-footer__inner">
-    <div>
-      <strong>Barbearia Souza</strong>
-      <p>Rua Exemplo, 123 — Centro</p>
-      <p>Tel. (00) 0000-0000</p>
+<section class="team-banner" [style.--team-img]="'url(' + equipeImg + ')'">
+  <div class="team-banner__overlay"></div>
+  <div class="team-banner__inner">
+    <h2 class="team-banner__title">Nossa equipe</h2>
+    <ul class="team-banner__list">
+      <li><i class="fas fa-user-circle"></i> Gustavo Rocha</li>
+      <li><i class="fas fa-user-circle"></i> Henrique Correa</li>
+      <li><i class="fas fa-user-circle"></i> Vinicius de Jesus</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section section--light" id="unidade">
+  <div class="section__inner">
+    <h2 class="section__title section__title--center">Nossa unidade</h2>
+    <div class="unit-card surface">
+      <div class="unit-card__img">
+        <img [src]="unidadeImg" alt="Fachada da unidade" width="900" height="520" loading="lazy" />
+      </div>
+      <div class="unit-card__info">
+        <i class="fas fa-map-marker-alt"></i>
+        <div>
+          <span class="unit-card__city">Tubarão — SC</span>
+          <span class="unit-card__addr">Avenida Patrício Lima, nº 120</span>
+        </div>
+      </div>
     </div>
-    <div>
-      <strong>Horário</strong>
-      <p>Seg a sáb: 9h às 19h</p>
+  </div>
+</section>
+
+<footer class="site-footer" id="contato">
+  <div class="site-footer__top">
+    <div class="site-footer__brand">
+      <i class="fas fa-cut"></i>
+      <span>Barbearia Souza</span>
     </div>
-    <div>
-      <strong>Links</strong>
-      <p><a routerLink="/login">Entrar</a> · <a routerLink="/cadastro">Cadastro</a></p>
+    <nav class="site-footer__nav">
+      <a routerLink="/" fragment="servicos">Serviços</a>
+      <a routerLink="/agendamentos/novo">Agendar</a>
+      <a routerLink="/login">Entrar</a>
+      <a routerLink="/cadastro">Cadastro</a>
+    </nav>
+    <div class="site-footer__social">
+      <a href="https://www.facebook.com/?locale=pt_BR" target="_blank" rel="noopener noreferrer" aria-label="Facebook"
+        ><i class="fab fa-facebook"></i
+      ></a>
+      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+        ><i class="fab fa-instagram"></i
+      ></a>
+      <a href="https://wa.me/5548999173748" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
+        ><i class="fab fa-whatsapp"></i
+      ></a>
     </div>
   </div>
   <p class="site-footer__copy">© {{ ano }} Barbearia Souza. Todos os direitos reservados.</p>

@@ -1,23 +1,45 @@
-<div class="page page--wide">
-  <h1 class="page__title">Serviços</h1>
+<div class="admin-servicos-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="admin-servicos-page__overlay"></div>
+  
+  <div class="admin-servicos-page__content">
+    <div class="admin-servicos-header">
+      <div class="admin-servicos-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="admin-servicos-header__title">Serviços</h1>
+      <p class="admin-servicos-header__subtitle">Gerencie os serviços oferecidos pela barbearia</p>
+    </div>
 
-  <div class="surface form-block">
-    <h2>Novo serviço</h2>
+    <div class="admin-servicos-form surface">
+      <h2>Novo serviço</h2>
     <form class="form-grid" (ngSubmit)="cadastrar()">
       <div class="field">
-        <label for="nome">Nome</label>
+        <label for="nome">
+          <i class="fas fa-tag"></i>
+          Nome
+        </label>
         <input id="nome" name="nome" type="text" [(ngModel)]="nome" required />
       </div>
       <div class="field field--wide">
-        <label for="desc">Descrição</label>
+        <label for="desc">
+          <i class="fas fa-align-left"></i>
+          Descrição
+        </label>
         <input id="desc" name="desc" type="text" [(ngModel)]="descricao" required />
       </div>
       <div class="field">
-        <label for="preco">Preço (R$)</label>
+        <label for="preco">
+          <i class="fas fa-dollar-sign"></i>
+          Preço (R$)
+        </label>
         <input id="preco" name="preco" type="number" step="0.01" min="0" [(ngModel)]="preco" required />
       </div>
       <div class="field">
-        <label for="dur">Duração (min)</label>
+        <label for="dur">
+          <i class="fas fa-clock"></i>
+          Duração (min)
+        </label>
         <input id="dur" name="dur" type="number" min="1" [(ngModel)]="duracaoMinutos" required />
       </div>
       <div class="field field--check">
@@ -35,47 +57,68 @@
   </div>
 
   @if (erro()) {
-    <div class="alert alert--err">{{ erro() }}</div>
+    <div class="alert alert--err">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ erro() }}</span>
+    </div>
   }
 
   @if (carregando()) {
-    <p class="muted">Carregando…</p>
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Carregando...</p>
+    </div>
+  } @else if (lista().length === 0) {
+    <div class="empty-state">
+      <i class="fas fa-scissors"></i>
+      <h3>Nenhum serviço encontrado</h3>
+      <p>Nenhum serviço foi cadastrado ainda.</p>
+    </div>
   } @else {
-    <div class="table-wrap surface">
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Preço</th>
-            <th>Duração</th>
-            <th>Ativo</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (s of lista(); track s.id) {
-            <tr>
-              <td>
+    <div class="servicos-list">
+      @for (s of lista(); track s.id) {
+        <div class="servico-item" [class]="'servico-item--' + (s.ativo ? 'ativo' : 'inativo')">
+          <div class="item__main">
+            <div class="item__header">
+              <div class="item__name">
+                <i class="fas fa-tag"></i>
                 <strong>{{ s.nome }}</strong>
-                <p class="sub">{{ s.descricao }}</p>
-              </td>
-              <td>{{ s.preco | number: '1.2-2' }} R$</td>
-              <td>{{ s.duracaoMinutos }} min</td>
-              <td>{{ s.ativo ? 'Sim' : 'Não' }}</td>
-              <td class="actions">
-                <button
-                  type="button"
-                  class="btn-ghost btn-danger-ghost btn--sm"
-                  [disabled]="acaoId() === s.id"
-                  (click)="excluir(s)"
-                >
-                  Excluir
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+              </div>
+              <div class="item__status">
+                <span class="badge badge--{{ s.ativo ? 'ativo' : 'inativo' }}">
+                  {{ s.ativo ? 'Ativo' : 'Inativo' }}
+                </span>
+              </div>
+            </div>
+            <div class="item__details">
+              <div class="detail-item">
+                <i class="fas fa-align-left"></i>
+                <span>{{ s.descricao }}</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-dollar-sign"></i>
+                <span>{{ s.preco | number: '1.2-2' }} R$</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-clock"></i>
+                <span>{{ s.duracaoMinutos }} min</span>
+              </div>
+            </div>
+          </div>
+          <div class="item__actions">
+            <button
+              type="button"
+              class="btn-ghost btn-danger-ghost"
+              [disabled]="acaoId() === s.id"
+              (click)="excluir(s)"
+            >
+              <i class="fas fa-trash"></i>
+              {{ acaoId() === s.id ? 'Excluindo...' : 'Excluir' }}
+            </button>
+          </div>
+        </div>
+      }
     </div>
   }
+  </div>
 </div>

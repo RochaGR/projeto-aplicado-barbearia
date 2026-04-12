@@ -29,6 +29,8 @@ public class Agendamento {
        @Column(nullable = false)
        private String status = "AGENDADO";
 
+       private Boolean pontoRegistrado = false;
+
        public Long getId() {
               return id;
        }
@@ -75,5 +77,13 @@ public class Agendamento {
 
        public void setStatus(String status) {
               this.status = status;
+       }
+
+       public Boolean getPontoRegistrado() {
+              return pontoRegistrado;
+       }
+
+       public void setPontoRegistrado(Boolean pontoRegistrado) {
+              this.pontoRegistrado = pontoRegistrado;
        }
 }

@@ -93,6 +93,10 @@ export class AgendamentoFormComponent implements OnInit {
     this.salvando.set(true);
     const body = { barbeiroId: bid, servicoId: sid, dataHora: toIsoLocal(this.dataHora) };
     const eid = this.editId();
+    
+    console.log('Enviando agendamento:', body);
+    console.log('Edit ID:', eid);
+    
     const req =
       eid != null ? this.api.editarAgendamento(eid, body) : this.api.criarAgendamento(body);
     req.subscribe({
@@ -105,9 +109,11 @@ export class AgendamentoFormComponent implements OnInit {
           void this.router.navigateByUrl('/agendamentos');
         }
       },
-      error: () => {
+      error: (err) => {
         this.salvando.set(false);
-        this.erro.set('Não foi possível salvar o agendamento.');
+        console.error('Erro ao salvar agendamento:', err);
+        const errorMsg = err.error?.message || err.message || 'Não foi possível salvar o agendamento.';
+        this.erro.set(errorMsg);
       },
     });
   }
