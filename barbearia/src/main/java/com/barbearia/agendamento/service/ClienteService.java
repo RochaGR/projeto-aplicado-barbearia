@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.lang.NonNull;
 
 @Service
 public class ClienteService {
@@ -31,7 +32,7 @@ public class ClienteService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Cliente> buscarPorId(Long id) {
+    public Optional<Cliente> buscarPorId(@NonNull Long id) {
         return repository.findById(id);
     }
 
@@ -46,12 +47,12 @@ public class ClienteService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Cliente> listarClientes(Pageable pageable) {
+    public Page<Cliente> listarClientes(@NonNull Pageable pageable) {
         return repository.findAll(pageable);
     }
 
     @Transactional
-    public Cliente atualizarCliente(Long id, Cliente clienteAtualizado) {
+    public Cliente atualizarCliente(@NonNull Long id, Cliente clienteAtualizado) {
         Cliente clienteExistente = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
@@ -72,7 +73,7 @@ public class ClienteService {
     }
 
     @Transactional
-    public void excluirCliente(Long id) {
+    public void excluirCliente(@NonNull Long id) {
         if (!repository.existsById(id)) {
             throw new IllegalArgumentException("Cliente não encontrado");
         }

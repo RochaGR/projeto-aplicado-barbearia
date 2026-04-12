@@ -1,0 +1,140 @@
+<div class="fidelidade-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="fidelidade-page__overlay"></div>
+  
+  <div class="fidelidade-page__content">
+    <div class="fidelidade-header">
+      <div class="fidelidade-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="fidelidade-header__title">Fidelidade</h1>
+      <p class="fidelidade-header__subtitle">Acompanhe seus cortes e benefícios</p>
+    </div>
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else if (erro()) {
+    <div class="alert alert--err">{{ erro() }}</div>
+  } @else {
+    @if (dados(); as d) {
+      @if (getCartao(d)) {
+        <!-- Cartão de Fidelidade -->
+        <div class="loyalty-card-container">
+          <div class="loyalty-card" [class.loyalty-card--complete]="getTemDesconto(d)">
+            <div class="loyalty-card__header">
+              <div class="loyalty-card__brand">
+                <i class="fas fa-cut"></i>
+                <span>Barbearia Souza</span>
+              </div>
+              <div class="loyalty-card__title">Cartão Fidelidade</div>
+            </div>
+            
+            <div class="loyalty-card__progress">
+              <div class="loyalty-card__stamps">
+                @for (i of getStarArray(d); track i) {
+                  <div class="stamp" [class.stamp--filled]="i <= getCortesRealizados(d)" [class.stamp--bonus]="i === getCortesParaDesconto(d)">
+                    @if (i <= getCortesRealizados(d)) {
+                      <i class="fas fa-star"></i>
+                    } @else {
+                      <i class="far fa-star"></i>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="loyalty-card__reward">
+                @if (getTemDesconto(d)) {
+                  <div class="reward-badge">
+                    <i class="fas fa-gift"></i>
+                    <span>{{ getPercentualDesconto(d) }}% OFF</span>
+                  </div>
+                } @else {
+                  <div class="reward-info">
+                    <span>Faltam {{ getCortesParaDesconto(d) - getCortesRealizados(d) }} cortes</span>
+                    <span>para {{ getPercentualDesconto(d) }}% de desconto</span>
+                  </div>
+                }
+              </div>
+            </div>
+            
+            <div class="loyalty-card__footer">
+              <div class="loyalty-card__stats">
+                <div class="stat-item">
+                  <span class="stat-value">{{ getCortesRealizados(d) }}</span>
+                  <span class="stat-label">Cortes</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ getCortesParaDesconto(d) }}</span>
+                  <span class="stat-label">Meta</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ getPercentualDesconto(d) }}%</span>
+                  <span class="stat-label">Desconto</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Informações Adicionais -->
+        <div class="loyalty-info surface">
+          <h3>Como funciona</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <i class="fas fa-scissors"></i>
+              <div>
+                <h4>Acumule Cortes</h4>
+                <p>Cada corte concluído conta em seu cartão de fidelidade.</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-percentage"></i>
+              <div>
+                <h4>Ganhe Desconto</h4>
+                <p>Após {{ getCortesParaDesconto(d) }} cortes, ganhe {{ getPercentualDesconto(d) }}% de desconto.</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-redo"></i>
+              <div>
+                <h4>Renove Sempre</h4>
+                <p>Use seu desconto e comece a acumular cortes novamente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="surface card">
+          <h2>Resumo</h2>
+          @if (num(d, 'cortesRealizados', 'cortes') != null) {
+            <p class="stat">
+              <span class="stat__label">Cortes contabilizados</span>
+              <span class="stat__value">{{ num(d, 'cortesRealizados', 'cortes') }}</span>
+            </p>
+          }
+          @if (num(d, 'cortesParaDesconto', 'metaCortes') != null) {
+            <p class="stat">
+              <span class="stat__label">Meta para desconto</span>
+              <span class="stat__value">{{ num(d, 'cortesParaDesconto', 'metaCortes') }}</span>
+            </p>
+          }
+          @if (num(d, 'percentualDesconto', 'descontoPercentual') != null) {
+            <p class="stat">
+              <span class="stat__label">Desconto ao atingir a meta</span>
+              <span class="stat__value">{{ num(d, 'percentualDesconto', 'descontoPercentual') | number: '1.0-1' }}%</span>
+            </p>
+          }
+          @if (
+            num(d, 'cortesRealizados', 'cortes') == null &&
+            num(d, 'cortesParaDesconto', 'metaCortes') == null &&
+            num(d, 'percentualDesconto', 'descontoPercentual') == null
+          ) {
+            <p class="muted small">Detalhes disponíveis em breve ou consulte a equipe.</p>
+          }
+        </div>
+      }
+    }
+  }
+  </div>
+</div>

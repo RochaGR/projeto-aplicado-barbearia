@@ -1,0 +1,37 @@
+<div class="page page--narrow">
+  <h1 class="page__title">Configuração inicial</h1>
+
+  @if (carregando()) {
+    <p class="muted">Verificando sistema…</p>
+  } @else if (required()) {
+    <p class="lead">
+      Crie o primeiro administrador para liberar o painel e o cadastro de barbeiros e serviços.
+    </p>
+    <form class="surface card" (ngSubmit)="criarAdmin()">
+      @if (erro()) {
+        <div class="alert alert--err" role="alert">{{ erro() }}</div>
+      }
+      <div class="field">
+        <label for="nome">Nome</label>
+        <input id="nome" name="nome" type="text" [(ngModel)]="nome" required />
+      </div>
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" [(ngModel)]="email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="telefone">Telefone</label>
+        <input id="telefone" name="telefone" type="tel" [(ngModel)]="telefone" required />
+      </div>
+      <div class="field">
+        <label for="senha">Senha</label>
+        <input id="senha" name="senha" type="password" [(ngModel)]="senha" required autocomplete="new-password" />
+      </div>
+      <button type="submit" class="btn-brand btn-block" [disabled]="enviando()">
+        {{ enviando() ? 'Salvando…' : 'Criar administrador' }}
+      </button>
+    </form>
+  }
+
+  <p class="foot"><a routerLink="/">Voltar ao início</a></p>
+</div>

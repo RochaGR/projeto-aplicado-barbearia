@@ -1,0 +1,118 @@
+<div class="admin-barbeiros-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="admin-barbeiros-page__overlay"></div>
+  
+  <div class="admin-barbeiros-page__content">
+    <div class="admin-barbeiros-header">
+      <div class="admin-barbeiros-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="admin-barbeiros-header__title">Barbeiros</h1>
+      <p class="admin-barbeiros-header__subtitle">Gerencie os profissionais da barbearia</p>
+    </div>
+
+    <div class="admin-barbeiros-form surface">
+      <h2>Novo barbeiro</h2>
+    <form class="form-grid" (ngSubmit)="cadastrar()">
+      <div class="field">
+        <label for="nome">
+          <i class="fas fa-user"></i>
+          Nome
+        </label>
+        <input id="nome" name="nome" type="text" [(ngModel)]="nome" required />
+      </div>
+      <div class="field">
+        <label for="email">
+          <i class="fas fa-envelope"></i>
+          E-mail
+        </label>
+        <input id="email" name="email" type="email" [(ngModel)]="email" required />
+      </div>
+      <div class="field">
+        <label for="tel">
+          <i class="fas fa-phone"></i>
+          Telefone
+        </label>
+        <input id="tel" name="tel" type="tel" [(ngModel)]="telefone" required />
+      </div>
+      <div class="field">
+        <label for="senha">
+          <i class="fas fa-lock"></i>
+          Senha inicial
+        </label>
+        <input id="senha" name="senha" type="password" [(ngModel)]="senha" required autocomplete="new-password" />
+      </div>
+      <div class="field field--action">
+        <button type="submit" class="btn-brand" [disabled]="criando()">
+          {{ criando() ? 'Salvando…' : 'Cadastrar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert--err">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ erro() }}</span>
+    </div>
+  }
+
+  @if (carregando()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Carregando...</p>
+    </div>
+  } @else if (lista().length === 0) {
+    <div class="empty-state">
+      <i class="fas fa-user-tie"></i>
+      <h3>Nenhum barbeiro encontrado</h3>
+      <p>Nenhum barbeiro foi cadastrado ainda.</p>
+    </div>
+  } @else {
+    <div class="barbeiros-list">
+      @for (b of lista(); track b.id) {
+        <div class="barbeiro-item" [class]="'barbeiro-item--' + (b.ativo ? 'ativo' : 'inativo')">
+          <div class="item__main">
+            <div class="item__header">
+              <div class="item__name">
+                <i class="fas fa-user-tie"></i>
+                <strong>{{ b.nome }}</strong>
+              </div>
+              <div class="item__status">
+                <span class="badge badge--{{ b.ativo ? 'ativo' : 'inativo' }}">
+                  {{ b.ativo ? 'Ativo' : 'Inativo' }}
+                </span>
+              </div>
+            </div>
+            <div class="item__details">
+              <div class="detail-item">
+                <i class="fas fa-envelope"></i>
+                <span>{{ b.email }}</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-phone"></i>
+                <span>{{ b.telefone }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="item__actions">
+            <button type="button" class="btn-ghost" [disabled]="acaoId() === b.id" (click)="toggle(b)">
+              <i class="fas {{ b.ativo ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+              {{ acaoId() === b.id ? (b.ativo ? 'Desativando...' : 'Ativando...') : (b.ativo ? 'Desativar' : 'Ativar') }}
+            </button>
+            <button
+              type="button"
+              class="btn-ghost btn-danger-ghost"
+              [disabled]="acaoId() === b.id"
+              (click)="excluir(b)"
+            >
+              <i class="fas fa-trash"></i>
+              {{ acaoId() === b.id ? 'Excluindo...' : 'Excluir' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+  </div>
+</div>

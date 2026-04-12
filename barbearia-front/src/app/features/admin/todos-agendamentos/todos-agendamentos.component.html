@@ -1,0 +1,92 @@
+<div class="admin-agendamentos-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="admin-agendamentos-page__overlay"></div>
+  
+  <div class="admin-agendamentos-page__content">
+    <div class="admin-agendamentos-header">
+      <div class="admin-agendamentos-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="admin-agendamentos-header__title">Todos os Agendamentos</h1>
+      <p class="admin-agendamentos-header__subtitle">Gerencie todos os agendamentos da barbearia</p>
+    </div>
+
+    <div class="admin-agendamentos-toolbar surface">
+    <div class="field field--inline">
+      <label for="data">
+        <i class="fas fa-calendar"></i>
+        Data
+      </label>
+      <input id="data" name="data" type="date" [(ngModel)]="filtroData" />
+    </div>
+    <div class="field field--inline">
+      <label for="st">
+        <i class="fas fa-filter"></i>
+        Status
+      </label>
+      <select id="st" name="st" [(ngModel)]="filtroStatus">
+        @for (s of statusOpts; track s) {
+          <option [value]="s">{{ s === '' ? 'Todos' : s }}</option>
+        }
+      </select>
+    </div>
+    <button type="button" class="btn-ghost" (click)="carregar()">
+      <i class="fas fa-search"></i>
+      Filtrar
+    </button>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert--err">{{ erro() }}</div>
+  }
+
+  @if (carregando()) {
+    <p class="muted">Carregando…</p>
+  } @else if (lista().length === 0) {
+    <p class="muted">Nenhum resultado.</p>
+  } @else {
+    <div class="table-wrap surface">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-calendar"></i> Data</th>
+            <th><i class="fas fa-user"></i> Cliente</th>
+            <th><i class="fas fa-user-tie"></i> Barbeiro</th>
+            <th><i class="fas fa-cut"></i> Serviço</th>
+            <th><i class="fas fa-info-circle"></i> Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of lista(); track a.id) {
+            <tr>
+              <td>{{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ a.cliente?.nome }}</td>
+              <td>{{ a.barbeiro?.nome }}</td>
+              <td>{{ a.servico?.nome }}</td>
+              <td>{{ a.status }}</td>
+              <td class="actions">
+                @if (podeConfirmar(a.status)) {
+                  <button type="button" class="btn-brand btn--sm" [disabled]="acaoId() === a.id" (click)="confirmar(a)">
+                    Confirmar
+                  </button>
+                }
+                @if ((a.status ?? '').toUpperCase() !== 'CANCELADO' && (a.status ?? '').toUpperCase() !== 'CONCLUIDO') {
+                  <button
+                    type="button"
+                    class="btn-ghost btn-danger-ghost btn--sm"
+                    [disabled]="acaoId() === a.id"
+                    (click)="cancelar(a)"
+                  >
+                    Cancelar
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  </div>
+</div>

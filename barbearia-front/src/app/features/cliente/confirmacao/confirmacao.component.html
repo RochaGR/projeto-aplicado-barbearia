@@ -1,0 +1,80 @@
+<div class="confirmacao-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="confirmacao-page__overlay"></div>
+  
+  <div class="confirmacao-page__content">
+    <div class="confirmacao-header">
+      <div class="confirmacao-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="confirmacao-header__title">Confirmação do agendamento</h1>
+      <p class="confirmacao-header__subtitle">Seu agendamento foi registrado com sucesso</p>
+    </div>
+
+    @if (carregando()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Carregando...</p>
+      </div>
+    } @else if (erro()) {
+      <div class="alert alert--err">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ erro() }}</span>
+      </div>
+    } @else {
+      @if (agendamento(); as ag) {
+        <div class="confirmacao-card surface">
+          <div class="success-message">
+            <i class="fas fa-check-circle"></i>
+            <span>Agendamento registrado com sucesso!</span>
+          </div>
+          
+          <div class="appointment-details">
+            <div class="detail-item">
+              <i class="fas fa-calendar"></i>
+              <div class="detail-content">
+                <strong>Data e hora</strong>
+                <span>{{ ag.dataHora | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-info-circle"></i>
+              <div class="detail-content">
+                <strong>Status</strong>
+                <span>{{ ag.status }}</span>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-user-tie"></i>
+              <div class="detail-content">
+                <strong>Barbeiro</strong>
+                <span>{{ ag.barbeiro?.nome }}</span>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-scissors"></i>
+              <div class="detail-content">
+                <strong>Serviço</strong>
+                <span>{{ ag.servico?.nome }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="actions">
+            <a routerLink="/agendamentos" class="btn-brand">
+              <i class="fas fa-list"></i>
+              Ver meus agendamentos
+            </a>
+            <a routerLink="/agendamentos/novo" class="btn-ghost">
+              <i class="fas fa-plus"></i>
+              Novo agendamento
+            </a>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

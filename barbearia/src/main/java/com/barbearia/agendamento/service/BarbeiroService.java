@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.lang.NonNull;
 
 @Service
 public class BarbeiroService {
@@ -28,7 +29,7 @@ public class BarbeiroService {
         return barbeiroRepository.findByEmail(email);
     }
 
-    public Optional<Barbeiro> buscarPorId(Long id) {
+    public Optional<Barbeiro> buscarPorId(@NonNull Long id) {
         return barbeiroRepository.findById(id);
     }
 
@@ -36,8 +37,15 @@ public class BarbeiroService {
         return barbeiroRepository.findAll();
     }
 
-    public void excluir(Long id) {
+    public void excluir(@NonNull Long id) {
         barbeiroRepository.deleteById(id);
+    }
+
+    public Barbeiro alternarAtivo(@NonNull Long id) {
+        Barbeiro b = barbeiroRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Barbeiro não encontrado"));
+        b.setAtivo(!b.isAtivo());
+        return barbeiroRepository.save(b);
     }
 
 }

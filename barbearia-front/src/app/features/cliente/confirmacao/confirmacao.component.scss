@@ -1,0 +1,245 @@
+// Confirmacao Page Styles
+.confirmacao-page {
+  --bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920');
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-img) center / cover no-repeat, linear-gradient(180deg, #12151c 0%, #0e1016 100%);
+  color: #fff;
+}
+
+.confirmacao-page__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 11, 15, 0.85) 0%, rgba(10, 11, 15, 0.95) 100%);
+  pointer-events: none;
+}
+
+.confirmacao-page__content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.confirmacao-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.confirmacao-header__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  
+  i {
+    color: var(--bb-accent);
+    font-size: 1.1rem;
+  }
+}
+
+.confirmacao-header__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #fff 0%, var(--bb-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.confirmacao-header__subtitle {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #fff;
+  
+  i {
+    font-size: 1.1rem;
+    color: #f87171;
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top: 3px solid var(--bb-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.confirmacao-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 2rem;
+  text-align: center;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0 0 2rem;
+  color: #34d399;
+  
+  i {
+    font-size: 1.3rem;
+  }
+}
+
+.appointment-details {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  margin: 2rem 0;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  
+  strong {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.8rem;
+  }
+  
+  span {
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 500;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.btn-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--bb-accent) 0%, #d4a574 100%);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232, 165, 75, 0.4);
+  }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+  }
+}
+
+// Animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .confirmacao-page__content {
+    padding: 1rem 0.75rem;
+  }
+  
+  .confirmacao-header__title {
+    font-size: 1.5rem;
+  }
+  
+  .confirmacao-card {
+    padding: 1.5rem;
+  }
+  
+  .appointment-details {
+    gap: 1rem;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

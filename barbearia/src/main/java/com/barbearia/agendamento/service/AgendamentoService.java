@@ -9,6 +9,7 @@ import com.barbearia.agendamento.repository.AgendamentoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,18 +39,30 @@ public class AgendamentoService {
               this.fidelidadeService = fidelidadeService;
        }
 
-       public Optional<Agendamento> buscarPorId(Long id) {
+       public Optional<Agendamento> buscarPorId(@NonNull Long id) {
               return repository.findById(id);
        }
 
        public Agendamento agendar(Agendamento agendamento) {
-              Barbeiro barbeiro = barbeiroService.buscarPorId(agendamento.getBarbeiro().getId())
+              Long barbeiroId = agendamento.getBarbeiro().getId();
+              if (barbeiroId == null) {
+                     throw new IllegalArgumentException("ID do barbeiro não pode ser nulo");
+              }
+              Barbeiro barbeiro = barbeiroService.buscarPorId(barbeiroId)
                             .orElseThrow(() -> new IllegalArgumentException("Barbeiro não encontrado"));
 
-              Servico servico = servicoService.buscarPorId(agendamento.getServico().getId())
+              Long servicoId = agendamento.getServico().getId();
+              if (servicoId == null) {
+                     throw new IllegalArgumentException("ID do serviço não pode ser nulo");
+              }
+              Servico servico = servicoService.buscarPorId(servicoId)
                             .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
 
-              Cliente cliente = clienteService.buscarPorId(agendamento.getCliente().getId())
+              Long clienteId = agendamento.getCliente().getId();
+              if (clienteId == null) {
+                     throw new IllegalArgumentException("ID do cliente não pode ser nulo");
+              }
+              Cliente cliente = clienteService.buscarPorId(clienteId)
                             .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
               if (existeConflitoHorario(barbeiro.getId(), agendamento.getDataHora())) {
@@ -71,7 +84,7 @@ public class AgendamentoService {
               return repository.findAll();
        }
 
-       public Page<Agendamento> listarTodos(Pageable pageable) {
+       public Page<Agendamento> listarTodos(@NonNull Pageable pageable) {
               return repository.findAll(pageable);
        }
 
@@ -83,6 +96,7 @@ public class AgendamentoService {
               return repository.existsByBarbeiroIdAndDataHoraAndStatusNot(barbeiroId, dataHora, "CANCELADO");
        }
 
+<<<<<<< HEAD
        public Agendamento salvar(Agendamento agendamento) {
               if (agendamento.getId() != null) {
                      Agendamento existente = repository.findById(agendamento.getId()).orElse(null);
@@ -95,6 +109,9 @@ public class AgendamentoService {
                      fidelidadeService.registrarCorte(agendamento.getCliente());
                      agendamento.setPontoRegistrado(true);
               }
+=======
+       public Agendamento salvar(@NonNull Agendamento agendamento) {
+>>>>>>> 3986e7d
               return repository.save(agendamento);
        }
 

@@ -1,0 +1,62 @@
+<div class="admin-fidelidade-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="admin-fidelidade-page__overlay"></div>
+  
+  <div class="admin-fidelidade-page__content">
+    <div class="admin-fidelidade-header">
+      <div class="admin-fidelidade-header__brand">
+        <i class="fas fa-cut"></i>
+        <span>Barbearia Souza</span>
+      </div>
+      <h1 class="admin-fidelidade-header__title">Configuração de Fidelidade</h1>
+      <p class="admin-fidelidade-header__subtitle">Defina quantos cortes o cliente precisa acumular e qual desconto será aplicado</p>
+    </div>
+
+    @if (carregando()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Carregando...</p>
+      </div>
+    } @else {
+      <form class="admin-fidelidade-form surface" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="alert alert--err">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>{{ erro() }}</span>
+        </div>
+      }
+      @if (ok()) {
+        <div class="alert alert--ok">
+          <i class="fas fa-check-circle"></i>
+          <span>{{ ok() }}</span>
+        </div>
+      }
+      <div class="field">
+        <label for="cortes">
+          <i class="fas fa-scissors"></i>
+          Cortes para ganhar desconto
+        </label>
+        <input id="cortes" name="cortes" type="number" min="1" [(ngModel)]="cortesParaDesconto" required />
+      </div>
+      <div class="field">
+        <label for="pct">
+          <i class="fas fa-percentage"></i>
+          Percentual de desconto (%)
+        </label>
+        <input
+          id="pct"
+          name="pct"
+          type="number"
+          min="0"
+          max="100"
+          step="0.5"
+          [(ngModel)]="percentualDesconto"
+          required
+        />
+      </div>
+      <button type="submit" class="btn-brand btn-block" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando…' : 'Salvar configuração' }}
+      </button>
+    </form>
+  }
+  </div>
+</div>
