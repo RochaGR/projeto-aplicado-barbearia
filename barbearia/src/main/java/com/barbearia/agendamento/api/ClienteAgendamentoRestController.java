@@ -3,10 +3,12 @@ package com.barbearia.agendamento.api;
 import com.barbearia.agendamento.model.Agendamento;
 import com.barbearia.agendamento.model.Barbeiro;
 import com.barbearia.agendamento.model.Cliente;
+import com.barbearia.agendamento.model.ConfiguracaoFidelidade;
 import com.barbearia.agendamento.model.Servico;
 import com.barbearia.agendamento.service.AgendamentoService;
 import com.barbearia.agendamento.service.BarbeiroService;
 import com.barbearia.agendamento.service.ClienteService;
+import com.barbearia.agendamento.service.FidelidadeService;
 import com.barbearia.agendamento.service.ServicoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -30,25 +32,37 @@ public class ClienteAgendamentoRestController {
     private final ClienteService clienteService;
     private final BarbeiroService barbeiroService;
     private final ServicoService servicoService;
+    private final FidelidadeService fidelidadeService;
 
     public ClienteAgendamentoRestController(AgendamentoService agendamentoService,
             ClienteService clienteService,
             BarbeiroService barbeiroService,
-            ServicoService servicoService) {
+            ServicoService servicoService,
+            FidelidadeService fidelidadeService) {
         this.agendamentoService = agendamentoService;
         this.clienteService = clienteService;
         this.barbeiroService = barbeiroService;
         this.servicoService = servicoService;
+        this.fidelidadeService = fidelidadeService;
     }
 
     @GetMapping("/agendamentos/form-options")
-    public Map<String, Object> formOptions() {
+    public Map<String, Object> formOptions(@AuthenticationPrincipal UserDetails user) {
+        ConfiguracaoFidelidade config = fidelidadeService.buscarConfiguracaoAtual();
+        Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+        var descontoDisponivel = fidelidadeService.buscarDescontoDisponivel(cliente.getId()).orElse(null);
+        var cartao = fidelidadeService.buscarCartao(cliente.getId()).orElse(null);
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("servicos", servicoService.listarTodos().stream().filter(Servico::isAtivo).map(ApiMapper::servico)
                 .collect(Collectors.toList()));
         m.put("barbeiros", barbeiroService.listarTodos().stream().filter(Barbeiro::isAtivo).map(ApiMapper::barbeiro)
                 .collect(Collectors.toList()));
-        m.put("temDesconto", false);
+        m.put("cortesParaDesconto", config.getCortesParaDesconto());
+        m.put("percentualDescontoPadrao", config.getPercentualDesconto());
+        m.put("temDesconto", descontoDisponivel != null);
+        m.put("percentualDesconto", descontoDisponivel != null ? descontoDisponivel.getPercentualDesconto() : null);
+        m.put("pontosAtuais", cartao != null ? cartao.getPontos() : 0);
         return m;
     }
 
@@ -84,6 +98,20 @@ public class ClienteAgendamentoRestController {
             Servico s = servicoService.buscarPorId(req.servicoId())
                     .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
             ag.setServico(s);
+            double precoOriginal = s.getPreco() != null ? s.getPreco() : 0.0;
+            double precoFinal = precoOriginal;
+            Double percentualAplicado = null;
+            double valorDescontado = 0.0;
+            var descontoDisponivel = fidelidadeService.buscarDescontoDisponivel(cliente.getId());
+            if (descontoDisponivel.isPresent()) {
+                percentualAplicado = descontoDisponivel.get().getPercentualDesconto();
+                precoFinal = fidelidadeService.aplicarDesconto(cliente.getId(), precoOriginal);
+                valorDescontado = Math.max(0.0, precoOriginal - precoFinal);
+            }
+            ag.setPrecoOriginal(precoOriginal);
+            ag.setPrecoFinal(precoFinal);
+            ag.setPercentualDescontoAplicado(percentualAplicado);
+            ag.setValorDescontado(valorDescontado);
             ag.setDataHora(dt);
             ag.setStatus("AGENDADO");
             Agendamento salvo = agendamentoService.agendar(ag);
@@ -142,9 +170,14 @@ public class ClienteAgendamentoRestController {
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("agendamento", ApiMapper.agendamento(a));
-        m.put("descontoAplicado", false);
-        m.put("precoFinal", a.getServico().getPreco());
-        m.put("percentualDesconto", null);
+        double precoOriginal = a.getPrecoOriginal() != null ? a.getPrecoOriginal() : a.getServico().getPreco();
+        double precoFinal = a.getPrecoFinal() != null ? a.getPrecoFinal() : precoOriginal;
+        double valorDescontado = a.getValorDescontado() != null ? a.getValorDescontado() : Math.max(0.0, precoOriginal - precoFinal);
+        m.put("descontoAplicado", valorDescontado > 0.0);
+        m.put("precoOriginal", precoOriginal);
+        m.put("precoFinal", precoFinal);
+        m.put("valorDescontado", valorDescontado);
+        m.put("percentualDesconto", a.getPercentualDescontoAplicado());
         return m;
     }
 
@@ -155,6 +188,8 @@ public class ClienteAgendamentoRestController {
         Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         List<Agendamento> lista = agendamentoService.listarPorBarbeiro(cliente.getId());
+        ConfiguracaoFidelidade config = fidelidadeService.buscarConfiguracaoAtual();
+        boolean temDesconto = fidelidadeService.buscarDescontoDisponivel(cliente.getId()).isPresent();
         if (data != null) {
             lista = lista.stream()
                     .filter(a -> a.getDataHora().toLocalDate().equals(data))
@@ -162,9 +197,11 @@ public class ClienteAgendamentoRestController {
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("agendamentos", lista.stream().map(ApiMapper::agendamento).collect(Collectors.toList()));
-        m.put("temDesconto", false);
-        m.put("cortesParaDesconto", 0);
-        m.put("percentualDescontoAtual", 0);
+        m.put("temDesconto", temDesconto);
+        m.put("cortesParaDesconto", config.getCortesParaDesconto());
+        m.put("percentualDescontoAtual", temDesconto
+                ? fidelidadeService.buscarDescontoDisponivel(cliente.getId()).map(d -> d.getPercentualDesconto()).orElse(null)
+                : null);
         return m;
     }
 
@@ -195,27 +232,32 @@ public class ClienteAgendamentoRestController {
         try {
             Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
-
-            // Pega configuração do admin (mesmos valores do admin)
-            int percentualDesconto = AdminRestController.fidelidadePct.get();
-            int cortesParaDesconto = AdminRestController.fidelidadeCortes.get();
-
-            // Conta cortes do cliente
-            long cortesRealizados = agendamentoService.listarPorBarbeiro(cliente.getId()).stream()
-                    .filter(a -> "CONCLUIDO".equals(a.getStatus()))
-                    .count();
-
-            boolean temDesconto = cortesRealizados >= cortesParaDesconto;
+            ConfiguracaoFidelidade config = fidelidadeService.buscarConfiguracaoAtual();
+            var cartao = fidelidadeService.buscarCartao(cliente.getId()).orElse(null);
+            var descontoDisponivel = fidelidadeService.buscarDescontoDisponivel(cliente.getId()).orElse(null);
+            int cortesRealizados = cartao != null ? cartao.getTotalCortesRealizados() : 0;
+            int pontosAtuais = cartao != null ? cartao.getPontos() : 0;
+            boolean temDesconto = descontoDisponivel != null;
+            int faltam = temDesconto ? 0 : Math.max(0, config.getCortesParaDesconto() - pontosAtuais);
+            Double percentualDisponivel = temDesconto ? descontoDisponivel.getPercentualDesconto() : null;
+            Double economiaTotal = fidelidadeService.economiaTotal(cliente.getId());
 
             Map<String, Object> m = new LinkedHashMap<>();
-            m.put("config", Map.of("percentualDesconto", percentualDesconto, "cortesParaDesconto", cortesParaDesconto));
-            m.put("cartao", Map.of(
-                    "cortesRealizados", cortesRealizados,
-                    "cortesParaDesconto", cortesParaDesconto,
-                    "percentualDesconto", percentualDesconto,
-                    "temDesconto", temDesconto));
+            Map<String, Object> cartaoPayload = new LinkedHashMap<>();
+            cartaoPayload.put("cortesRealizados", cortesRealizados);
+            cartaoPayload.put("cortesParaDesconto", config.getCortesParaDesconto());
+            cartaoPayload.put("pontosAtuais", pontosAtuais);
+            cartaoPayload.put("faltamParaDesconto", faltam);
+            cartaoPayload.put("percentualDesconto", config.getPercentualDesconto());
+            cartaoPayload.put("percentualDisponivel", percentualDisponivel);
+            cartaoPayload.put("temDesconto", temDesconto);
+            cartaoPayload.put("economiaTotal", economiaTotal);
+            m.put("config", Map.of("percentualDesconto", config.getPercentualDesconto(), "cortesParaDesconto", config.getCortesParaDesconto()));
+            m.put("cartao", cartaoPayload);
             m.put("temDesconto", temDesconto);
-            m.put("percentualDesconto", temDesconto ? percentualDesconto : null);
+            m.put("percentualDesconto", percentualDisponivel);
+            m.put("totalCortes", cortesRealizados);
+            m.put("totalEconomizado", economiaTotal);
             return m;
         } catch (Exception e) {
             Map<String, Object> m = new LinkedHashMap<>();
@@ -223,6 +265,8 @@ public class ClienteAgendamentoRestController {
             m.put("cartao", null);
             m.put("temDesconto", false);
             m.put("percentualDesconto", null);
+            m.put("totalCortes", 0);
+            m.put("totalEconomizado", 0);
             return m;
         }
     }
@@ -258,10 +302,7 @@ public class ClienteAgendamentoRestController {
         long totalAgendamentos = historico.size();
         long concluidos = historico.stream().filter(a -> "CONCLUIDO".equals(a.getStatus())).count();
         long cancelados = historico.stream().filter(a -> "CANCELADO".equals(a.getStatus())).count();
-        double totalEconomizado = historico.stream()
-                .filter(a -> "CONCLUIDO".equals(a.getStatus()))
-                .mapToDouble(a -> a.getServico().getPreco())
-                .sum();
+        double totalEconomizado = fidelidadeService.economiaTotal(cliente.getId());
 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("historico", historico.stream().map(ApiMapper::agendamento).collect(Collectors.toList()));

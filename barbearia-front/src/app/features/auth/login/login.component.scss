@@ -70,6 +70,15 @@
   color: #f87171;
 }
 
+.field--invalid input {
+  border-color: #ef4444;
+}
+
+.field-error {
+  color: #f87171;
+  font-size: 0.8rem;
+}
+
 .btn-block {
   width: 100%;
   margin-top: 0.25rem;

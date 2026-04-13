@@ -37,10 +37,10 @@ export class AuthService {
       }),
       catchError((e: HttpErrorResponse) => {
         const msg =
-          e.error && typeof e.error === 'object' && 'message' in e.error
-            ? String((e.error as { message: string }).message)
-            : e.status === 401
-              ? 'Email ou senha inválidos.'
+          e.status === 401
+            ? 'Email ou senha inválidos'
+            : e.error && typeof e.error === 'object' && 'message' in e.error
+              ? String((e.error as { message: string }).message)
               : 'Não foi possível entrar.';
         return throwError(() => new Error(msg));
       }),

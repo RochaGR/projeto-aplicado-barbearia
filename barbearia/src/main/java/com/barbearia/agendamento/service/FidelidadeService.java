@@ -95,6 +95,12 @@ public class FidelidadeService {
         return descontoRepository.findByClienteIdAndUtilizadoFalse(clienteId);
     }
 
+    @Transactional(readOnly = true)
+    public Double economiaTotal(Long clienteId) {
+        Double total = descontoRepository.somarEconomiaByClienteId(clienteId);
+        return total == null ? 0.0 : total;
+    }
+
     /**
      * Aplica o desconto no preco e marca como utilizado.
      */

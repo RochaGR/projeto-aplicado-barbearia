@@ -1,6 +1,6 @@
 <div class="fidelidade-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
   <div class="fidelidade-page__overlay"></div>
-  
+
   <div class="fidelidade-page__content">
     <div class="fidelidade-header">
       <div class="fidelidade-header__brand">
@@ -28,12 +28,12 @@
               </div>
               <div class="loyalty-card__title">Cartão Fidelidade</div>
             </div>
-            
+
             <div class="loyalty-card__progress">
               <div class="loyalty-card__stamps">
                 @for (i of getStarArray(d); track i) {
-                  <div class="stamp" [class.stamp--filled]="i <= getCortesRealizados(d)" [class.stamp--bonus]="i === getCortesParaDesconto(d)">
-                    @if (i <= getCortesRealizados(d)) {
+                  <div class="stamp" [class.stamp--filled]="i <= getPontosAtuais(d)" [class.stamp--bonus]="i === getCortesParaDesconto(d)">
+                    @if (i <= getPontosAtuais(d)) {
                       <i class="fas fa-star"></i>
                     } @else {
                       <i class="far fa-star"></i>
@@ -49,13 +49,13 @@
                   </div>
                 } @else {
                   <div class="reward-info">
-                    <span>Faltam {{ getCortesParaDesconto(d) - getCortesRealizados(d) }} cortes</span>
+                    <span>Faltam {{ getCortesParaDesconto(d) - getPontosAtuais(d) }} cortes</span>
                     <span>para {{ getPercentualDesconto(d) }}% de desconto</span>
                   </div>
                 }
               </div>
             </div>
-            
+
             <div class="loyalty-card__footer">
               <div class="loyalty-card__stats">
                 <div class="stat-item">
@@ -72,11 +72,16 @@
                   <span class="stat-value">{{ getPercentualDesconto(d) }}%</span>
                   <span class="stat-label">Desconto</span>
                 </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ getEconomiaTotal(d) | number: '1.2-2' }} R$</span>
+                  <span class="stat-label">Economizado</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Informações Adicionais -->
         <div class="loyalty-info surface">
           <h3>Como funciona</h3>

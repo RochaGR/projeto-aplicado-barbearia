@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -24,7 +25,7 @@ function toIsoLocal(dtLocal: string): string {
 @Component({
   selector: 'app-agendamento-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, DecimalPipe],
   templateUrl: './agendamento-form.component.html',
   styleUrl: './agendamento-form.component.scss',
 })
@@ -43,6 +44,8 @@ export class AgendamentoFormComponent implements OnInit {
   readonly carregando = signal(true);
   readonly salvando = signal(false);
   readonly erro = signal<string | null>(null);
+  readonly temDesconto = signal(false);
+  readonly percentualDesconto = signal<number | null>(null);
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -55,6 +58,8 @@ export class AgendamentoFormComponent implements OnInit {
       next: (opts) => {
         this.barbeiros.set(pickArray<Barbeiro>(opts, ['barbeiros', 'Barbeiros']));
         this.servicos.set(pickArray<Servico>(opts, ['servicos', 'Servicos']));
+        this.temDesconto.set(Boolean(opts['temDesconto']));
+        this.percentualDesconto.set(typeof opts['percentualDesconto'] === 'number' ? (opts['percentualDesconto'] as number) : null);
         const eid = this.editId();
         if (eid != null) {
           this.api.agendamentoClientePorId(eid).subscribe({
@@ -93,10 +98,6 @@ export class AgendamentoFormComponent implements OnInit {
     this.salvando.set(true);
     const body = { barbeiroId: bid, servicoId: sid, dataHora: toIsoLocal(this.dataHora) };
     const eid = this.editId();
-    
-    console.log('Enviando agendamento:', body);
-    console.log('Edit ID:', eid);
-    
     const req =
       eid != null ? this.api.editarAgendamento(eid, body) : this.api.criarAgendamento(body);
     req.subscribe({
@@ -111,10 +112,30 @@ export class AgendamentoFormComponent implements OnInit {
       },
       error: (err) => {
         this.salvando.set(false);
-        console.error('Erro ao salvar agendamento:', err);
         const errorMsg = err.error?.message || err.message || 'Não foi possível salvar o agendamento.';
         this.erro.set(errorMsg);
       },
     });
+  }
+
+  servicoSelecionado(): Servico | null {
+    const sid = this.servicoId;
+    if (sid == null) return null;
+    return this.servicos().find((s) => s.id === sid) ?? null;
+  }
+
+  precoOriginal(): number {
+    return this.servicoSelecionado()?.preco ?? 0;
+  }
+
+  precoFinalPreview(): number {
+    const original = this.precoOriginal();
+    const pct = this.percentualDesconto();
+    if (!this.temDesconto() || pct == null) return original;
+    return original * (1 - pct / 100);
+  }
+
+  valorDescontoPreview(): number {
+    return Math.max(0, this.precoOriginal() - this.precoFinalPreview());
   }
 }

@@ -35,6 +35,13 @@ public class SenhaValidator implements ConstraintValidator<SenhaValida, String> 
             return false;
         }
 
+        if (!senha.matches(".*\\d.*")) {
+            context.buildConstraintViolationWithTemplate(
+                            "A senha deve conter pelo menos 1 número")
+                    .addConstraintViolation();
+            return false;
+        }
+
         if (!senha.matches(".*[^a-zA-Z0-9].*")) {
             context.buildConstraintViolationWithTemplate(
                             "A senha deve conter pelo menos 1 caractere especial")

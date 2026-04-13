@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.barbearia.agendamento.model.Cliente;
 import com.barbearia.agendamento.model.Servico;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
@@ -59,12 +60,12 @@ public class SetupAndPublicRestController {
     }
 
     @PostMapping("/api/clientes/cadastro")
-    public ResponseEntity<?> cadastro(@RequestBody ClienteCadastroRequest req) {
+    public ResponseEntity<?> cadastro(@Valid @RequestBody ClienteCadastroRequest req) {
         try {
             Cliente c = new Cliente();
-            c.setNome(req.nome());
-            c.setTelefone(req.telefone());
-            c.setEmail(req.email());
+            c.setNome(req.nome().trim());
+            c.setTelefone(req.telefone().trim());
+            c.setEmail(req.email().trim());
             c.setSenha(req.senha());
             clienteService.cadastrarCliente(c);
             return ResponseEntity.ok(Map.of("ok", true));

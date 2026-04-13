@@ -51,6 +51,11 @@ export class FidelidadeComponent implements OnInit {
     return this.num(cartao, 'cortesRealizados') || 0;
   }
 
+  getPontosAtuais(dados: Record<string, unknown>): number {
+    const cartao = this.getCartao(dados);
+    return this.num(cartao, 'pontosAtuais') || 0;
+  }
+
   getCortesParaDesconto(dados: Record<string, unknown>): number {
     const cartao = this.getCartao(dados);
     return this.num(cartao, 'cortesParaDesconto') || 5;
@@ -64,6 +69,11 @@ export class FidelidadeComponent implements OnInit {
   getTemDesconto(dados: Record<string, unknown>): boolean {
     const cartao = this.getCartao(dados);
     return Boolean(cartao?.['temDesconto']);
+  }
+
+  getEconomiaTotal(dados: Record<string, unknown>): number {
+    const cartao = this.getCartao(dados);
+    return this.num(cartao, 'economiaTotal') || 0;
   }
 
   getStarArray(dados: Record<string, unknown>): number[] {

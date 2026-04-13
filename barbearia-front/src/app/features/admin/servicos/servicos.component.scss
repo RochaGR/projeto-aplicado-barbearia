@@ -35,7 +35,7 @@
   font-size: 0.9rem;
   opacity: 0.8;
   margin-bottom: 0.5rem;
-  
+
   i {
     color: var(--bb-accent);
     font-size: 1.1rem;
@@ -67,7 +67,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 1.5rem;
   margin-bottom: 2rem;
-  
+
   h2 {
     margin: 0 0 1.5rem;
     font-size: 1.3rem;
@@ -86,7 +86,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  
+
   label {
     display: flex;
     align-items: center;
@@ -94,13 +94,13 @@
     font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
     font-size: 0.9rem;
-    
+
     i {
       font-size: 0.9rem;
       color: var(--bb-accent);
     }
   }
-  
+
   input {
     padding: 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -109,13 +109,22 @@
     color: #fff;
     font-size: 0.9rem;
     transition: all 0.3s ease;
-    
+
     &:focus {
       outline: none;
       border-color: var(--bb-accent);
       background: rgba(255, 255, 255, 0.15);
     }
   }
+
+  &.field--invalid input {
+    border-color: #ef4444;
+  }
+}
+
+.field-error {
+  color: #fca5a5;
+  font-size: 0.8rem;
 }
 
 .field--wide {
@@ -126,11 +135,11 @@
   flex-direction: row;
   align-items: center;
   margin-bottom: 0;
-  
+
   label {
     cursor: pointer;
     font-size: 0.9rem;
-    
+
     input[type="checkbox"] {
       width: auto;
       margin-right: 0.5rem;
@@ -153,7 +162,7 @@
   background: rgba(248, 113, 113, 0.15);
   border: 1px solid rgba(248, 113, 113, 0.3);
   color: #fff;
-  
+
   i {
     font-size: 1.1rem;
     color: #f87171;
@@ -185,19 +194,19 @@
   background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  
+
   i {
     font-size: 3rem;
     color: var(--bb-accent);
     margin-bottom: 1rem;
   }
-  
+
   h3 {
     margin: 0 0 0.5rem;
     font-size: 1.3rem;
     color: #fff;
   }
-  
+
   p {
     margin: 0;
     opacity: 0.8;
@@ -222,17 +231,17 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 1.25rem;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
   }
-  
+
   &--ativo {
     border-left: 4px solid #10b981;
   }
-  
+
   &--inativo {
     border-left: 4px solid #ef4444;
   }
@@ -255,12 +264,12 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  
+
   i {
     color: var(--bb-accent);
     font-size: 0.9rem;
   }
-  
+
   strong {
     font-size: 1.1rem;
     color: #fff;
@@ -278,12 +287,12 @@
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   text-transform: uppercase;
-  
+
   &--ativo {
     background: rgba(16, 185, 129, 0.2);
     color: #86efac;
   }
-  
+
   &--inativo {
     background: rgba(239, 68, 68, 0.2);
     color: #fca5a5;
@@ -302,7 +311,7 @@
   gap: 0.5rem;
   font-size: 0.9rem;
   opacity: 0.8;
-  
+
   i {
     color: var(--bb-accent);
     font-size: 0.8rem;
@@ -329,17 +338,17 @@
   font-weight: 500;
   font-size: 0.9rem;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-1px);
   }
-  
+
   &.btn-danger-ghost {
     border-color: rgba(239, 68, 68, 0.3);
     background: rgba(239, 68, 68, 0.1);
-    
+
     &:hover {
       background: rgba(239, 68, 68, 0.2);
       border-color: rgba(239, 68, 68, 0.5);
@@ -361,12 +370,12 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(232, 165, 75, 0.4);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -385,29 +394,29 @@
   .admin-servicos-page__content {
     padding: 1rem 0.75rem;
   }
-  
+
   .admin-servicos-header__title {
     font-size: 1.5rem;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .field--wide {
     grid-column: span 1;
   }
-  
+
   .servico-item {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .item__header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .item__actions {
     justify-content: center;
   }

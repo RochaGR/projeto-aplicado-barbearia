@@ -1,6 +1,6 @@
 <div class="confirmacao-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
   <div class="confirmacao-page__overlay"></div>
-  
+
   <div class="confirmacao-page__content">
     <div class="confirmacao-header">
       <div class="confirmacao-header__brand">
@@ -28,7 +28,7 @@
             <i class="fas fa-check-circle"></i>
             <span>Agendamento registrado com sucesso!</span>
           </div>
-          
+
           <div class="appointment-details">
             <div class="detail-item">
               <i class="fas fa-calendar"></i>
@@ -37,7 +37,7 @@
                 <span>{{ ag.dataHora | date: 'dd/MM/yyyy HH:mm' }}</span>
               </div>
             </div>
-            
+
             <div class="detail-item">
               <i class="fas fa-info-circle"></i>
               <div class="detail-content">
@@ -45,7 +45,7 @@
                 <span>{{ ag.status }}</span>
               </div>
             </div>
-            
+
             <div class="detail-item">
               <i class="fas fa-user-tie"></i>
               <div class="detail-content">
@@ -53,7 +53,7 @@
                 <span>{{ ag.barbeiro?.nome }}</span>
               </div>
             </div>
-            
+
             <div class="detail-item">
               <i class="fas fa-scissors"></i>
               <div class="detail-content">
@@ -61,8 +61,43 @@
                 <span>{{ ag.servico?.nome }}</span>
               </div>
             </div>
+
+            @if (precoOriginal() != null) {
+              <div class="detail-item">
+                <i class="fas fa-dollar-sign"></i>
+                <div class="detail-content">
+                  <strong>Preço original</strong>
+                  <span>{{ formatMoney(precoOriginal()) }} R$</span>
+                </div>
+              </div>
+            }
+
+            @if (descontoAplicado()) {
+              <div class="detail-item">
+                <i class="fas fa-tags"></i>
+                <div class="detail-content">
+                  <strong>Desconto fidelidade</strong>
+                  <span>
+                    -{{ formatMoney(valorDescontado()) }} R$
+                    @if (percentualDesconto() != null) {
+                      ({{ percentualDesconto() }}%)
+                    }
+                  </span>
+                </div>
+              </div>
+            }
+
+            @if (precoFinal() != null) {
+              <div class="detail-item">
+                <i class="fas fa-receipt"></i>
+                <div class="detail-content">
+                  <strong>Preço final</strong>
+                  <span>{{ formatMoney(precoFinal()) }} R$</span>
+                </div>
+              </div>
+            }
           </div>
-          
+
           <div class="actions">
             <a routerLink="/agendamentos" class="btn-brand">
               <i class="fas fa-list"></i>

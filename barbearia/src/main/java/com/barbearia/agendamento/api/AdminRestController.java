@@ -6,6 +6,7 @@ import com.barbearia.agendamento.model.Servico;
 import com.barbearia.agendamento.service.AgendamentoService;
 import com.barbearia.agendamento.service.BarbeiroService;
 import com.barbearia.agendamento.service.ClienteService;
+import com.barbearia.agendamento.service.ConfiguracaoFidelidadeService;
 import com.barbearia.agendamento.service.ServicoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -17,29 +18,28 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
 public class AdminRestController {
 
-    public static final AtomicInteger fidelidadePct = new AtomicInteger(10);
-    public static final AtomicInteger fidelidadeCortes = new AtomicInteger(5);
-
     private final AgendamentoService agendamentoService;
     private final ClienteService clienteService;
     private final BarbeiroService barbeiroService;
     private final ServicoService servicoService;
+    private final ConfiguracaoFidelidadeService configuracaoFidelidadeService;
 
     public AdminRestController(AgendamentoService agendamentoService,
             ClienteService clienteService,
             BarbeiroService barbeiroService,
-            ServicoService servicoService) {
+            ServicoService servicoService,
+            ConfiguracaoFidelidadeService configuracaoFidelidadeService) {
         this.agendamentoService = agendamentoService;
         this.clienteService = clienteService;
         this.barbeiroService = barbeiroService;
         this.servicoService = servicoService;
+        this.configuracaoFidelidadeService = configuracaoFidelidadeService;
     }
 
     @GetMapping("/dashboard")
@@ -183,10 +183,34 @@ public class AdminRestController {
     @PostMapping("/barbeiros")
     public ResponseEntity<?> cadastrarBarbeiro(@RequestBody Barbeiro barbeiro) {
         try {
+            if (barbeiro.getNome() == null || barbeiro.getNome().trim().length() < 3) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Nome deve ter no mínimo 3 caracteres",
+                        "errors", Map.of("nome", "Nome deve ter no mínimo 3 caracteres")));
+            }
+            if (barbeiro.getEmail() == null || !barbeiro.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Informe um email válido",
+                        "errors", Map.of("email", "Informe um email válido")));
+            }
+            if (barbeiro.getSenha() == null
+                    || barbeiro.getSenha().length() < 8
+                    || !barbeiro.getSenha().matches(".*[A-Z].*")
+                    || !barbeiro.getSenha().matches(".*\\d.*")
+                    || !barbeiro.getSenha().matches(".*[^a-zA-Z0-9].*")) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Senha não atende aos requisitos de segurança",
+                        "errors", Map.of("senha", "Senha não atende aos requisitos de segurança")));
+            }
             if (barbeiroService.buscarPorEmail(barbeiro.getEmail()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("message", "Este email já está cadastrado"));
+                        .body(Map.of(
+                                "message", "Este email já está cadastrado",
+                                "errors", Map.of("email", "Este email já está cadastrado")));
             }
+            barbeiro.setNome(barbeiro.getNome().trim());
+            barbeiro.setEmail(barbeiro.getEmail().trim());
+            barbeiro.setTelefone(barbeiro.getTelefone() == null ? null : barbeiro.getTelefone().trim());
             barbeiroService.salvar(barbeiro);
             return ResponseEntity.ok(Map.of("ok", true));
         } catch (Exception e) {
@@ -230,6 +254,28 @@ public class AdminRestController {
     @PostMapping("/servicos")
     public ResponseEntity<?> cadastrarServico(@RequestBody Servico servico) {
         try {
+            if (servico.getNome() == null || servico.getNome().trim().length() < 3) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Nome deve ter no mínimo 3 caracteres",
+                        "errors", Map.of("nome", "Nome deve ter no mínimo 3 caracteres")));
+            }
+            if (servico.getDescricao() == null || servico.getDescricao().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Descrição é obrigatória",
+                        "errors", Map.of("descricao", "Descrição é obrigatória")));
+            }
+            if (servico.getPreco() == null || servico.getPreco() < 0) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Preço inválido",
+                        "errors", Map.of("preco", "Preço inválido")));
+            }
+            if (servico.getDuracaoMinutos() == null || servico.getDuracaoMinutos() < 1) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Duração inválida",
+                        "errors", Map.of("duracaoMinutos", "Duração inválida")));
+            }
+            servico.setNome(servico.getNome().trim());
+            servico.setDescricao(servico.getDescricao().trim());
             servicoService.cadastrar(servico);
             return ResponseEntity.ok(Map.of("ok", true));
         } catch (Exception e) {
@@ -249,9 +295,10 @@ public class AdminRestController {
 
     @GetMapping("/fidelidade")
     public Map<String, Object> fidelidadeGet() {
+        var config = configuracaoFidelidadeService.buscar();
         return Map.of(
-                "percentualDesconto", fidelidadePct.get(),
-                "cortesParaDesconto", fidelidadeCortes.get());
+                "percentualDesconto", config.getPercentualDesconto(),
+                "cortesParaDesconto", config.getCortesParaDesconto());
     }
 
     public record FidelidadeBody(int percentualDesconto, int cortesParaDesconto) {
@@ -259,8 +306,11 @@ public class AdminRestController {
 
     @PostMapping("/fidelidade")
     public ResponseEntity<?> fidelidadePost(@RequestBody FidelidadeBody body) {
-        fidelidadePct.set(body.percentualDesconto());
-        fidelidadeCortes.set(body.cortesParaDesconto());
-        return ResponseEntity.ok(Map.of("ok", true));
+        try {
+            configuracaoFidelidadeService.salvar((double) body.percentualDesconto(), body.cortesParaDesconto(), "admin-api");
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 }

@@ -1,6 +1,6 @@
 <div class="admin-barbeiros-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
   <div class="admin-barbeiros-page__overlay"></div>
-  
+
   <div class="admin-barbeiros-page__content">
     <div class="admin-barbeiros-header">
       <div class="admin-barbeiros-header__brand">
@@ -13,37 +13,52 @@
 
     <div class="admin-barbeiros-form surface">
       <h2>Novo barbeiro</h2>
-    <form class="form-grid" (ngSubmit)="cadastrar()">
-      <div class="field">
+    <form class="form-grid" [formGroup]="form" (ngSubmit)="cadastrar()">
+      <div class="field" [class.field--invalid]="controlInvalid('nome')">
         <label for="nome">
           <i class="fas fa-user"></i>
           Nome
         </label>
-        <input id="nome" name="nome" type="text" [(ngModel)]="nome" required />
+        <input id="nome" type="text" formControlName="nome" />
+        @if (controlInvalid('nome')) {
+          <small class="field-error">{{ controlMessage('nome') }}</small>
+        }
       </div>
-      <div class="field">
+      <div class="field" [class.field--invalid]="controlInvalid('email')">
         <label for="email">
           <i class="fas fa-envelope"></i>
           E-mail
         </label>
-        <input id="email" name="email" type="email" [(ngModel)]="email" required />
+        <input id="email" type="email" formControlName="email" />
+        @if (controlInvalid('email')) {
+          <small class="field-error">{{ controlMessage('email') }}</small>
+        }
       </div>
-      <div class="field">
+      <div class="field" [class.field--invalid]="controlInvalid('telefone')">
         <label for="tel">
           <i class="fas fa-phone"></i>
           Telefone
         </label>
-        <input id="tel" name="tel" type="tel" [(ngModel)]="telefone" required />
+        <input id="tel" type="tel" formControlName="telefone" />
+        @if (controlInvalid('telefone')) {
+          <small class="field-error">{{ controlMessage('telefone') }}</small>
+        }
       </div>
-      <div class="field">
+      <div class="field" [class.field--invalid]="controlInvalid('senha')">
         <label for="senha">
           <i class="fas fa-lock"></i>
           Senha inicial
         </label>
-        <input id="senha" name="senha" type="password" [(ngModel)]="senha" required autocomplete="new-password" />
+        <input id="senha" type="password" formControlName="senha" autocomplete="new-password" />
+        @if (senhaStrength(); as level) {
+          <small class="field-hint">Senha {{ level }}</small>
+        }
+        @if (controlInvalid('senha')) {
+          <small class="field-error">{{ controlMessage('senha') }}</small>
+        }
       </div>
       <div class="field field--action">
-        <button type="submit" class="btn-brand" [disabled]="criando()">
+        <button type="submit" class="btn-brand" [disabled]="criando() || form.invalid">
           {{ criando() ? 'Salvando…' : 'Cadastrar' }}
         </button>
       </div>

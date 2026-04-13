@@ -1,6 +1,6 @@
 <div class="agendamento-page">
   <div class="agendamento-page__overlay"></div>
-  
+
   <div class="agendamento-page__content">
     <div class="agendamento-header">
       <div class="agendamento-header__brand">
@@ -25,7 +25,7 @@
               <span>{{ erro() }}</span>
             </div>
           }
-          
+
           <div class="form-sections">
             <div class="form-section">
               <div class="form-section__header">
@@ -88,6 +88,16 @@
               </div>
             </div>
           </div>
+
+          @if (servicoSelecionado()) {
+            <div class="surface" style="margin: 1rem 0; padding: 1rem;">
+              <p><strong>Preço original:</strong> {{ precoOriginal() | number: '1.2-2' }} R$</p>
+              @if (temDesconto() && valorDescontoPreview() > 0) {
+                <p><strong>Desconto aplicado:</strong> -{{ valorDescontoPreview() | number: '1.2-2' }} R$ ({{ percentualDesconto() }}%)</p>
+              }
+              <p><strong>Preço final:</strong> {{ precoFinalPreview() | number: '1.2-2' }} R$</p>
+            </div>
+          }
 
           <div class="form-actions">
             <a routerLink="/agendamentos" class="btn-ghost">

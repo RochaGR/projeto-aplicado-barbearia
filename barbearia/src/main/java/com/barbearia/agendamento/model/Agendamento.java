@@ -32,6 +32,18 @@ public class Agendamento {
        @Column(nullable = false)
        private Boolean pontoRegistrado = false;
 
+       @Column(name = "preco_original")
+       private Double precoOriginal;
+
+       @Column(name = "preco_final")
+       private Double precoFinal;
+
+       @Column(name = "percentual_desconto_aplicado")
+       private Double percentualDescontoAplicado;
+
+       @Column(name = "valor_descontado")
+       private Double valorDescontado;
+
        public Long getId() {
               return id;
        }
@@ -86,5 +98,37 @@ public class Agendamento {
 
        public void setPontoRegistrado(Boolean pontoRegistrado) {
               this.pontoRegistrado = pontoRegistrado;
+       }
+
+       public Double getPrecoOriginal() {
+              return precoOriginal;
+       }
+
+       public void setPrecoOriginal(Double precoOriginal) {
+              this.precoOriginal = precoOriginal;
+       }
+
+       public Double getPrecoFinal() {
+              return precoFinal;
+       }
+
+       public void setPrecoFinal(Double precoFinal) {
+              this.precoFinal = precoFinal;
+       }
+
+       public Double getPercentualDescontoAplicado() {
+              return percentualDescontoAplicado;
+       }
+
+       public void setPercentualDescontoAplicado(Double percentualDescontoAplicado) {
+              this.percentualDescontoAplicado = percentualDescontoAplicado;
+       }
+
+       public Double getValorDescontado() {
+              return valorDescontado;
+       }
+
+       public void setValorDescontado(Double valorDescontado) {
+              this.valorDescontado = valorDescontado;
        }
 }

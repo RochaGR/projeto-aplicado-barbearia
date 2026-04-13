@@ -2,30 +2,45 @@
   <h1 class="page__title">Criar conta</h1>
   <p class="lead">Cadastre-se para agendar cortes online.</p>
 
-  <form class="surface card" (ngSubmit)="enviar()">
+  <form class="surface card" [formGroup]="form" (ngSubmit)="enviar()">
     @if (erro()) {
       <div class="alert alert--err" role="alert">{{ erro() }}</div>
     }
     @if (ok()) {
       <div class="alert alert--ok" role="status">{{ ok() }}</div>
     }
-    <div class="field">
+    <div class="field" [class.field--invalid]="controlInvalid('nome')">
       <label for="nome">Nome completo</label>
-      <input id="nome" name="nome" type="text" [(ngModel)]="nome" required autocomplete="name" />
+      <input id="nome" type="text" formControlName="nome" autocomplete="name" />
+      @if (controlInvalid('nome')) {
+        <small class="field-error">{{ controlMessage('nome') }}</small>
+      }
     </div>
-    <div class="field">
+    <div class="field" [class.field--invalid]="controlInvalid('telefone')">
       <label for="telefone">Telefone</label>
-      <input id="telefone" name="telefone" type="tel" [(ngModel)]="telefone" required autocomplete="tel" />
+      <input id="telefone" type="tel" formControlName="telefone" autocomplete="tel" />
+      @if (controlInvalid('telefone')) {
+        <small class="field-error">{{ controlMessage('telefone') }}</small>
+      }
     </div>
-    <div class="field">
+    <div class="field" [class.field--invalid]="controlInvalid('email')">
       <label for="email">E-mail</label>
-      <input id="email" name="email" type="email" [(ngModel)]="email" required autocomplete="email" />
+      <input id="email" type="email" formControlName="email" autocomplete="email" />
+      @if (controlInvalid('email')) {
+        <small class="field-error">{{ controlMessage('email') }}</small>
+      }
     </div>
-    <div class="field">
+    <div class="field" [class.field--invalid]="controlInvalid('senha')">
       <label for="senha">Senha</label>
-      <input id="senha" name="senha" type="password" [(ngModel)]="senha" required autocomplete="new-password" />
+      <input id="senha" type="password" formControlName="senha" autocomplete="new-password" />
+      @if (senhaStrength(); as level) {
+        <small class="field-hint">Senha {{ level }}</small>
+      }
+      @if (controlInvalid('senha')) {
+        <small class="field-error">{{ controlMessage('senha') }}</small>
+      }
     </div>
-    <button type="submit" class="btn-brand btn-block" [disabled]="carregando()">
+    <button type="submit" class="btn-brand btn-block" [disabled]="carregando() || form.invalid">
       {{ carregando() ? 'Enviando…' : 'Cadastrar' }}
     </button>
     <p class="foot">

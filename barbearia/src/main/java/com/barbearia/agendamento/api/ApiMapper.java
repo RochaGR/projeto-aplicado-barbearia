@@ -46,12 +46,20 @@ public final class ApiMapper {
 
     public static Map<String, Object> agendamento(Agendamento a) {
         Map<String, Object> m = new LinkedHashMap<>();
+        double precoOriginal = a.getPrecoOriginal() != null ? a.getPrecoOriginal() : (a.getServico().getPreco() != null ? a.getServico().getPreco() : 0.0);
+        double precoFinal = a.getPrecoFinal() != null ? a.getPrecoFinal() : precoOriginal;
+        double valorDescontado = a.getValorDescontado() != null ? a.getValorDescontado() : Math.max(0.0, precoOriginal - precoFinal);
         m.put("id", a.getId());
         m.put("dataHora", a.getDataHora());
         m.put("status", a.getStatus());
         m.put("cliente", cliente(a.getCliente()));
         m.put("barbeiro", barbeiro(a.getBarbeiro()));
         m.put("servico", servico(a.getServico()));
+        m.put("precoOriginal", precoOriginal);
+        m.put("precoFinal", precoFinal);
+        m.put("valorDescontado", valorDescontado);
+        m.put("percentualDesconto", a.getPercentualDescontoAplicado());
+        m.put("descontoAplicado", valorDescontado > 0.0);
         return m;
     }
 }

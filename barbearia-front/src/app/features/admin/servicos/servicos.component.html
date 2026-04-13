@@ -1,6 +1,6 @@
 <div class="admin-servicos-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
   <div class="admin-servicos-page__overlay"></div>
-  
+
   <div class="admin-servicos-page__content">
     <div class="admin-servicos-header">
       <div class="admin-servicos-header__brand">
@@ -13,43 +13,55 @@
 
     <div class="admin-servicos-form surface">
       <h2>Novo serviço</h2>
-    <form class="form-grid" (ngSubmit)="cadastrar()">
-      <div class="field">
+    <form class="form-grid" [formGroup]="form" (ngSubmit)="cadastrar()">
+      <div class="field" [class.field--invalid]="controlInvalid('nome')">
         <label for="nome">
           <i class="fas fa-tag"></i>
           Nome
         </label>
-        <input id="nome" name="nome" type="text" [(ngModel)]="nome" required />
+        <input id="nome" type="text" formControlName="nome" />
+        @if (controlInvalid('nome')) {
+          <small class="field-error">{{ controlMessage('nome') }}</small>
+        }
       </div>
-      <div class="field field--wide">
+      <div class="field field--wide" [class.field--invalid]="controlInvalid('descricao')">
         <label for="desc">
           <i class="fas fa-align-left"></i>
           Descrição
         </label>
-        <input id="desc" name="desc" type="text" [(ngModel)]="descricao" required />
+        <input id="desc" type="text" formControlName="descricao" />
+        @if (controlInvalid('descricao')) {
+          <small class="field-error">{{ controlMessage('descricao') }}</small>
+        }
       </div>
-      <div class="field">
+      <div class="field" [class.field--invalid]="controlInvalid('preco')">
         <label for="preco">
           <i class="fas fa-dollar-sign"></i>
           Preço (R$)
         </label>
-        <input id="preco" name="preco" type="number" step="0.01" min="0" [(ngModel)]="preco" required />
+        <input id="preco" type="number" step="0.01" min="0" formControlName="preco" />
+        @if (controlInvalid('preco')) {
+          <small class="field-error">{{ controlMessage('preco') }}</small>
+        }
       </div>
-      <div class="field">
+      <div class="field" [class.field--invalid]="controlInvalid('duracaoMinutos')">
         <label for="dur">
           <i class="fas fa-clock"></i>
           Duração (min)
         </label>
-        <input id="dur" name="dur" type="number" min="1" [(ngModel)]="duracaoMinutos" required />
+        <input id="dur" type="number" min="1" formControlName="duracaoMinutos" />
+        @if (controlInvalid('duracaoMinutos')) {
+          <small class="field-error">{{ controlMessage('duracaoMinutos') }}</small>
+        }
       </div>
       <div class="field field--check">
         <label>
-          <input type="checkbox" [(ngModel)]="ativo" name="ativo" />
+          <input type="checkbox" formControlName="ativo" />
           Ativo
         </label>
       </div>
       <div class="field field--action">
-        <button type="submit" class="btn-brand" [disabled]="criando()">
+        <button type="submit" class="btn-brand" [disabled]="criando() || form.invalid">
           {{ criando() ? 'Salvando…' : 'Cadastrar' }}
         </button>
       </div>

@@ -37,6 +37,11 @@ export interface Agendamento {
   cliente?: Cliente;
   barbeiro?: Barbeiro;
   servico?: Servico;
+  precoOriginal?: number;
+  precoFinal?: number;
+  valorDescontado?: number;
+  percentualDesconto?: number | null;
+  descontoAplicado?: boolean;
 }
 
 export interface DashboardStats {
