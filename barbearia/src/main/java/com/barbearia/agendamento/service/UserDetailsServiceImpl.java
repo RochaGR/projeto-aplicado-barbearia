@@ -59,7 +59,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (cliente != null) {
             List<GrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority("ROLE_CLIENTE"));
-            return new User(cliente.getEmail(), cliente.getSenha(), authorities);
+            // Clientes OAuth2 podem ter senha nula
+            String senha = cliente.getSenha() != null ? cliente.getSenha() : "";
+            return new User(cliente.getEmail(), senha, authorities);
         }
 
         // Nenhum usuário encontrado

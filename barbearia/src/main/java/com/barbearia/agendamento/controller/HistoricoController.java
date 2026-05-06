@@ -7,6 +7,7 @@ import com.barbearia.agendamento.service.AgendamentoService;
 import com.barbearia.agendamento.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -38,9 +39,9 @@ public class HistoricoController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
             @RequestParam(required = false) String status,
             Model model,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            Authentication authentication) {
 
-        String email = userDetails.getUsername();
+        String email = getUsernameFromAuthentication(authentication);
         Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
@@ -92,5 +93,19 @@ public class HistoricoController {
         model.addAttribute("statusFiltro", status);
 
         return "historico";
+    }
+
+    private String getUsernameFromAuthentication(Authentication authentication) {
+        if (authentication == null) {
+            throw new IllegalArgumentException("Usuário não autenticado");
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
+            return (String) oauth2User.getAttributes().get("email");
+        }
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+        return authentication.getName();
     }
 }

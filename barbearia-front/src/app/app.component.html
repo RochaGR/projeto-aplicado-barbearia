@@ -7,3 +7,17 @@
     <app-main-footer />
   }
 </div>
+
+@if (showTelefoneModal()) {
+  <div class="modal-overlay" (click)="showTelefoneModal.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Complete seu Cadastro</h2>
+        <button class="close-btn" (click)="showTelefoneModal.set(false)">×</button>
+      </div>
+      <p>Precisamos do seu telefone para continuar.</p>
+      <input [ngModel]="telefone" (input)="onTelefoneInput($event)" type="tel" placeholder="(00) 00000-0000" class="telefone-input" maxlength="15" />
+      <button (click)="salvarTelefone()" class="salvar-btn">Salvar e Continuar</button>
+    </div>
+  </div>
+}

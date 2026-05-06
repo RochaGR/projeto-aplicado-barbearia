@@ -25,18 +25,22 @@ public class AgendamentoService {
        private final ServicoService servicoService;
        private final ClienteService clienteService;
        private final FidelidadeService fidelidadeService;
+       private final EmailService emailService; // ✅ ADICIONADO
 
        public AgendamentoService(
-                     AgendamentoRepository repository,
-                     BarbeiroService barbeiroService,
-                     ServicoService servicoService,
-                     ClienteService clienteService,
-                     FidelidadeService fidelidadeService) {
+               AgendamentoRepository repository,
+               BarbeiroService barbeiroService,
+               ServicoService servicoService,
+               ClienteService clienteService,
+               FidelidadeService fidelidadeService,
+               EmailService emailService) { // ✅ ADICIONADO
+
               this.repository = repository;
               this.barbeiroService = barbeiroService;
               this.servicoService = servicoService;
               this.clienteService = clienteService;
               this.fidelidadeService = fidelidadeService;
+              this.emailService = emailService; // ✅ ADICIONADO
        }
 
        public Optional<Agendamento> buscarPorId(@NonNull Long id) {
@@ -44,26 +48,30 @@ public class AgendamentoService {
        }
 
        public Agendamento agendar(Agendamento agendamento) {
+
               Long barbeiroId = agendamento.getBarbeiro().getId();
               if (barbeiroId == null) {
                      throw new IllegalArgumentException("ID do barbeiro não pode ser nulo");
               }
+
               Barbeiro barbeiro = barbeiroService.buscarPorId(barbeiroId)
-                            .orElseThrow(() -> new IllegalArgumentException("Barbeiro não encontrado"));
+                      .orElseThrow(() -> new IllegalArgumentException("Barbeiro não encontrado"));
 
               Long servicoId = agendamento.getServico().getId();
               if (servicoId == null) {
                      throw new IllegalArgumentException("ID do serviço não pode ser nulo");
               }
+
               Servico servico = servicoService.buscarPorId(servicoId)
-                            .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
+                      .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
 
               Long clienteId = agendamento.getCliente().getId();
               if (clienteId == null) {
                      throw new IllegalArgumentException("ID do cliente não pode ser nulo");
               }
+
               Cliente cliente = clienteService.buscarPorId(clienteId)
-                            .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                      .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
               if (existeConflitoHorario(barbeiro.getId(), agendamento.getDataHora())) {
                      throw new IllegalStateException("Barbeiro já possui agendamento neste horário");
@@ -73,7 +81,12 @@ public class AgendamentoService {
               agendamento.setServico(servico);
               agendamento.setCliente(cliente);
 
-              return repository.save(agendamento);
+              Agendamento salvo = repository.save(agendamento);
+
+              // ✅ ENVIO DE EMAIL DE CONFIRMAÇÃO
+              emailService.enviarConfirmacaoAgendamento(salvo);
+
+              return salvo;
        }
 
        public List<Agendamento> findByBarbeiroEmail(String email) {
@@ -97,6 +110,7 @@ public class AgendamentoService {
        }
 
        public Agendamento salvar(@NonNull Agendamento agendamento) {
+
               if (agendamento.getId() != null) {
                      Agendamento existente = repository.findById(agendamento.getId()).orElse(null);
                      if (existente != null && existente.getPontoRegistrado()) {
@@ -108,12 +122,20 @@ public class AgendamentoService {
                      fidelidadeService.registrarCorte(agendamento.getCliente());
                      agendamento.setPontoRegistrado(true);
               }
-              return repository.save(agendamento);
+
+              Agendamento salvo = repository.save(agendamento);
+
+              // ✅ ENVIO DE EMAIL SE CANCELADO
+              if ("CANCELADO".equalsIgnoreCase(salvo.getStatus())) {
+                     emailService.enviarCancelamentoAgendamento(salvo);
+              }
+
+              return salvo;
        }
 
        public List<Agendamento> findByBarbeiroIdAndPeriodo(Long barbeiroId,
-                     LocalDateTime inicio,
-                     LocalDateTime fim) {
+                                                           LocalDateTime inicio,
+                                                           LocalDateTime fim) {
               return repository.findByBarbeiroIdAndPeriodo(barbeiroId, inicio, fim);
        }
 
@@ -125,14 +147,16 @@ public class AgendamentoService {
               return repository.findByDataHoraBetween(inicio, fim, pageable);
        }
 
-       public Page<Agendamento> findByDataHoraBetweenAndStatus(LocalDateTime inicio, LocalDateTime fim, String status,
-                     Pageable pageable) {
+       public Page<Agendamento> findByDataHoraBetweenAndStatus(LocalDateTime inicio,
+                                                               LocalDateTime fim,
+                                                               String status,
+                                                               Pageable pageable) {
               return repository.findByDataHoraBetweenAndStatus(inicio, fim, status, pageable);
        }
 
        public Agendamento[] listarTodosOrdenados() {
-              List<Agendamento> listaOriginal = repository.findAll();
 
+              List<Agendamento> listaOriginal = repository.findAll();
               ListaOrdenada fila = new ListaOrdenada();
 
               for (int i = 0; i < listaOriginal.size(); i++) {
@@ -149,5 +173,4 @@ public class AgendamentoService {
 
               return ordenados;
        }
-
 }

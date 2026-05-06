@@ -1,6 +1,5 @@
 package com.barbearia.agendamento.model;
 
-import com.barbearia.agendamento.validation.SenhaValida;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,7 +25,6 @@ public class Cliente implements UserDetails {
     @Size(min = 3, max = 100)
     private String nome;
 
-    @NotBlank(message = "Telefone é obrigatório")
     @Size(min = 10, max = 15)
     private String telefone;
 
@@ -35,9 +33,14 @@ public class Cliente implements UserDetails {
     @Column(unique = true)
     private String email;
 
-    @NotBlank(message = "A senha é obrigatória")
-    @SenhaValida
     private String senha;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider", nullable = false, columnDefinition = "varchar(255) default 'LOCAL'")
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
+    @Column(name = "google_id")
+    private String googleId;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     private List<Agendamento> agendamentosComoCliente;
@@ -50,6 +53,7 @@ public class Cliente implements UserDetails {
         this.telefone = telefone;
         this.email = email;
         this.senha = senha;
+        this.authProvider = AuthProvider.LOCAL;
     }
 
     // Métodos do UserDetails
@@ -135,6 +139,22 @@ public class Cliente implements UserDetails {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public AuthProvider getAuthProvider() {
+        return authProvider;
+    }
+
+    public void setAuthProvider(AuthProvider authProvider) {
+        this.authProvider = authProvider;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
     }
 
     public List<Agendamento> getAgendamentosComoCliente() {

@@ -1,6 +1,7 @@
 package com.barbearia.agendamento.controller;
 
 import com.barbearia.agendamento.service.ConfiguracaoFidelidadeService;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -30,16 +31,30 @@ public class FidelidadeConfigController {
     @PostMapping("/config/salvar")
     public String salvarConfig(@RequestParam Double percentualDesconto,
                                @RequestParam Integer cortesParaDesconto,
-                               @AuthenticationPrincipal UserDetails userDetails,
+                               Authentication authentication,
                                RedirectAttributes redirectAttributes) {
         try {
-            String emailAdmin = userDetails != null ? userDetails.getUsername() : "sistema";
+            String emailAdmin = getUsernameFromAuthentication(authentication);
             configService.salvar(percentualDesconto, cortesParaDesconto, emailAdmin);
             redirectAttributes.addFlashAttribute("sucesso", "Configuração atualizada com sucesso!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("erro", e.getMessage());
         }
         return "redirect:/admin/fidelidade/config";
+    }
+
+    private String getUsernameFromAuthentication(Authentication authentication) {
+        if (authentication == null) {
+            return "sistema";
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
+            return (String) oauth2User.getAttributes().get("email");
+        }
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+        return authentication.getName();
     }
 }
 

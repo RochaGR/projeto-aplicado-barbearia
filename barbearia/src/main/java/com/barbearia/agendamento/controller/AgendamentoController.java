@@ -4,6 +4,7 @@ import com.barbearia.agendamento.model.*;
 import com.barbearia.agendamento.service.*;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -55,9 +56,9 @@ public class AgendamentoController {
 
     @GetMapping("/novo")
     public String mostrarFormularioAgendamento(Model model,
-                                               @AuthenticationPrincipal UserDetails userDetails) {
+                                               Authentication authentication) {
         model.addAttribute("agendamento", new Agendamento());
-        carregarDadosFormulario(model, userDetails);
+        carregarDadosFormulario(model, authentication);
         return "agendamento-cliente-form";
     }
 
@@ -66,28 +67,28 @@ public class AgendamentoController {
                                     BindingResult result,
                                     Model model,
                                     RedirectAttributes redirectAttributes,
-                                    @AuthenticationPrincipal UserDetails userDetails) {
+                                    Authentication authentication) {
 
         if (result.hasErrors()) {
-            carregarDadosFormulario(model, userDetails);
+            carregarDadosFormulario(model, authentication);
             return "agendamento-cliente-form";
         }
 
         if (agendamento.getDataHora().isBefore(LocalDateTime.now())) {
             result.rejectValue("dataHora", "error.dataHora", "A data/hora deve ser futura");
-            carregarDadosFormulario(model, userDetails);
+            carregarDadosFormulario(model, authentication);
             return "agendamento-cliente-form";
         }
 
         if (agendamentoService.existeConflitoHorario(
                 agendamento.getBarbeiro().getId(), agendamento.getDataHora())) {
             result.rejectValue("dataHora", "error.dataHora", "Horário já ocupado para este barbeiro");
-            carregarDadosFormulario(model, userDetails);
+            carregarDadosFormulario(model, authentication);
             return "agendamento-cliente-form";
         }
 
         try {
-            String email = userDetails.getUsername();
+            String email = getUsernameFromAuthentication(authentication);
             Cliente cliente = clienteService.buscarPorEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
@@ -112,7 +113,7 @@ public class AgendamentoController {
             return "redirect:/agendamentos/confirmacao?agendamentoId=" + agendamentoSalvo.getId();
         } catch (Exception e) {
             model.addAttribute("erro", "Erro ao agendar: " + e.getMessage());
-            carregarDadosFormulario(model, userDetails);
+            carregarDadosFormulario(model, authentication);
             return "agendamento-cliente-form";
         }
     }
@@ -130,9 +131,9 @@ public class AgendamentoController {
     public String listarAgendamentos(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
             Model model,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            Authentication authentication) {
 
-        String email = userDetails.getUsername();
+        String email = getUsernameFromAuthentication(authentication);
         Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
@@ -160,9 +161,9 @@ public class AgendamentoController {
     public String listarAgendamentosBarbeiro(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
             Model model,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            Authentication authentication) {
 
-        String email = userDetails.getUsername();
+        String email = getUsernameFromAuthentication(authentication);
         List<Agendamento> agendamentos = agendamentoService.findByBarbeiroEmail(email);
 
         // Filtrar por data se fornecida
@@ -180,13 +181,13 @@ public class AgendamentoController {
     // CONCLUIR AGENDAMENTO (BARBEIRO)
     @PostMapping("/barbeiro/concluir/{id}")
     public String concluirAgendamento(@PathVariable Long id,
-                                      @AuthenticationPrincipal UserDetails userDetails,
+                                      Authentication authentication,
                                       RedirectAttributes redirectAttributes) {
         try {
             Agendamento agendamento = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
 
-            String email = userDetails.getUsername();
+            String email = getUsernameFromAuthentication(authentication);
             if (!agendamento.getBarbeiro().getEmail().equals(email)) {
                 throw new IllegalArgumentException("Você não tem permissão para modificar este agendamento");
             }
@@ -204,13 +205,13 @@ public class AgendamentoController {
     // CANCELAR AGENDAMENTO (BARBEIRO)
     @PostMapping("/barbeiro/cancelar/{id}")
     public String cancelarAgendamentoBarbeiro(@PathVariable Long id,
-                                              @AuthenticationPrincipal UserDetails userDetails,
-                                              RedirectAttributes redirectAttributes) {
+                                                Authentication authentication,
+                                                RedirectAttributes redirectAttributes) {
         try {
             Agendamento agendamento = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
 
-            String email = userDetails.getUsername();
+            String email = getUsernameFromAuthentication(authentication);
             if (!agendamento.getBarbeiro().getEmail().equals(email)) {
                 throw new IllegalArgumentException("Você não tem permissão para modificar este agendamento");
             }
@@ -228,13 +229,13 @@ public class AgendamentoController {
     // CANCELAR AGENDAMENTO (CLIENTE)
     @PostMapping("/cancelar/{id}")
     public String cancelarAgendamentoCliente(@PathVariable Long id,
-                                             @AuthenticationPrincipal UserDetails userDetails,
-                                             RedirectAttributes redirectAttributes) {
+                                               Authentication authentication,
+                                               RedirectAttributes redirectAttributes) {
         try {
             Agendamento agendamento = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
 
-            String email = userDetails.getUsername();
+            String email = getUsernameFromAuthentication(authentication);
             if (!agendamento.getCliente().getEmail().equals(email)) {
                 throw new IllegalArgumentException("Você não tem permissão para cancelar este agendamento");
             }
@@ -260,12 +261,12 @@ public class AgendamentoController {
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEdicao(@PathVariable Long id,
                                           Model model,
-                                          @AuthenticationPrincipal UserDetails userDetails) {
+                                          Authentication authentication) {
         try {
             Agendamento agendamento = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
 
-            String email = userDetails.getUsername();
+            String email = getUsernameFromAuthentication(authentication);
             if (!agendamento.getCliente().getEmail().equals(email)) {
                 throw new IllegalArgumentException("Você não tem permissão para editar este agendamento");
             }
@@ -275,7 +276,7 @@ public class AgendamentoController {
             }
 
             model.addAttribute("agendamento", agendamento);
-            carregarDadosFormulario(model, userDetails);
+            carregarDadosFormulario(model, authentication);
             return "agendamento-cliente-form";
         } catch (Exception e) {
             model.addAttribute("erro", e.getMessage());
@@ -283,15 +284,19 @@ public class AgendamentoController {
         }
     }
 
-    private void carregarDadosFormulario(Model model, UserDetails userDetails) {
+    private void carregarDadosFormulario(Model model, Authentication authentication) {
         model.addAttribute("servicos", servicoService.listarTodos());
         model.addAttribute("barbeiros", barbeiroService.listarTodos());
 
-        if (userDetails == null) {
+        if (authentication == null) {
             return;
         }
 
-        String email = userDetails.getUsername();
+        String email = getUsernameFromAuthentication(authentication);
+        if (email == null) {
+            return;
+        }
+
         Optional<Cliente> clienteOpt = clienteService.buscarPorEmail(email);
         if (clienteOpt.isEmpty()) {
             return;
@@ -301,6 +306,20 @@ public class AgendamentoController {
             model.addAttribute("temDesconto", true);
             model.addAttribute("percentualDesconto", desconto.getPercentualDesconto());
         });
+    }
+
+    private String getUsernameFromAuthentication(Authentication authentication) {
+        if (authentication == null) {
+            throw new IllegalArgumentException("Usuário não autenticado");
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
+            return (String) oauth2User.getAttributes().get("email");
+        }
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+        return authentication.getName();
     }
 }
 

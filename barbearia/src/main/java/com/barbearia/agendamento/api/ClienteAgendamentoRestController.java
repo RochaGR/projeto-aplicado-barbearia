@@ -13,6 +13,7 @@ import com.barbearia.agendamento.service.ServicoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +48,10 @@ public class ClienteAgendamentoRestController {
     }
 
     @GetMapping("/agendamentos/form-options")
-    public Map<String, Object> formOptions(@AuthenticationPrincipal UserDetails user) {
+    public Map<String, Object> formOptions(Authentication authentication) {
+        String email = getUsernameFromAuthentication(authentication);
         ConfiguracaoFidelidade config = fidelidadeService.buscarConfiguracaoAtual();
-        Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+        Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         var descontoDisponivel = fidelidadeService.buscarDescontoDisponivel(cliente.getId()).orElse(null);
         var cartao = fidelidadeService.buscarCartao(cliente.getId()).orElse(null);
@@ -67,8 +69,9 @@ public class ClienteAgendamentoRestController {
     }
 
     @GetMapping("/agendamentos/{id}")
-    public ResponseEntity<?> agendamentoPorId(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
-        Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+    public ResponseEntity<?> agendamentoPorId(@PathVariable Long id, Authentication authentication) {
+        String email = getUsernameFromAuthentication(authentication);
+        Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         Agendamento a = agendamentoService.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
@@ -79,9 +82,10 @@ public class ClienteAgendamentoRestController {
     }
 
     @PostMapping("/agendamentos")
-    public ResponseEntity<?> criar(@RequestBody AgendamentoFormRequest req, @AuthenticationPrincipal UserDetails user) {
+    public ResponseEntity<?> criar(@RequestBody AgendamentoFormRequest req, Authentication authentication) {
         try {
-            Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+            String email = getUsernameFromAuthentication(authentication);
+            Cliente cliente = clienteService.buscarPorEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
             LocalDateTime dt = LocalDateTime.parse(req.dataHora());
             if (dt.isBefore(LocalDateTime.now())) {
@@ -123,9 +127,10 @@ public class ClienteAgendamentoRestController {
 
     @PutMapping("/agendamentos/{id}")
     public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody AgendamentoFormRequest req,
-            @AuthenticationPrincipal UserDetails user) {
+            Authentication authentication) {
         try {
-            Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+            String email = getUsernameFromAuthentication(authentication);
+            Cliente cliente = clienteService.buscarPorEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
             Agendamento ag = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
@@ -160,8 +165,9 @@ public class ClienteAgendamentoRestController {
     }
 
     @GetMapping("/agendamentos/{id}/confirmacao")
-    public Map<String, Object> confirmacao(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
-        Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+    public Map<String, Object> confirmacao(@PathVariable Long id, Authentication authentication) {
+        String email = getUsernameFromAuthentication(authentication);
+        Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         Agendamento a = agendamentoService.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
@@ -184,8 +190,9 @@ public class ClienteAgendamentoRestController {
     @GetMapping("/agendamentos")
     public Map<String, Object> listar(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
-            @AuthenticationPrincipal UserDetails user) {
-        Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+            Authentication authentication) {
+        String email = authentication.getName();
+        Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         List<Agendamento> lista = agendamentoService.listarPorBarbeiro(cliente.getId());
         ConfiguracaoFidelidade config = fidelidadeService.buscarConfiguracaoAtual();
@@ -206,9 +213,10 @@ public class ClienteAgendamentoRestController {
     }
 
     @PostMapping("/agendamentos/{id}/cancelar")
-    public ResponseEntity<?> cancelar(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+    public ResponseEntity<?> cancelar(@PathVariable Long id, Authentication authentication) {
         try {
-            Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+            String email = authentication.getName();
+            Cliente cliente = clienteService.buscarPorEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
             Agendamento ag = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
@@ -228,9 +236,10 @@ public class ClienteAgendamentoRestController {
     }
 
     @GetMapping("/fidelidade")
-    public Map<String, Object> fidelidade(@AuthenticationPrincipal UserDetails user) {
+    public Map<String, Object> fidelidade(Authentication authentication) {
         try {
-            Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+            String email = getUsernameFromAuthentication(authentication);
+            Cliente cliente = clienteService.buscarPorEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
             ConfiguracaoFidelidade config = fidelidadeService.buscarConfiguracaoAtual();
             var cartao = fidelidadeService.buscarCartao(cliente.getId()).orElse(null);
@@ -271,13 +280,28 @@ public class ClienteAgendamentoRestController {
         }
     }
 
+    private String getUsernameFromAuthentication(Authentication authentication) {
+        if (authentication == null) {
+            throw new IllegalArgumentException("Usuário não autenticado");
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
+            return (String) oauth2User.getAttributes().get("email");
+        }
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+        return authentication.getName();
+    }
+
     @GetMapping("/historico")
     public Map<String, Object> historico(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
             @RequestParam(required = false) String status,
-            @AuthenticationPrincipal UserDetails user) {
-        Cliente cliente = clienteService.buscarPorEmail(user.getUsername())
+            Authentication authentication) {
+        String email = getUsernameFromAuthentication(authentication);
+        Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         List<Agendamento> historico = agendamentoService.listarPorBarbeiro(cliente.getId());
         if (dataInicio != null) {

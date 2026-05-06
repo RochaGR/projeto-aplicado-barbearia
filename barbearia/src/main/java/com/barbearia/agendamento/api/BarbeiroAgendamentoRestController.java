@@ -4,7 +4,7 @@ import com.barbearia.agendamento.model.Agendamento;
 import com.barbearia.agendamento.service.AgendamentoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,11 +23,26 @@ public class BarbeiroAgendamentoRestController {
         this.agendamentoService = agendamentoService;
     }
 
+    private String getUsernameFromAuthentication(Authentication authentication) {
+        if (authentication == null) {
+            throw new IllegalArgumentException("Usuário não autenticado");
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
+            return (String) oauth2User.getAttributes().get("email");
+        }
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+        return authentication.getName();
+    }
+
     @GetMapping
     public Map<String, Object> listar(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
-            @AuthenticationPrincipal UserDetails user) {
-        List<Agendamento> lista = agendamentoService.findByBarbeiroEmail(user.getUsername());
+            Authentication authentication) {
+        String email = getUsernameFromAuthentication(authentication);
+        List<Agendamento> lista = agendamentoService.findByBarbeiroEmail(email);
         if (data != null) {
             lista = lista.stream()
                     .filter(a -> a.getDataHora().toLocalDate().equals(data))
@@ -38,11 +53,12 @@ public class BarbeiroAgendamentoRestController {
     }
 
     @PostMapping("/{id}/concluir")
-    public ResponseEntity<?> concluir(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+    public ResponseEntity<?> concluir(@PathVariable Long id, Authentication authentication) {
         try {
+            String email = getUsernameFromAuthentication(authentication);
             Agendamento ag = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
-            if (!ag.getBarbeiro().getEmail().equals(user.getUsername())) {
+            if (!ag.getBarbeiro().getEmail().equals(email)) {
                 return ResponseEntity.status(403).body(Map.of("message", "Sem permissão"));
             }
             ag.setStatus("CONCLUIDO");
@@ -54,11 +70,12 @@ public class BarbeiroAgendamentoRestController {
     }
 
     @PostMapping("/{id}/cancelar")
-    public ResponseEntity<?> cancelar(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+    public ResponseEntity<?> cancelar(@PathVariable Long id, Authentication authentication) {
         try {
+            String email = getUsernameFromAuthentication(authentication);
             Agendamento ag = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
-            if (!ag.getBarbeiro().getEmail().equals(user.getUsername())) {
+            if (!ag.getBarbeiro().getEmail().equals(email)) {
                 return ResponseEntity.status(403).body(Map.of("message", "Sem permissão"));
             }
             ag.setStatus("CANCELADO");

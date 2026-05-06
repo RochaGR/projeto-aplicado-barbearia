@@ -27,7 +27,9 @@ public class ClienteService {
     @Transactional
     public Cliente cadastrarCliente(Cliente cliente) {
         validarEmailExistente(cliente.getEmail());
-        cliente.setSenha(passwordEncoder.encode(cliente.getSenha()));
+        if (cliente.getSenha() != null && !cliente.getSenha().isBlank()) {
+            cliente.setSenha(passwordEncoder.encode(cliente.getSenha()));
+        }
         return repository.save(cliente);
     }
 

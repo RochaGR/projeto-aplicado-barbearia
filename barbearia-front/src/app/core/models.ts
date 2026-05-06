@@ -1,6 +1,8 @@
 export interface UserInfo {
   username: string;
   roles: string[];
+  telefone?: string;
+  telefonePendente?: boolean;
 }
 
 export interface Servico {

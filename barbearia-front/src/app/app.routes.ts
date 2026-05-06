@@ -10,6 +10,7 @@ import { AgendamentosBarbeiroComponent } from './features/barbeiro/agendamentos-
 import { CadastroComponent } from './features/auth/cadastro/cadastro.component';
 import { ConfigInicialComponent } from './features/auth/config-inicial/config-inicial.component';
 import { LoginComponent } from './features/auth/login/login.component';
+import { OAuth2CallbackComponent } from './features/auth/oauth2-callback/oauth2-callback.component';
 import { AgendamentoFormComponent } from './features/cliente/agendamento-form/agendamento-form.component';
 import { ConfirmacaoComponent } from './features/cliente/confirmacao/confirmacao.component';
 import { FidelidadeComponent } from './features/cliente/fidelidade/fidelidade.component';
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'cadastro', component: CadastroComponent },
   { path: 'config-inicial', component: ConfigInicialComponent },
+  { path: 'oauth2/callback', component: OAuth2CallbackComponent },
   {
     path: 'agendamentos/novo',
     component: AgendamentoFormComponent,
