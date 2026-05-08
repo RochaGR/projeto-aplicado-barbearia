@@ -35,12 +35,13 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
                         @Param("fim") LocalDateTime fim);
 
         @Query("SELECT a FROM Agendamento a WHERE a.cliente.id = :clienteId")
-        List<Agendamento> findByBarbeiroId(@Param("clienteId") Long clienteId);
+        List<Agendamento> findByClienteId(@Param("clienteId") Long clienteId);
+
+        List<Agendamento> findByBarbeiroId(Long barbeiroId);
 
         @NonNull
         Page<Agendamento> findAll(@NonNull Pageable pageable);
 
-        // Adicione estes métodos ao seu AgendamentoRepository
         Page<Agendamento> findByDataHoraBetween(LocalDateTime inicio, LocalDateTime fim, Pageable pageable);
 
         Page<Agendamento> findByStatus(String status, Pageable pageable);

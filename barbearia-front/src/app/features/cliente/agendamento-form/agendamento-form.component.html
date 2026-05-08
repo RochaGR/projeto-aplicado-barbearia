@@ -40,7 +40,7 @@
                   <i class="fas fa-user-tie"></i>
                   Barbeiro
                 </label>
-                <select id="barbeiro" name="barbeiro" [(ngModel)]="barbeiroId" required>
+                <select id="barbeiro" name="barbeiro" [ngModel]="barbeiroId" (ngModelChange)="barbeiroId = $event; carregarHorarios()" required>
                   <option [ngValue]="null">Selecione um barbeiro</option>
                   @for (b of barbeiros(); track b.id) {
                     <option [ngValue]="b.id">{{ b.nome }}</option>
@@ -62,7 +62,7 @@
                   <i class="fas fa-scissors"></i>
                   Serviço
                 </label>
-                <select id="servico" name="servico" [(ngModel)]="servicoId" required>
+                <select id="servico" name="servico" [ngModel]="servicoId" (ngModelChange)="servicoId = $event; carregarHorarios()" required>
                   <option [ngValue]="null">Selecione um serviço</option>
                   @for (s of servicos(); track s.id) {
                     <option [ngValue]="s.id">{{ s.nome }}</option>
@@ -80,12 +80,35 @@
                 <p>Defina o melhor dia e hora para seu agendamento</p>
               </div>
               <div class="field field--full">
-                <label for="dataHora">
+                <label for="data">
                   <i class="fas fa-calendar-alt"></i>
-                  Data e hora
+                  Data
                 </label>
-                <input id="dataHora" name="dataHora" type="datetime-local" [(ngModel)]="dataHora" required />
+                <input id="data" name="data" type="date" [ngModel]="data()" (ngModelChange)="data.set($event); carregarHorarios()" required />
               </div>
+              @if (carregandoHorarios()) {
+                <div class="horarios-loading">
+                  <div class="loading-spinner-sm"></div>
+                  <span>Carregando horários...</span>
+                </div>
+              }
+              @if (horariosDisponiveis().length > 0 && !carregandoHorarios()) {
+                <div class="horarios-grid">
+                  @for (slot of horariosDisponiveis(); track slot.horario) {
+                    <button
+                      type="button"
+                      class="horario-slot"
+                      [class.disponivel]="slot.disponivel"
+                      [class.ocupado]="!slot.disponivel"
+                      [class.selecionado]="horarioSelecionado() === slot.horario"
+                      [disabled]="!slot.disponivel"
+                      (click)="selecionarHorario(slot.horario)"
+                    >
+                      {{ slot.horario }}
+                    </button>
+                  }
+                </div>
+              }
             </div>
           </div>
 

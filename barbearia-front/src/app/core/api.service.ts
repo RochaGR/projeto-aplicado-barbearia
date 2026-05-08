@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Barbeiro, DashboardStats, Servico } from './models';
+import { Barbeiro, DashboardStats, HorarioDisponivel, Servico } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -25,6 +25,12 @@ export class ApiService {
 
   formOptionsCliente(): Observable<Record<string, unknown>> {
     return this.http.get<Record<string, unknown>>('/api/cliente/agendamentos/form-options');
+  }
+
+  horariosDisponiveis(barbeiroId: number, servicoId: number, data: string): Observable<{ horarios: HorarioDisponivel[] }> {
+    return this.http.get<{ horarios: HorarioDisponivel[] }>('/api/cliente/agendamentos/horarios-disponiveis', {
+      params: { barbeiroId, servicoId, data },
+    });
   }
 
   agendamentoClientePorId(id: number): Observable<Record<string, unknown>> {

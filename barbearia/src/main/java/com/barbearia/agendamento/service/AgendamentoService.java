@@ -12,8 +12,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,7 +31,7 @@ public class AgendamentoService {
        private final ServicoService servicoService;
        private final ClienteService clienteService;
        private final FidelidadeService fidelidadeService;
-       private final EmailService emailService; // ✅ ADICIONADO
+       private final EmailService emailService;
 
        public AgendamentoService(
                AgendamentoRepository repository,
@@ -33,14 +39,14 @@ public class AgendamentoService {
                ServicoService servicoService,
                ClienteService clienteService,
                FidelidadeService fidelidadeService,
-               EmailService emailService) { // ✅ ADICIONADO
+               EmailService emailService) {
 
               this.repository = repository;
               this.barbeiroService = barbeiroService;
               this.servicoService = servicoService;
               this.clienteService = clienteService;
               this.fidelidadeService = fidelidadeService;
-              this.emailService = emailService; // ✅ ADICIONADO
+              this.emailService = emailService;
        }
 
        public Optional<Agendamento> buscarPorId(@NonNull Long id) {
@@ -83,7 +89,6 @@ public class AgendamentoService {
 
               Agendamento salvo = repository.save(agendamento);
 
-              // ✅ ENVIO DE EMAIL DE CONFIRMAÇÃO
               emailService.enviarConfirmacaoAgendamento(salvo);
 
               return salvo;
@@ -103,6 +108,10 @@ public class AgendamentoService {
 
        public List<Agendamento> listarPorBarbeiro(Long barbeiroId) {
               return repository.findByBarbeiroId(barbeiroId);
+       }
+
+       public List<Agendamento> listarPorCliente(Long clienteId) {
+              return repository.findByClienteId(clienteId);
        }
 
        public boolean existeConflitoHorario(Long barbeiroId, LocalDateTime dataHora) {
@@ -125,7 +134,6 @@ public class AgendamentoService {
 
               Agendamento salvo = repository.save(agendamento);
 
-              // ✅ ENVIO DE EMAIL SE CANCELADO
               if ("CANCELADO".equalsIgnoreCase(salvo.getStatus())) {
                      emailService.enviarCancelamentoAgendamento(salvo);
               }
@@ -154,23 +162,71 @@ public class AgendamentoService {
               return repository.findByDataHoraBetweenAndStatus(inicio, fim, status, pageable);
        }
 
-       public Agendamento[] listarTodosOrdenados() {
+        public Agendamento[] listarTodosOrdenados() {
 
-              List<Agendamento> listaOriginal = repository.findAll();
-              ListaOrdenada fila = new ListaOrdenada();
+               List<Agendamento> listaOriginal = repository.findAll();
+               ListaOrdenada fila = new ListaOrdenada();
 
-              for (int i = 0; i < listaOriginal.size(); i++) {
-                     fila.enqueueOrdenado(listaOriginal.get(i));
-              }
+               for (int i = 0; i < listaOriginal.size(); i++) {
+                      fila.enqueueOrdenado(listaOriginal.get(i));
+               }
 
-              Agendamento[] ordenados = new Agendamento[listaOriginal.size()];
-              int i = 0;
+               Agendamento[] ordenados = new Agendamento[listaOriginal.size()];
+               int i = 0;
 
-              while (!fila.isEmpty()) {
-                     ordenados[i] = fila.dequeue();
-                     i++;
-              }
+               while (!fila.isEmpty()) {
+                      ordenados[i] = fila.dequeue();
+                      i++;
+               }
 
-              return ordenados;
-       }
+               return ordenados;
+        }
+
+        public List<Map<String, Object>> listarHorariosDisponiveis(Long barbeiroId, Long servicoId, LocalDate data) {
+            Servico servico = servicoService.buscarPorId(servicoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
+            int duracaoMinutos = servico.getDuracaoMinutos() != null ? servico.getDuracaoMinutos() : 30;
+
+            LocalDateTime inicio = data.atStartOfDay();
+            LocalDateTime fim = data.atTime(23, 59);
+            List<Agendamento> existentes = repository.findByBarbeiroIdAndPeriodo(barbeiroId, inicio, fim);
+
+            LocalTime horarioInicial = LocalTime.of(8, 0);
+            LocalTime horarioLimite = LocalTime.of(19, 0);
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
+
+            List<Map<String, Object>> slots = new ArrayList<>();
+            LocalTime slotTime = horarioInicial;
+
+            while (slotTime.isBefore(horarioLimite)) {
+                LocalDateTime slotDateTime = LocalDateTime.of(data, slotTime);
+                LocalDateTime slotFim = slotDateTime.plusMinutes(duracaoMinutos);
+
+                boolean cabeHorario = !slotFim.toLocalTime().isAfter(horarioLimite);
+
+                boolean ocupado = false;
+                if (cabeHorario) {
+                    for (Agendamento ag : existentes) {
+                        LocalDateTime agInicio = ag.getDataHora();
+                        int agDuracao = ag.getServico().getDuracaoMinutos() != null
+                                ? ag.getServico().getDuracaoMinutos() : 30;
+                        LocalDateTime agFim = agInicio.plusMinutes(agDuracao);
+
+                        if (slotDateTime.isBefore(agFim) && slotFim.isAfter(agInicio)) {
+                            ocupado = true;
+                            break;
+                        }
+                    }
+                }
+
+                Map<String, Object> slot = new LinkedHashMap<>();
+                slot.put("horario", slotTime.format(fmt));
+                slot.put("disponivel", cabeHorario && !ocupado);
+                slots.add(slot);
+
+                slotTime = slotTime.plusMinutes(30);
+            }
+
+            return slots;
+        }
 }

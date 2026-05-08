@@ -106,7 +106,7 @@ export class AdminServicosComponent implements OnInit {
     if (c.errors['required']) return 'Campo obrigatório.';
     if (name === 'nome' && c.errors['minlength']) return 'Nome deve ter no mínimo 3 caracteres.';
     if (name === 'preco' && c.errors['min']) return 'Preço não pode ser negativo.';
-    if (name === 'duracaoMinutos' && c.errors['min']) return 'Duração mínima é 1 minuto.';
+    if (name === 'duracaoMinutos' && c.errors['min']) return 'Selecione uma duração.';
     return 'Campo inválido.';
   }
 

@@ -68,6 +68,19 @@ public class ClienteAgendamentoRestController {
         return m;
     }
 
+    @GetMapping("/agendamentos/horarios-disponiveis")
+    public ResponseEntity<?> horariosDisponiveis(
+            @RequestParam Long barbeiroId,
+            @RequestParam Long servicoId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+        try {
+            List<Map<String, Object>> slots = agendamentoService.listarHorariosDisponiveis(barbeiroId, servicoId, data);
+            return ResponseEntity.ok(Map.of("horarios", slots));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/agendamentos/{id}")
     public ResponseEntity<?> agendamentoPorId(@PathVariable Long id, Authentication authentication) {
         String email = getUsernameFromAuthentication(authentication);
@@ -194,7 +207,7 @@ public class ClienteAgendamentoRestController {
         String email = authentication.getName();
         Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
-        List<Agendamento> lista = agendamentoService.listarPorBarbeiro(cliente.getId());
+        List<Agendamento> lista = agendamentoService.listarPorCliente(cliente.getId());
         ConfiguracaoFidelidade config = fidelidadeService.buscarConfiguracaoAtual();
         boolean temDesconto = fidelidadeService.buscarDescontoDisponivel(cliente.getId()).isPresent();
         if (data != null) {
@@ -303,7 +316,7 @@ public class ClienteAgendamentoRestController {
         String email = getUsernameFromAuthentication(authentication);
         Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
-        List<Agendamento> historico = agendamentoService.listarPorBarbeiro(cliente.getId());
+        List<Agendamento> historico = agendamentoService.listarPorCliente(cliente.getId());
         if (dataInicio != null) {
             historico = historico.stream()
                     .filter(a -> !a.getDataHora().toLocalDate().isBefore(dataInicio))

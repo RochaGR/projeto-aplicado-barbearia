@@ -3,7 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/api.service';
-import { Agendamento, Barbeiro, Servico } from '../../../core/models';
+import { Agendamento, Barbeiro, HorarioDisponivel, Servico } from '../../../core/models';
 
 function pickArray<T>(r: Record<string, unknown>, keys: string[]): T[] {
   for (const k of keys) {
@@ -13,13 +13,6 @@ function pickArray<T>(r: Record<string, unknown>, keys: string[]): T[] {
     }
   }
   return [];
-}
-
-function toIsoLocal(dtLocal: string): string {
-  if (!dtLocal) {
-    return '';
-  }
-  return dtLocal.length === 16 ? `${dtLocal}:00` : dtLocal;
 }
 
 @Component({
@@ -38,10 +31,13 @@ export class AgendamentoFormComponent implements OnInit {
   servicos = signal<Servico[]>([]);
   barbeiroId: number | null = null;
   servicoId: number | null = null;
-  dataHora = '';
+  data = signal('');
+  horariosDisponiveis = signal<HorarioDisponivel[]>([]);
+  horarioSelecionado = signal<string | null>(null);
 
   readonly editId = signal<number | null>(null);
   readonly carregando = signal(true);
+  readonly carregandoHorarios = signal(false);
   readonly salvando = signal(false);
   readonly erro = signal<string | null>(null);
   readonly temDesconto = signal(false);
@@ -83,20 +79,54 @@ export class AgendamentoFormComponent implements OnInit {
     this.servicoId = a.servico?.id ?? null;
     const dh = a.dataHora;
     if (dh && typeof dh === 'string') {
-      this.dataHora = dh.length >= 16 ? dh.slice(0, 16) : dh;
+      this.data.set(dh.length >= 10 ? dh.slice(0, 10) : dh);
+      const time = dh.length >= 16 ? dh.slice(11, 16) : '';
+      if (time) {
+        this.horarioSelecionado.set(time);
+      }
     }
+    this.carregarHorarios();
+  }
+
+  carregarHorarios(): void {
+    const bid = this.barbeiroId;
+    const sid = this.servicoId;
+    const dt = this.data();
+    if (bid == null || sid == null || !dt) {
+      this.horariosDisponiveis.set([]);
+      this.horarioSelecionado.set(null);
+      return;
+    }
+    this.carregandoHorarios.set(true);
+    this.horarioSelecionado.set(null);
+    this.api.horariosDisponiveis(bid, sid, dt).subscribe({
+      next: (res) => {
+        this.horariosDisponiveis.set(res.horarios ?? []);
+        this.carregandoHorarios.set(false);
+      },
+      error: () => {
+        this.horariosDisponiveis.set([]);
+        this.carregandoHorarios.set(false);
+      },
+    });
+  }
+
+  selecionarHorario(horario: string): void {
+    this.horarioSelecionado.set(horario);
   }
 
   salvar(): void {
     const bid = this.barbeiroId;
     const sid = this.servicoId;
-    if (bid == null || sid == null || !this.dataHora) {
-      this.erro.set('Preencha barbeiro, serviço e data.');
+    const dt = this.data();
+    const hr = this.horarioSelecionado();
+    if (bid == null || sid == null || !dt || !hr) {
+      this.erro.set('Preencha barbeiro, serviço, data e horário.');
       return;
     }
     this.erro.set(null);
     this.salvando.set(true);
-    const body = { barbeiroId: bid, servicoId: sid, dataHora: toIsoLocal(this.dataHora) };
+    const body = { barbeiroId: bid, servicoId: sid, dataHora: `${dt}T${hr}:00` };
     const eid = this.editId();
     const req =
       eid != null ? this.api.editarAgendamento(eid, body) : this.api.criarAgendamento(body);

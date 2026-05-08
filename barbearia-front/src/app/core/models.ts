@@ -46,6 +46,11 @@ export interface Agendamento {
   descontoAplicado?: boolean;
 }
 
+export interface HorarioDisponivel {
+  horario: string;
+  disponivel: boolean;
+}
+
 export interface DashboardStats {
   totalAgendamentos: number;
   totalClientes: number;
