@@ -75,6 +75,26 @@
   }
 }
 
+.hero-image__location {
+  border-color: var(--bb-accent);
+  color: var(--bb-accent);
+  background: rgba(232, 165, 75, 0.1);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background: rgba(232, 165, 75, 0.2);
+    border-color: #fff;
+    color: #fff;
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
 .section {
   padding: 3.75rem 1.25rem;
 }
@@ -343,10 +363,22 @@
   animation: fadeInUp 0.8s ease-out 0.5s;
   animation-fill-mode: both;
   transition: transform 0.3s, box-shadow 0.3s;
+  text-decoration: none;
+  color: inherit;
 
   &:hover {
     transform: translateY(-6px);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.unit-card--clickable {
+  cursor: pointer;
+  
+  &:hover {
+    .unit-card__info {
+      color: var(--bb-accent);
+    }
   }
 }
 

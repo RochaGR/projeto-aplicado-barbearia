@@ -18,6 +18,9 @@
       } @else if (auth.hasRole('ADMIN')) {
         <a routerLink="/admin/dashboard" class="btn-brand">Painel administrativo</a>
       }
+      <a href="https://maps.app.goo.gl/kozkpwvgCzqERJ5M7" target="_blank" class="btn-ghost hero-image__location">
+        <i class="fas fa-map-marker-alt"></i> Localize nossa barbearia, clique aqui!
+      </a>
     </div>
   </div>
 </section>
@@ -95,7 +98,7 @@
 <section class="section section--light" id="unidade">
   <div class="section__inner">
     <h2 class="section__title section__title--center">Nossa unidade</h2>
-    <div class="unit-card surface">
+    <a href="https://maps.app.goo.gl/kozkpwvgCzqERJ5M7" target="_blank" class="unit-card surface unit-card--clickable">
       <div class="unit-card__img">
         <img [src]="unidadeImg" alt="Fachada da unidade" width="900" height="520" loading="lazy" />
       </div>
@@ -106,7 +109,7 @@
           <span class="unit-card__addr">Avenida Patrício Lima, nº 120</span>
         </div>
       </div>
-    </div>
+    </a>
   </div>
 </section>
 
