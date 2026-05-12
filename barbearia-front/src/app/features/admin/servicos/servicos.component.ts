@@ -25,6 +25,7 @@ export class AdminServicosComponent implements OnInit {
     descricao: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     preco: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(0)] }),
     duracaoMinutos: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(1)] }),
+    imageUrl: new FormControl('', { nonNullable: true }),
     ativo: new FormControl(true, { nonNullable: true }),
   });
   readonly submitted = signal(false);
@@ -55,7 +56,7 @@ export class AdminServicosComponent implements OnInit {
       return;
     }
 
-    const { nome, descricao, preco, duracaoMinutos, ativo } = this.form.getRawValue();
+    const { nome, descricao, preco, duracaoMinutos, imageUrl, ativo } = this.form.getRawValue();
     const p = preco as number;
     const d = duracaoMinutos as number;
 
@@ -67,13 +68,14 @@ export class AdminServicosComponent implements OnInit {
         descricao: descricao.trim(),
         preco: p,
         duracaoMinutos: d,
+        imageUrl: imageUrl.trim() || undefined,
         ativo,
       })
       .subscribe({
         next: () => {
           this.criando.set(false);
           this.submitted.set(false);
-          this.form.reset({ nome: '', descricao: '', preco: null, duracaoMinutos: null, ativo: true });
+          this.form.reset({ nome: '', descricao: '', preco: null, duracaoMinutos: null, imageUrl: '', ativo: true });
           this.carregar();
         },
         error: (err: HttpErrorResponse) => {
@@ -92,12 +94,12 @@ export class AdminServicosComponent implements OnInit {
       });
   }
 
-  controlInvalid(name: 'nome' | 'descricao' | 'preco' | 'duracaoMinutos'): boolean {
+  controlInvalid(name: 'nome' | 'descricao' | 'preco' | 'duracaoMinutos' | 'imageUrl'): boolean {
     const c = this.form.controls[name];
     return c.invalid && (c.touched || this.submitted());
   }
 
-  controlMessage(name: 'nome' | 'descricao' | 'preco' | 'duracaoMinutos'): string {
+  controlMessage(name: 'nome' | 'descricao' | 'preco' | 'duracaoMinutos' | 'imageUrl'): string {
     const c = this.form.controls[name];
     if (!(c.touched || this.submitted()) || !c.errors) {
       return '';

@@ -27,6 +27,8 @@ export class ListaAgendamentosComponent implements OnInit {
   private readonly api = inject(ApiService);
 
   filtroData = '';
+  filtroStatus = '';
+  private todosAgendamentos: Agendamento[] = [];
   readonly lista = signal<Agendamento[]>([]);
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
@@ -42,7 +44,8 @@ export class ListaAgendamentosComponent implements OnInit {
     const d = this.filtroData.trim() || undefined;
     this.api.listarAgendamentosCliente(d).subscribe({
       next: (res) => {
-        this.lista.set(agendamentosDe(res));
+        this.todosAgendamentos = agendamentosDe(res);
+        this.filtrar();
         this.carregando.set(false);
       },
       error: () => {
@@ -50,6 +53,15 @@ export class ListaAgendamentosComponent implements OnInit {
         this.erro.set('Não foi possível listar os agendamentos.');
       },
     });
+  }
+
+  filtrar(): void {
+    const s = this.filtroStatus;
+    if (!s) {
+      this.lista.set(this.todosAgendamentos);
+    } else {
+      this.lista.set(this.todosAgendamentos.filter(a => (a.status ?? '').toUpperCase() === s));
+    }
   }
 
   cancelar(a: Agendamento): void {

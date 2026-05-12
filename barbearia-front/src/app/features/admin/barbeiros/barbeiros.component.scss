@@ -132,6 +132,25 @@
   font-size: 0.8rem;
 }
 
+.field--check {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+  align-self: center;
+  justify-self: center;
+
+  label {
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    input[type="checkbox"] {
+      width: auto;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
 // CORRIGIDO: botão alinhado e ocupando toda a largura da coluna
 .field--action {
   align-self: end;

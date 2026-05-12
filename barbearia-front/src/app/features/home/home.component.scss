@@ -293,6 +293,54 @@
   color: var(--bb-accent);
 }
 
+.service-card-link--careca {
+  cursor: default;
+
+  &:hover {
+    transform: translateY(-8px) scale(1.02);
+
+    .service-card--careca {
+      border-color: #f59e0b;
+      box-shadow: 0 20px 60px rgba(245, 158, 11, 0.25);
+    }
+  }
+}
+
+.service-card--careca {
+  border: 1px solid rgba(245, 158, 11, 0.3);
+
+  h3 {
+    color: #fbbf24;
+  }
+
+  .service-card__desc {
+    -webkit-line-clamp: 4;
+  }
+
+  .service-card__price--careca {
+    color: #34d399;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  .service-card__img-wrap::after {
+    content: '🧴';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  &:hover .service-card__img-wrap::after {
+    opacity: 1;
+  }
+}
+
 .team-banner {
   --team-img: none;
   position: relative;

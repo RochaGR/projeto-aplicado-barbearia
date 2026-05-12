@@ -57,6 +57,12 @@
           <small class="field-error">{{ controlMessage('senha') }}</small>
         }
       </div>
+      <div class="field field--check">
+        <label>
+          <input type="checkbox" formControlName="ativo" />
+          Ativo
+        </label>
+      </div>
       <div class="field field--action">
         <button type="submit" class="btn-brand" [disabled]="criando() || form.invalid">
           {{ criando() ? 'Salvando…' : 'Cadastrar' }}
@@ -93,11 +99,6 @@
                 <i class="fas fa-user-tie"></i>
                 <strong>{{ b.nome }}</strong>
               </div>
-              <div class="item__status">
-                <span class="badge badge--{{ b.ativo ? 'ativo' : 'inativo' }}">
-                  {{ b.ativo ? 'Ativo' : 'Inativo' }}
-                </span>
-              </div>
             </div>
             <div class="item__details">
               <div class="detail-item">
@@ -111,6 +112,11 @@
             </div>
           </div>
           <div class="item__actions">
+            <div class="item__status">
+              <span class="badge badge--{{ b.ativo ? 'ativo' : 'inativo' }}">
+                {{ b.ativo ? 'Ativo' : 'Inativo' }}
+              </span>
+            </div>
             <button type="button" class="btn-ghost" [disabled]="acaoId() === b.id" (click)="toggle(b)">
               <i class="fas {{ b.ativo ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
               {{ acaoId() === b.id ? (b.ativo ? 'Desativando...' : 'Ativando...') : (b.ativo ? 'Desativar' : 'Ativar') }}

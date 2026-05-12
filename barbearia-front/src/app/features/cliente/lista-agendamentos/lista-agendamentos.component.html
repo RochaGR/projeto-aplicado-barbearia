@@ -20,6 +20,19 @@
           </label>
           <input id="data" name="data" type="date" [(ngModel)]="filtroData" />
         </div>
+        <div class="field field--inline">
+          <label for="status">
+            <i class="fas fa-tag"></i>
+            Status
+          </label>
+          <select id="status" name="status" [(ngModel)]="filtroStatus" (ngModelChange)="filtrar()">
+            <option value="">Todos</option>
+            <option value="AGENDADO">Agendado</option>
+            <option value="CONFIRMADO">Confirmado</option>
+            <option value="CONCLUIDO">Concluído</option>
+            <option value="CANCELADO">Cancelado</option>
+          </select>
+        </div>
         <button type="button" class="btn-ghost" (click)="carregar()">
           <i class="fas fa-filter"></i>
           Aplicar
@@ -63,9 +76,6 @@
                   <i class="fas fa-clock"></i>
                   <strong>{{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}</strong>
                 </div>
-                <div class="item__status">
-                  <span class="badge badge--{{ a.status?.toLowerCase() || '' }}">{{ a.status }}</span>
-                </div>
               </div>
               <div class="item__details">
                 <div class="detail-item">
@@ -79,6 +89,9 @@
               </div>
             </div>
             <div class="item__actions">
+              <div class="item__status">
+                <span class="badge badge--{{ a.status?.toLowerCase() || '' }}">{{ a.status }}</span>
+              </div>
               @if (podeCancelar(a.status)) {
                 <button
                   type="button"
@@ -90,10 +103,6 @@
                   {{ acaoId() === a.id ? 'Cancelando...' : 'Cancelar' }}
                 </button>
               }
-              <a [routerLink]="['/agendamentos/editar', a.id]" class="btn-ghost">
-                <i class="fas fa-edit"></i>
-                Editar
-              </a>
             </div>
           </div>
         }

@@ -33,6 +33,7 @@ export class AdminBarbeirosComponent implements OnInit {
         Validators.pattern(/.*[^a-zA-Z0-9].*/),
       ],
     }),
+    ativo: new FormControl(true, { nonNullable: true }),
   });
   readonly submitted = signal(false);
   readonly criando = signal(false);
@@ -62,14 +63,14 @@ export class AdminBarbeirosComponent implements OnInit {
       return;
     }
 
-    const { nome, email, telefone, senha } = this.form.getRawValue();
+    const { nome, email, telefone, senha, ativo } = this.form.getRawValue();
     this.erro.set(null);
     this.criando.set(true);
     const payload = {
       nome: nome.trim(),
       email: email.trim(),
       telefone: telefone.trim(),
-      ativo: true,
+      ativo,
       senha,
     };
 
@@ -79,7 +80,7 @@ export class AdminBarbeirosComponent implements OnInit {
         next: () => {
           this.criando.set(false);
           this.submitted.set(false);
-          this.form.reset({ nome: '', email: '', telefone: '', senha: '' });
+          this.form.reset({ nome: '', email: '', telefone: '', senha: '', ativo: true });
           this.carregar();
         },
         error: (err: HttpErrorResponse) => {
