@@ -7,6 +7,10 @@ import { Barbeiro, DashboardStats, HorarioDisponivel, Servico } from './models';
 export class ApiService {
   constructor(private http: HttpClient) {}
 
+  completarCadastro(body: { telefone: string }): Observable<unknown> {
+    return this.http.post('/api/auth/completar-cadastro', body);
+  }
+
   setupRequired(): Observable<{ required: boolean }> {
     return this.http.get<{ required: boolean }>('/api/setup/required');
   }
@@ -20,7 +24,7 @@ export class ApiService {
   }
 
   servicosPublicos(): Observable<Servico[]> {
-    return this.http.get<Servico[]>('/api/servicos/publicos');
+    return this.http.get<Servico[]>('mvn clean package -DskipTests');
   }
 
   formOptionsCliente(): Observable<Record<string, unknown>> {

@@ -14,9 +14,17 @@ public class CorsConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200", "http://localhost:4201", "http://127.0.0.1:4201"));
+        config.setAllowedOrigins(List.of(
+            "http://localhost:4200",
+            "http://127.0.0.1:4200",
+            "http://168.138.147.219",
+            "http://168.138.147.219:80",
+            "http://168.138.147.219:8080",
+            "http://168.138.147.219.nip.io"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Set-Cookie"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 

@@ -3,6 +3,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from './core/auth.service';
+import { ApiService } from './core/api.service';
 import { MainFooterComponent } from './shared/layout/main-footer/main-footer.component';
 import { MainNavbarComponent } from './shared/layout/main-navbar/main-navbar.component';
 
@@ -35,19 +36,17 @@ export class AppComponent implements OnInit {
       window.history.replaceState({}, document.title, window.location.pathname);
       
       setTimeout(() => {
-        fetch('http://localhost:8080/api/auth/me', { 
-          credentials: 'include' 
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.telefonePendente) {
-              this.showTelefoneModal.set(true);
-            }
-          })
-          .catch(() => {});
+        this.auth.refreshUser().subscribe((data) => {
+          const d = data as unknown as Record<string, unknown>;
+          if (d && d['telefonePendente']) {
+            this.showTelefoneModal.set(true);
+          }
+        });
       }, 1000);
     }
   }
+
+  private readonly api = inject(ApiService);
 
   salvarTelefone(): void {
     const telefoneLimpo = this.telefone.replace(/\D/g, '');
@@ -55,23 +54,15 @@ export class AppComponent implements OnInit {
       alert('Telefone invalido. Digite um numero com 10 ou 11 digitos.');
       return;
     }
-
-    fetch('http://localhost:8080/api/auth/completar-cadastro', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ telefone: this.telefone.replace(/\D/g, '') })
-    }).then(async (res) => {
-      if (res.ok) {
+    this.api.completarCadastro({ telefone: telefoneLimpo }).subscribe({
+      next: () => {
         this.showTelefoneModal.set(false);
         this.auth.refreshUser().subscribe();
         window.location.href = '/';
-      } else {
-        const msg = await res.text();
-        alert('Erro ao salvar telefone: ' + (msg || 'Tente novamente.'));
-      }
-    }).catch((err) => {
-      alert('Erro de conexao: ' + err.message);
+      },
+      error: (err) => {
+        alert('Erro ao salvar telefone: ' + (err.message || 'Tente novamente.'));
+      },
     });
   }
 

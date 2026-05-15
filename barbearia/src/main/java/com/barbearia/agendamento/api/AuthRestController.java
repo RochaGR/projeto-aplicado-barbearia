@@ -61,6 +61,9 @@ public class AuthRestController {
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Email ou senha inválidos."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Erro interno: " + e.getClass().getSimpleName() + " - " + e.getMessage()));
         }
     }
 
