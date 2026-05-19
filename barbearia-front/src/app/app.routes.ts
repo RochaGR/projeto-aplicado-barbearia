@@ -4,6 +4,7 @@ import { roleGuard } from './core/role.guard';
 import { AdminBarbeirosComponent } from './features/admin/barbeiros/barbeiros.component';
 import { AdminDashboardComponent } from './features/admin/dashboard/dashboard.component';
 import { AdminFidelidadeConfigComponent } from './features/admin/fidelidade-config/fidelidade-config.component';
+import { AdminHorariosComponent } from './features/admin/horarios/horarios.component';
 import { AdminServicosComponent } from './features/admin/servicos/servicos.component';
 import { TodosAgendamentosComponent } from './features/admin/todos-agendamentos/todos-agendamentos.component';
 import { AgendamentosBarbeiroComponent } from './features/barbeiro/agendamentos-barbeiro/agendamentos-barbeiro.component';
@@ -82,6 +83,11 @@ export const routes: Routes = [
   {
     path: 'admin/fidelidade',
     component: AdminFidelidadeConfigComponent,
+    canActivate: [authGuard, roleGuard(['ADMIN'])],
+  },
+  {
+    path: 'admin/horarios',
+    component: AdminHorariosComponent,
     canActivate: [authGuard, roleGuard(['ADMIN'])],
   },
   { path: '**', redirectTo: '' },

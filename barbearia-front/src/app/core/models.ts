@@ -68,3 +68,18 @@ export interface DashboardStats {
   taxaCancelamento: string;
   proximosAgendamentos?: Agendamento[];
 }
+
+export interface ConfigHorario {
+  id: number;
+  diaSemana: number;
+  diaNome: string;
+  ativo: boolean;
+  abertura: string;
+  fechamento: string;
+}
+
+export interface Feriado {
+  id: number;
+  data: string;
+  motivo: string;
+}

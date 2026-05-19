@@ -32,9 +32,35 @@
     </div>
     <div class="field" [class.field--invalid]="controlInvalid('senha')">
       <label for="senha">Senha</label>
-      <input id="senha" type="password" formControlName="senha" autocomplete="new-password" />
-      @if (senhaStrength(); as level) {
-        <small class="field-hint">Senha {{ level }}</small>
+      <div class="password-wrapper">
+        <input id="senha" [type]="mostrarSenha() ? 'text' : 'password'" formControlName="senha" autocomplete="new-password" />
+        <button type="button" class="password-toggle" (click)="mostrarSenha.set(!mostrarSenha())" [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'">
+          @if (mostrarSenha()) {
+            <i class="fas fa-eye-slash"></i>
+          } @else {
+            <i class="fas fa-eye"></i>
+          }
+        </button>
+      </div>
+      @if (form.controls.senha.value) {
+        <ul class="password-checklist">
+          <li [class.check--ok]="senhaTemMinimo()">
+            <i class="fas" [class.fa-check-circle]="senhaTemMinimo()" [class.fa-circle]="!senhaTemMinimo()"></i>
+            Mínimo 8 caracteres
+          </li>
+          <li [class.check--ok]="senhaTemMaiuscula()">
+            <i class="fas" [class.fa-check-circle]="senhaTemMaiuscula()" [class.fa-circle]="!senhaTemMaiuscula()"></i>
+            Pelo menos 1 letra maiúscula
+          </li>
+          <li [class.check--ok]="senhaTemNumero()">
+            <i class="fas" [class.fa-check-circle]="senhaTemNumero()" [class.fa-circle]="!senhaTemNumero()"></i>
+            Pelo menos 1 número
+          </li>
+          <li [class.check--ok]="senhaTemEspecial()">
+            <i class="fas" [class.fa-check-circle]="senhaTemEspecial()" [class.fa-circle]="!senhaTemEspecial()"></i>
+            Pelo menos 1 caractere especial
+          </li>
+        </ul>
       }
       @if (controlInvalid('senha')) {
         <small class="field-error">{{ controlMessage('senha') }}</small>

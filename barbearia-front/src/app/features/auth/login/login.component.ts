@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
@@ -6,7 +7,7 @@ import { AuthService } from '../../../core/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -21,6 +22,7 @@ export class LoginComponent {
   readonly submitted = signal(false);
   readonly erro = signal<string | null>(null);
   readonly carregando = signal(false);
+  readonly mostrarSenha = signal(false);
 
   entrar(): void {
     this.clearAuthError(this.form.controls.email);
