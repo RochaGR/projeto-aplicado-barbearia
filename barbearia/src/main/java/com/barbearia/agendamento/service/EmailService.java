@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -50,6 +51,32 @@ public class EmailService {
                 ag.getCliente().getEmail(),
                 "❌ Agendamento cancelado — Barbearia Souza",
                 buildHtmlCancelamento(ag)
+        );
+    }
+
+    @Async
+    public void enviarCancelamentoFeriado(Agendamento ag, String motivo, LocalDate dataFeriado) {
+        String dataFmt = dataFeriado.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        var dest = ag.getCliente().getEmail();
+        enviar(dest,
+                "📢 Agendamento cancelado",
+                buildHtmlCancelamentoFeriado(ag, motivo, dataFmt)
+        );
+    }
+
+    @Async
+    public void enviarNotificacaoBarbeiro(Agendamento ag, String motivo, LocalDate dataFeriado) {
+        String dataFmt = dataFeriado.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        var barbeiroNome = ag.getBarbeiro().getNome();
+        var clienteNome = ag.getCliente().getNome();
+        var servicoNome = ag.getServico().getNome();
+        var hora = ag.getDataHora().format(DateTimeFormatter.ofPattern("HH:mm"));
+        var dest = ag.getBarbeiro().getEmail();
+        enviar(dest,
+                "📢 Agendamento cancelado — " + dataFmt,
+                buildHtmlNotificacaoBarbeiro(ag, motivo, dataFmt, clienteNome, servicoNome, hora)
         );
     }
 
@@ -423,7 +450,7 @@ public class EmailService {
         String nome     = ag.getCliente().getNome();
         String servico  = ag.getServico().getNome();
         String barbeiro = ag.getBarbeiro().getNome();
-        String link     = appUrl + "/novo-agendamento";
+        String link     = appUrl + "/agendamentos/novo";
 
         return """
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -586,5 +613,106 @@ public class EmailService {
 </body>
 </html>
 """.formatted(nome, servico, barbeiro, dataHora, link);
+    }
+
+    private String buildHtmlCancelamentoFeriado(Agendamento ag, String motivo, String dataFmt) {
+        String nome = ag.getCliente().getNome();
+        String servico = ag.getServico().getNome();
+        String barbeiro = ag.getBarbeiro().getNome();
+        String hora = ag.getDataHora().format(DateTimeFormatter.ofPattern("HH:mm"));
+        String link = appUrl + "/agendamentos/novo";
+
+        return """
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendamento Cancelado</title>
+<style>
+  body,table,td,a{-webkit-text-size-adjust:100%%;-ms-text-size-adjust:100%%}
+  body{margin:0;padding:0;background-color:#0B0F19;font-family:Georgia,'Times New Roman',serif}
+  @media only screen and (max-width:620px){.email-container{width:100%%!important}.hero-padding{padding:32px 20px!important}.body-padding{padding:24px 16px!important}.cta-btn{padding:14px 24px!important}}
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#0B0F19;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%%" style="background-color:#0B0F19;"><tr><td align="center" style="padding:24px 12px;">
+<table class="email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="background-color:#111827;border-radius:16px;overflow:hidden;border:1px solid #1F2937;">
+<tr><td style="padding:18px 32px;border-bottom:2px solid #ef4444;">
+<span style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:bold;color:#FFFFFF;">Barbearia <span style="color:#FBBF24;">Souza</span></span>
+</td></tr>
+<tr><td class="hero-padding" align="center" style="padding:40px 32px 32px;">
+<span style="display:inline-block;background-color:#2d0707;border:1px solid #ef4444;border-radius:999px;padding:6px 16px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#f87171;text-transform:uppercase;letter-spacing:1.5px;">&#10007; Cancelado</span>
+<h1 style="margin:24px 0 12px;font-size:28px;font-weight:bold;color:#FFFFFF;">Agendamento cancelado</h1>
+<p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:15px;color:#9CA3AF;line-height:1.6;">Olá, <strong style="color:#FBBF24;">%s</strong>!</p>
+<p style="margin:0;font-family:Arial,sans-serif;font-size:15px;color:#9CA3AF;line-height:1.6;">Seu agendamento do dia <strong>%s</strong> às <strong>%s</strong> foi cancelado.</p>
+<p style="margin:12px 0 0;font-family:Arial,sans-serif;font-size:14px;color:#D97706;line-height:1.5;"><strong>Motivo:</strong> %s</p>
+</td></tr>
+<tr><td class="body-padding" style="padding:0 32px 24px;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%%" style="background-color:#0B0F19;border-radius:12px;border:1px solid #1F2937;">
+<tr><td style="padding:12px 20px;background-color:#161D2F;border-bottom:1px solid #1F2937;"><span style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:#9CA3AF;letter-spacing:2px;text-transform:uppercase;">Detalhes do cancelamento</span></td></tr>
+<tr><td style="padding:16px 20px;">
+<span style="font-family:Arial,sans-serif;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px;">Serviço</span>
+<p style="margin:4px 0 12px;font-family:Georgia,serif;font-size:15px;color:#9CA3AF;text-decoration:line-through;">%s</p>
+<span style="font-family:Arial,sans-serif;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px;">Profissional</span>
+<p style="margin:4px 0 0;font-family:Georgia,serif;font-size:15px;color:#9CA3AF;">%s</p>
+</td></tr>
+</table>
+</td></tr>
+<tr><td align="center" style="padding:4px 32px 36px;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td style="border-radius:10px;background-color:#FBBF24;">
+<a class="cta-btn" href="%s" style="display:inline-block;padding:14px 32px;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;color:#000000;text-decoration:none;border-radius:10px;">Agendar novo horário &rarr;</a>
+</td></tr></table>
+</td></tr>
+<tr><td align="center" style="padding:24px 32px;border-top:1px solid #1F2937;">
+<p style="margin:0;font-family:Georgia,serif;font-size:14px;color:#FBBF24;font-weight:bold;">Barbearia Souza</p>
+<p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:11px;color:#374151;">&copy; 2026 Barbearia Souza. Todos os direitos reservados.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</body>
+</html>
+""".formatted(nome, dataFmt, hora, motivo, servico, barbeiro, link);
+    }
+
+    private String buildHtmlNotificacaoBarbeiro(Agendamento ag, String motivo, String dataFmt, String clienteNome, String servicoNome, String hora) {
+        String link = appUrl + "/barbeiro/agendamentos";
+
+        return """
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendamento Cancelado</title>
+<style>
+  body,table,td,a{-webkit-text-size-adjust:100%%;-ms-text-size-adjust:100%%}
+  body{margin:0;padding:0;background-color:#0B0F19;font-family:Georgia,'Times New Roman',serif}
+  @media only screen and (max-width:620px){.email-container{width:100%%!important}.hero-padding{padding:32px 20px!important}}
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#0B0F19;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%%" style="background-color:#0B0F19;"><tr><td align="center" style="padding:24px 12px;">
+<table class="email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="background-color:#111827;border-radius:16px;overflow:hidden;border:1px solid #1F2937;">
+<tr><td style="padding:18px 32px;border-bottom:2px solid #ef4444;">
+<span style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:bold;color:#FFFFFF;">Barbearia <span style="color:#FBBF24;">Souza</span></span>
+</td></tr>
+<tr><td class="hero-padding" align="center" style="padding:40px 32px 32px;">
+<span style="display:inline-block;background-color:#2d0707;border:1px solid #ef4444;border-radius:999px;padding:6px 16px;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#f87171;text-transform:uppercase;letter-spacing:1.5px;">&#10007; Cancelado</span>
+<h1 style="margin:24px 0 12px;font-size:26px;font-weight:bold;color:#FFFFFF;">Agendamento cancelado</h1>
+<p style="margin:0;font-family:Arial,sans-serif;font-size:15px;color:#9CA3AF;line-height:1.6;">Olá, <strong style="color:#FBBF24;">%s</strong>!</p>
+<p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:15px;color:#9CA3AF;line-height:1.6;">O agendamento do cliente <strong>%s</strong> no dia <strong>%s</strong> às <strong>%s</strong> para o serviço <strong>%s</strong> foi cancelado.</p>
+<p style="margin:12px 0 0;font-family:Arial,sans-serif;font-size:14px;color:#D97706;line-height:1.5;"><strong>Motivo:</strong> %s</p>
+</td></tr>
+<tr><td align="center" style="padding:4px 32px 36px;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td style="border-radius:10px;background-color:#FBBF24;">
+<a class="cta-btn" href="%s" style="display:inline-block;padding:14px 32px;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;color:#000000;text-decoration:none;border-radius:10px;">Ver agendamentos &rarr;</a>
+</td></tr></table>
+</td></tr>
+<tr><td align="center" style="padding:24px 32px;border-top:1px solid #1F2937;">
+<p style="margin:0;font-family:Georgia,serif;font-size:14px;color:#FBBF24;font-weight:bold;">Barbearia Souza</p>
+<p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:11px;color:#374151;">&copy; 2026 Barbearia Souza. Todos os direitos reservados.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</body>
+</html>
+""".formatted(ag.getBarbeiro().getNome(), clienteNome, dataFmt, hora, servicoNome, motivo, link);
     }
 }
