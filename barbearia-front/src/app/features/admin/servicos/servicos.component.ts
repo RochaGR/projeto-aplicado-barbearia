@@ -19,6 +19,9 @@ export class AdminServicosComponent implements OnInit {
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
   readonly acaoId = signal<number | null>(null);
+  readonly imagemPreview = signal<string | null>(null);
+  readonly imagemArquivo = signal<File | null>(null);
+  readonly enviandoImagem = signal(false);
 
   readonly form = new FormGroup({
     nome: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
@@ -72,11 +75,17 @@ export class AdminServicosComponent implements OnInit {
         ativo,
       })
       .subscribe({
-        next: () => {
-          this.criando.set(false);
-          this.submitted.set(false);
-          this.form.reset({ nome: '', descricao: '', preco: null, duracaoMinutos: null, imageUrl: '', ativo: true });
-          this.carregar();
+        next: (res: any) => {
+          const servicoId = res?.id;
+          if (servicoId && this.imagemPreview()) {
+            this.enviarImagem(servicoId);
+          } else {
+            this.criando.set(false);
+            this.submitted.set(false);
+            this.form.reset({ nome: '', descricao: '', preco: null, duracaoMinutos: null, imageUrl: '', ativo: true });
+            this.imagemPreview.set(null);
+            this.carregar();
+          }
         },
         error: (err: HttpErrorResponse) => {
           this.criando.set(false);
@@ -92,6 +101,38 @@ export class AdminServicosComponent implements OnInit {
           this.erro.set(err.error?.message ?? 'Não foi possível cadastrar o serviço.');
         },
       });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const file = input.files[0];
+    this.imagemArquivo.set(file);
+    const reader = new FileReader();
+    reader.onload = () => this.imagemPreview.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  private enviarImagem(servicoId: number): void {
+    const file = this.imagemArquivo();
+    if (!file) return;
+    this.enviandoImagem.set(true);
+    this.api.uploadImagemServico(servicoId, file).subscribe({
+      next: () => {
+        this.enviandoImagem.set(false);
+        this.criando.set(false);
+        this.submitted.set(false);
+        this.form.reset({ nome: '', descricao: '', preco: null, duracaoMinutos: null, imageUrl: '', ativo: true });
+        this.imagemPreview.set(null);
+        this.imagemArquivo.set(null);
+        this.carregar();
+      },
+      error: () => {
+        this.enviandoImagem.set(false);
+        this.criando.set(false);
+        this.carregar();
+      },
+    });
   }
 
   controlInvalid(name: 'nome' | 'descricao' | 'preco' | 'duracaoMinutos' | 'imageUrl'): boolean {
@@ -110,6 +151,20 @@ export class AdminServicosComponent implements OnInit {
     if (name === 'preco' && c.errors['min']) return 'Preço não pode ser negativo.';
     if (name === 'duracaoMinutos' && c.errors['min']) return 'Selecione uma duração.';
     return 'Campo inválido.';
+  }
+
+  toggle(s: Servico): void {
+    this.acaoId.set(s.id);
+    this.api.toggleServico(s.id).subscribe({
+      next: () => {
+        this.acaoId.set(null);
+        this.carregar();
+      },
+      error: () => {
+        this.acaoId.set(null);
+        this.erro.set('Não foi possível alterar o status.');
+      },
+    });
   }
 
   excluir(s: Servico): void {

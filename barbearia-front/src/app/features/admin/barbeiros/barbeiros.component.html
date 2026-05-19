@@ -58,8 +58,9 @@
         }
       </div>
       <div class="field field--check">
-        <label>
+        <label class="toggle">
           <input type="checkbox" formControlName="ativo" />
+          <span class="toggle__slider"></span>
           Ativo
         </label>
       </div>
@@ -117,7 +118,7 @@
                 {{ b.ativo ? 'Ativo' : 'Inativo' }}
               </span>
             </div>
-            <button type="button" class="btn-ghost" [disabled]="acaoId() === b.id" (click)="toggle(b)">
+            <button type="button" class="btn-ghost btn-accent-ghost" [disabled]="acaoId() === b.id" (click)="toggle(b)">
               <i class="fas {{ b.ativo ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
               {{ acaoId() === b.id ? (b.ativo ? 'Desativando...' : 'Ativando...') : (b.ativo ? 'Desativar' : 'Ativar') }}
             </button>

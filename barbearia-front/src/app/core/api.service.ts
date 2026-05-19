@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Barbeiro, DashboardStats, HorarioDisponivel, Servico } from './models';
+import { Barbeiro, ConfigHorario, DashboardStats, Feriado, HorarioDisponivel, Servico } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -24,7 +24,7 @@ export class ApiService {
   }
 
   servicosPublicos(): Observable<Servico[]> {
-    return this.http.get<Servico[]>('mvn clean package -DskipTests');
+    return this.http.get<Servico[]>('/api/servicos/publicos');
   }
 
   formOptionsCliente(): Observable<Record<string, unknown>> {
@@ -149,6 +149,10 @@ export class ApiService {
     return this.http.post('/api/admin/servicos', s);
   }
 
+  toggleServico(id: number): Observable<unknown> {
+    return this.http.post(`/api/admin/servicos/${id}/toggle`, {});
+  }
+
   excluirServico(id: number): Observable<unknown> {
     return this.http.delete(`/api/admin/servicos/${id}`);
   }
@@ -159,5 +163,31 @@ export class ApiService {
 
   salvarFidelidadeAdmin(body: { percentualDesconto: number; cortesParaDesconto: number }): Observable<unknown> {
     return this.http.post('/api/admin/fidelidade', body);
+  }
+
+  uploadImagemServico(id: number, file: File): Observable<{ imageUrl: string }> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<{ imageUrl: string }>(`/api/admin/servicos/${id}/imagem`, fd);
+  }
+
+  horariosAdmin(): Observable<{ horarios: ConfigHorario[] }> {
+    return this.http.get<{ horarios: ConfigHorario[] }>('/api/admin/horarios');
+  }
+
+  atualizarHorarioAdmin(id: number, body: Partial<ConfigHorario>): Observable<unknown> {
+    return this.http.put(`/api/admin/horarios/${id}`, body);
+  }
+
+  feriadosAdmin(): Observable<{ feriados: Feriado[] }> {
+    return this.http.get<{ feriados: Feriado[] }>('/api/admin/feriados');
+  }
+
+  criarFeriadoAdmin(body: { data: string; motivo: string }): Observable<unknown> {
+    return this.http.post('/api/admin/feriados', body);
+  }
+
+  excluirFeriadoAdmin(id: number): Observable<unknown> {
+    return this.http.delete(`/api/admin/feriados/${id}`);
   }
 }
