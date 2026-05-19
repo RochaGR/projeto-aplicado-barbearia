@@ -51,4 +51,10 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
                         LocalDateTime fim,
                         String status,
                         Pageable pageable);
+
+        @Query("SELECT a FROM Agendamento a WHERE a.dataHora < :dataHora AND a.status IN ('AGENDADO', 'CONFIRMADO')")
+        List<Agendamento> findPassadosNaoCancelados(@Param("dataHora") LocalDateTime dataHora);
+
+        @Query("SELECT a FROM Agendamento a WHERE a.dataHora >= :inicio AND a.dataHora < :fim AND a.status IN ('AGENDADO', 'CONFIRMADO')")
+        List<Agendamento> findByDataBetweenAndStatusAtivo(@Param("inicio") LocalDateTime inicio, @Param("fim") LocalDateTime fim);
 }

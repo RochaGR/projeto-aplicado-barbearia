@@ -4,6 +4,7 @@ import com.barbearia.agendamento.fila.ListaOrdenada;
 import com.barbearia.agendamento.model.Agendamento;
 import com.barbearia.agendamento.model.Barbeiro;
 import com.barbearia.agendamento.model.Cliente;
+import com.barbearia.agendamento.model.ConfiguracaoHorario;
 import com.barbearia.agendamento.model.Servico;
 import com.barbearia.agendamento.repository.AgendamentoRepository;
 import jakarta.transaction.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -32,6 +34,8 @@ public class AgendamentoService {
        private final ClienteService clienteService;
        private final FidelidadeService fidelidadeService;
        private final EmailService emailService;
+       private final ConfiguracaoHorarioService configuracaoHorarioService;
+       private final FeriadoService feriadoService;
 
        public AgendamentoService(
                AgendamentoRepository repository,
@@ -39,7 +43,9 @@ public class AgendamentoService {
                ServicoService servicoService,
                ClienteService clienteService,
                FidelidadeService fidelidadeService,
-               EmailService emailService) {
+               EmailService emailService,
+               ConfiguracaoHorarioService configuracaoHorarioService,
+               FeriadoService feriadoService) {
 
               this.repository = repository;
               this.barbeiroService = barbeiroService;
@@ -47,6 +53,8 @@ public class AgendamentoService {
               this.clienteService = clienteService;
               this.fidelidadeService = fidelidadeService;
               this.emailService = emailService;
+              this.configuracaoHorarioService = configuracaoHorarioService;
+              this.feriadoService = feriadoService;
        }
 
        public Optional<Agendamento> buscarPorId(@NonNull Long id) {
@@ -182,51 +190,83 @@ public class AgendamentoService {
                return ordenados;
         }
 
-        public List<Map<String, Object>> listarHorariosDisponiveis(Long barbeiroId, Long servicoId, LocalDate data) {
-            Servico servico = servicoService.buscarPorId(servicoId)
-                    .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
-            int duracaoMinutos = servico.getDuracaoMinutos() != null ? servico.getDuracaoMinutos() : 30;
+         public List<Map<String, Object>> listarHorariosDisponiveis(Long barbeiroId, Long servicoId, LocalDate data) {
+             Servico servico = servicoService.buscarPorId(servicoId)
+                     .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
+             int duracaoMinutos = servico.getDuracaoMinutos() != null ? servico.getDuracaoMinutos() : 30;
 
-            LocalDateTime inicio = data.atStartOfDay();
-            LocalDateTime fim = data.atTime(23, 59);
-            List<Agendamento> existentes = repository.findByBarbeiroIdAndPeriodo(barbeiroId, inicio, fim);
+             int diaSemana = data.getDayOfWeek().getValue();
+             if (data.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                 diaSemana = 1;
+             } else {
+                 diaSemana = data.getDayOfWeek().getValue() + 1;
+             }
 
-            LocalTime horarioInicial = LocalTime.of(8, 0);
-            LocalTime horarioLimite = LocalTime.of(19, 0);
-            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
+             ConfiguracaoHorario config = configuracaoHorarioService.buscarPorDiaSemana(diaSemana).orElse(null);
+             if (config == null || !config.getAtivo()) {
+                 return List.of();
+             }
 
-            List<Map<String, Object>> slots = new ArrayList<>();
-            LocalTime slotTime = horarioInicial;
+             if (feriadoService.isFeriado(data)) {
+                 return List.of();
+             }
 
-            while (slotTime.isBefore(horarioLimite)) {
-                LocalDateTime slotDateTime = LocalDateTime.of(data, slotTime);
-                LocalDateTime slotFim = slotDateTime.plusMinutes(duracaoMinutos);
+             LocalTime horarioInicial = config.getAbertura() != null ? config.getAbertura() : LocalTime.of(8, 0);
+             LocalTime horarioLimite = config.getFechamento() != null ? config.getFechamento() : LocalTime.of(19, 0);
 
-                boolean cabeHorario = !slotFim.toLocalTime().isAfter(horarioLimite);
+             LocalDateTime inicio = data.atStartOfDay();
+             LocalDateTime fim = data.atTime(23, 59);
+             List<Agendamento> existentes = repository.findByBarbeiroIdAndPeriodo(barbeiroId, inicio, fim);
 
-                boolean ocupado = false;
-                if (cabeHorario) {
-                    for (Agendamento ag : existentes) {
-                        LocalDateTime agInicio = ag.getDataHora();
-                        int agDuracao = ag.getServico().getDuracaoMinutos() != null
-                                ? ag.getServico().getDuracaoMinutos() : 30;
-                        LocalDateTime agFim = agInicio.plusMinutes(agDuracao);
+             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
 
-                        if (slotDateTime.isBefore(agFim) && slotFim.isAfter(agInicio)) {
-                            ocupado = true;
-                            break;
-                        }
-                    }
-                }
+             List<Map<String, Object>> slots = new ArrayList<>();
+             LocalTime slotTime = horarioInicial;
 
-                Map<String, Object> slot = new LinkedHashMap<>();
-                slot.put("horario", slotTime.format(fmt));
-                slot.put("disponivel", cabeHorario && !ocupado);
-                slots.add(slot);
+             while (slotTime.isBefore(horarioLimite)) {
+                 LocalDateTime slotDateTime = LocalDateTime.of(data, slotTime);
+                 LocalDateTime slotFim = slotDateTime.plusMinutes(duracaoMinutos);
 
-                slotTime = slotTime.plusMinutes(30);
-            }
+                 boolean cabeHorario = !slotFim.toLocalTime().isAfter(horarioLimite);
 
-            return slots;
-        }
+                 boolean ocupado = false;
+                 if (cabeHorario) {
+                     for (Agendamento ag : existentes) {
+                         LocalDateTime agInicio = ag.getDataHora();
+                         int agDuracao = ag.getServico().getDuracaoMinutos() != null
+                                 ? ag.getServico().getDuracaoMinutos() : 30;
+                         LocalDateTime agFim = agInicio.plusMinutes(agDuracao);
+
+                         if (slotDateTime.isBefore(agFim) && slotFim.isAfter(agInicio)) {
+                             ocupado = true;
+                             break;
+                         }
+                     }
+                 }
+
+                 Map<String, Object> slot = new LinkedHashMap<>();
+                 slot.put("horario", slotTime.format(fmt));
+                 slot.put("disponivel", cabeHorario && !ocupado);
+                 slots.add(slot);
+
+                 slotTime = slotTime.plusMinutes(30);
+             }
+
+             return slots;
+         }
+
+         public List<Agendamento> cancelarAgendamentosPorData(LocalDate data, String motivo) {
+             LocalDateTime inicio = data.atStartOfDay();
+             LocalDateTime fim = data.plusDays(1).atStartOfDay();
+             List<Agendamento> afetados = repository.findByDataBetweenAndStatusAtivo(inicio, fim);
+
+             for (Agendamento ag : afetados) {
+                 ag.setStatus("CANCELADO");
+                 repository.save(ag);
+                 emailService.enviarCancelamentoFeriado(ag, motivo, data);
+                 emailService.enviarNotificacaoBarbeiro(ag, motivo, data);
+             }
+
+             return afetados;
+         }
 }

@@ -1,0 +1,90 @@
+<div class="admin-horarios-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
+  <div class="admin-horarios-page__overlay"></div>
+  <div class="admin-horarios-page__content">
+    <div class="admin-horarios-header">
+      <h1 class="admin-horarios-header__title">Horários de Funcionamento</h1>
+      <p class="admin-horarios-header__subtitle">Configure os dias e horários de funcionamento da barbearia</p>
+    </div>
+
+    @if (erro()) {
+      <div class="alert alert--err">{{ erro() }}</div>
+    }
+    @if (okMsg()) {
+      <div class="alert alert--ok">{{ okMsg() }}</div>
+    }
+
+    @if (carregando()) {
+      <div class="loading-state"><div class="loading-spinner"></div><p>Carregando...</p></div>
+    } @else {
+      <div class="horarios-grid surface">
+        <h2>Dias da Semana</h2>
+        <div class="horarios-table-header">
+          <span class="col-dia">Dia</span>
+          <span class="col-ativo">Ativo</span>
+          <span class="col-horario">Abertura</span>
+          <span class="col-horario">Fechamento</span>
+          <span class="col-acao"></span>
+        </div>
+        @for (h of horarios(); track h.id) {
+          <div class="horario-row" [class.desativado]="!h.ativo">
+            <span class="col-dia">{{ h.diaNome }}</span>
+            <span class="col-ativo">
+              <label class="toggle">
+                <input type="checkbox" [checked]="h.ativo" (change)="toggleAtivo(h)" [disabled]="salvandoId() === h.id" />
+                <span class="toggle-slider"></span>
+              </label>
+            </span>
+            <span class="col-horario">
+              @if (h.ativo) {
+                <input type="time" [(ngModel)]="h.abertura" [disabled]="salvandoId() === h.id" />
+              } @else { <span class="muted">--:--</span> }
+            </span>
+            <span class="col-horario">
+              @if (h.ativo) {
+                <input type="time" [(ngModel)]="h.fechamento" [disabled]="salvandoId() === h.id" />
+              } @else { <span class="muted">--:--</span> }
+            </span>
+            <span class="col-acao">
+              <button class="btn-brand btn-sm" (click)="salvarHorario(h)" [disabled]="salvandoId() === h.id">
+                {{ salvandoId() === h.id ? 'Salvando...' : 'Salvar' }}
+              </button>
+            </span>
+          </div>
+        }
+      </div>
+
+      <div class="feriados-section surface">
+        <h2>Feriados / Dias Bloqueados</h2>
+        <div class="feriado-form">
+          <div class="field">
+            <label for="fer-data">Data</label>
+            <input id="fer-data" type="date" [(ngModel)]="novoFeriadoData" />
+          </div>
+          <div class="field">
+            <label for="fer-motivo">Motivo</label>
+            <input id="fer-motivo" type="text" [(ngModel)]="novoFeriadoMotivo" placeholder="Ex: Feriado municipal" />
+          </div>
+          <button class="btn-brand" (click)="adicionarFeriado()" [disabled]="criandoFeriado() || !novoFeriadoData || !novoFeriadoMotivo.trim()">
+            {{ criandoFeriado() ? 'Adicionando...' : 'Adicionar' }}
+          </button>
+        </div>
+
+        @if (feriados().length === 0) {
+          <p class="muted">Nenhum feriado cadastrado.</p>
+        } @else {
+          <div class="feriados-list">
+            @for (f of feriados(); track f.id) {
+              <div class="feriado-item">
+                <span class="feriado-data">{{ f.data | date: 'dd/MM/yyyy' }}</span>
+                <span class="feriado-motivo">{{ f.motivo }}</span>
+                <button class="btn-ghost btn-danger-ghost btn-sm" (click)="excluirFeriado(f)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
