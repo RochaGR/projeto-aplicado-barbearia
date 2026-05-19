@@ -1,4 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
@@ -7,7 +9,7 @@ import { ApiService } from '../../../core/api.service';
 @Component({
   selector: 'app-cadastro',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, FormsModule],
   templateUrl: './cadastro.component.html',
   styleUrl: './cadastro.component.scss',
 })
@@ -34,6 +36,13 @@ export class CadastroComponent {
   readonly erro = signal<string | null>(null);
   readonly ok = signal<string | null>(null);
   readonly carregando = signal(false);
+  readonly mostrarSenha = signal(false);
+  private readonly senhaControl = this.form.controls.senha;
+  private readonly senhaValue = toSignal(this.senhaControl.valueChanges, { initialValue: this.senhaControl.value });
+  readonly senhaTemMinimo = computed(() => this.senhaValue().length >= 8);
+  readonly senhaTemMaiuscula = computed(() => /[A-Z]/.test(this.senhaValue()));
+  readonly senhaTemNumero = computed(() => /\d/.test(this.senhaValue()));
+  readonly senhaTemEspecial = computed(() => /[^a-zA-Z0-9]/.test(this.senhaValue()));
 
   enviar(): void {
     this.submitted.set(true);

@@ -270,6 +270,25 @@
   opacity: 0.7;
 }
 
+.horarios-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1.25rem 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.9rem;
+  justify-content: center;
+
+  i {
+    font-size: 1.1rem;
+    opacity: 0.6;
+  }
+}
+
 .loading-spinner-sm {
   width: 20px;
   height: 20px;

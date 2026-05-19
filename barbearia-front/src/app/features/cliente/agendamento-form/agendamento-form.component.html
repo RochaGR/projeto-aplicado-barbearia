@@ -65,7 +65,7 @@
                 <select id="servico" name="servico" [ngModel]="servicoId" (ngModelChange)="servicoId = $event; carregarHorarios()" required>
                   <option [ngValue]="null">Selecione um serviço</option>
                   @for (s of servicos(); track s.id) {
-                    <option [ngValue]="s.id">{{ s.nome }}</option>
+                    <option [ngValue]="s.id">{{ s.nome }} — {{ s.preco | number: '1.2-2' }} R$</option>
                   }
                 </select>
               </div>
@@ -92,22 +92,29 @@
                   <span>Carregando horários...</span>
                 </div>
               }
-              @if (horariosDisponiveis().length > 0 && !carregandoHorarios()) {
-                <div class="horarios-grid">
-                  @for (slot of horariosDisponiveis(); track slot.horario) {
-                    <button
-                      type="button"
-                      class="horario-slot"
-                      [class.disponivel]="slot.disponivel"
-                      [class.ocupado]="!slot.disponivel"
-                      [class.selecionado]="horarioSelecionado() === slot.horario"
-                      [disabled]="!slot.disponivel"
-                      (click)="selecionarHorario(slot.horario)"
-                    >
-                      {{ slot.horario }}
-                    </button>
-                  }
-                </div>
+              @if (!carregandoHorarios()) {
+                @if (horariosDisponiveis().length > 0) {
+                  <div class="horarios-grid">
+                    @for (slot of horariosDisponiveis(); track slot.horario) {
+                      <button
+                        type="button"
+                        class="horario-slot"
+                        [class.disponivel]="slot.disponivel"
+                        [class.ocupado]="!slot.disponivel"
+                        [class.selecionado]="horarioSelecionado() === slot.horario"
+                        [disabled]="!slot.disponivel"
+                        (click)="selecionarHorario(slot.horario)"
+                      >
+                        {{ slot.horario }}
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <div class="horarios-empty">
+                    <i class="fas fa-calendar-times"></i>
+                    <span>Nenhum horário disponível nesta data.</span>
+                  </div>
+                }
               }
             </div>
           </div>
