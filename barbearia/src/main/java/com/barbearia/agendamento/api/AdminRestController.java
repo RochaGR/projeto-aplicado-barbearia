@@ -7,13 +7,17 @@ import com.barbearia.agendamento.service.AgendamentoService;
 import com.barbearia.agendamento.service.BarbeiroService;
 import com.barbearia.agendamento.service.ClienteService;
 import com.barbearia.agendamento.service.ConfiguracaoFidelidadeService;
+import com.barbearia.agendamento.service.ConfiguracaoHorarioService;
+import com.barbearia.agendamento.service.FeriadoService;
 import com.barbearia.agendamento.service.ServicoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -30,17 +34,23 @@ public class AdminRestController {
     private final BarbeiroService barbeiroService;
     private final ServicoService servicoService;
     private final ConfiguracaoFidelidadeService configuracaoFidelidadeService;
+    private final ConfiguracaoHorarioService configuracaoHorarioService;
+    private final FeriadoService feriadoService;
 
     public AdminRestController(AgendamentoService agendamentoService,
             ClienteService clienteService,
             BarbeiroService barbeiroService,
             ServicoService servicoService,
-            ConfiguracaoFidelidadeService configuracaoFidelidadeService) {
+            ConfiguracaoFidelidadeService configuracaoFidelidadeService,
+            ConfiguracaoHorarioService configuracaoHorarioService,
+            FeriadoService feriadoService) {
         this.agendamentoService = agendamentoService;
         this.clienteService = clienteService;
         this.barbeiroService = barbeiroService;
         this.servicoService = servicoService;
         this.configuracaoFidelidadeService = configuracaoFidelidadeService;
+        this.configuracaoHorarioService = configuracaoHorarioService;
+        this.feriadoService = feriadoService;
     }
 
     @GetMapping("/dashboard")
@@ -277,8 +287,8 @@ public class AdminRestController {
             }
             servico.setNome(servico.getNome().trim());
             servico.setDescricao(servico.getDescricao().trim());
-            servicoService.cadastrar(servico);
-            return ResponseEntity.ok(Map.of("ok", true));
+            var salvo = servicoService.cadastrar(servico);
+            return ResponseEntity.ok(Map.of("ok", true, "id", salvo.getId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -294,12 +304,135 @@ public class AdminRestController {
         }
     }
 
+    @PostMapping("/servicos/{id}/imagem")
+    public ResponseEntity<?> uploadImagemServico(@PathVariable @NonNull Long id,
+                                                  @RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Arquivo vazio"));
+            }
+            String contentType = file.getContentType();
+            if (contentType == null) contentType = "image/jpeg";
+            byte[] bytes = file.getBytes();
+            String base64 = java.util.Base64.getEncoder().encodeToString(bytes);
+            String imageUrl = "data:" + contentType + ";base64," + base64;
+
+            var opt = servicoService.buscarPorId(id);
+            if (opt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Serviço não encontrado"));
+            }
+            var servico = opt.get();
+            servico.setImageUrl(imageUrl);
+            servicoService.atualizar(servico);
+            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Erro ao processar imagem: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/servicos/{id}/toggle")
+    public ResponseEntity<?> toggleServico(@PathVariable @NonNull Long id) {
+        try {
+            servicoService.alternarAtivo(id);
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/fidelidade")
     public Map<String, Object> fidelidadeGet() {
         var config = configuracaoFidelidadeService.buscar();
         return Map.of(
                 "percentualDesconto", config.getPercentualDesconto(),
                 "cortesParaDesconto", config.getCortesParaDesconto());
+    }
+
+    @GetMapping("/horarios")
+    public Map<String, Object> horarios() {
+        var lista = configuracaoHorarioService.listarTodos().stream().map(h -> {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", h.getId());
+            m.put("diaSemana", h.getDiaSemana());
+            m.put("diaNome", h.getDiaNome());
+            m.put("ativo", h.getAtivo());
+            m.put("abertura", h.getAbertura() != null ? h.getAbertura().toString() : null);
+            m.put("fechamento", h.getFechamento() != null ? h.getFechamento().toString() : null);
+            return m;
+        }).collect(Collectors.toList());
+        return Map.of("horarios", lista);
+    }
+
+    @PutMapping("/horarios/{id}")
+    public ResponseEntity<?> atualizarHorario(@PathVariable @NonNull Long id,
+                                               @RequestBody Map<String, Object> body) {
+        try {
+            var opt = configuracaoHorarioService.listarTodos().stream()
+                    .filter(h -> h.getId().equals(id)).findFirst();
+            if (opt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Configuração não encontrada"));
+            }
+            var horario = opt.get();
+            if (body.containsKey("ativo")) {
+                horario.setAtivo(Boolean.parseBoolean(body.get("ativo").toString()));
+            }
+            if (body.containsKey("abertura") && body.get("abertura") != null) {
+                horario.setAbertura(java.time.LocalTime.parse(body.get("abertura").toString()));
+            } else if (body.containsKey("abertura")) {
+                horario.setAbertura(null);
+            }
+            if (body.containsKey("fechamento") && body.get("fechamento") != null) {
+                horario.setFechamento(java.time.LocalTime.parse(body.get("fechamento").toString()));
+            } else if (body.containsKey("fechamento")) {
+                horario.setFechamento(null);
+            }
+            configuracaoHorarioService.salvar(horario);
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/feriados")
+    public Map<String, Object> feriados() {
+        var lista = feriadoService.listarTodos().stream().map(f -> {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", f.getId());
+            m.put("data", f.getData().toString());
+            m.put("motivo", f.getMotivo());
+            return m;
+        }).collect(Collectors.toList());
+        return Map.of("feriados", lista);
+    }
+
+    public record FeriadoBody(String data, String motivo) {
+    }
+
+    @PostMapping("/feriados")
+    public ResponseEntity<?> criarFeriado(@RequestBody FeriadoBody body) {
+        try {
+            var data = java.time.LocalDate.parse(body.data());
+            var feriado = new com.barbearia.agendamento.model.Feriado();
+            feriado.setData(data);
+            feriado.setMotivo(body.motivo());
+            feriadoService.salvar(feriado);
+
+            int cancelados = agendamentoService.cancelarAgendamentosPorData(data, body.motivo()).size();
+
+            return ResponseEntity.ok(Map.of("ok", true, "agendamentosCancelados", cancelados));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/feriados/{id}")
+    public ResponseEntity<?> excluirFeriado(@PathVariable @NonNull Long id) {
+        try {
+            feriadoService.excluir(id);
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
     public record FidelidadeBody(int percentualDesconto, int cortesParaDesconto) {

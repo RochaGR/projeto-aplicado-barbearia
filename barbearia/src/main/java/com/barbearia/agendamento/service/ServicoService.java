@@ -25,16 +25,29 @@ public class ServicoService {
     }
 
     @Transactional
-    public void cadastrar(Servico servico) {
+    public Servico cadastrar(Servico servico) {
         if (repository.existsByNome(servico.getNome())) {
             throw new IllegalArgumentException("Já existe um serviço com este nome");
         }
-        repository.save(servico);
+        return repository.save(servico);
     }
 
     @Transactional(readOnly = true)
     public List<Servico> listarTodos() {
         return repository.findAllByOrderByNomeAsc();
+    }
+
+    @Transactional
+    public void atualizar(Servico servico) {
+        repository.save(servico);
+    }
+
+    @Transactional
+    public Servico alternarAtivo(@NonNull Long id) {
+        Servico s = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
+        s.setAtivo(!s.isAtivo());
+        return repository.save(s);
     }
 
     @Transactional
