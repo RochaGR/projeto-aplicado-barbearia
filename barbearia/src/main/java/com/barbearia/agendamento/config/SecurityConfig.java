@@ -1,6 +1,8 @@
 package com.barbearia.agendamento.config;
 
 import com.barbearia.agendamento.service.UserDetailsServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -58,8 +60,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.GET, 
                     "/api/setup/required",
-                    "/api/servicos/publicos").permitAll()
-                .requestMatchers(HttpMethod.POST, 
+                    "/api/servicos/publicos",
+                    "/api/chat/auth-check").permitAll()
+                .requestMatchers(HttpMethod.POST,
                     "/api/setup/primeiro-admin",
                     "/api/clientes/cadastro",
                     "/api/auth/login").permitAll()
@@ -82,6 +85,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/cliente/**").hasRole("CLIENTE")
                 .requestMatchers("/api/auth/me").authenticated()
                 .requestMatchers("/api/auth/completar-cadastro").authenticated()
+                .requestMatchers("/api/chat/**").authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/barbeiro/**").hasRole("BARBEIRO")
                 .requestMatchers("/cliente/**").hasAnyRole("CLIENTE", "ADMIN")
@@ -89,8 +93,16 @@ public class SecurityConfig {
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) -> {
+                    LoggerFactory.getLogger(SecurityConfig.class).info(
+                        "=== AUTH ENTRY POINT ===");
+                    LoggerFactory.getLogger(SecurityConfig.class).info(
+                        "URI: {} {}, Exception: {}, Message: {}",
+                        request.getMethod(), request.getRequestURI(),
+                        authException.getClass().getName(), authException.getMessage());
                     if (request.getRequestURI().startsWith("/api/")) {
-                        response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("{\"error\":\"Usuário não autenticado. Faça login novamente.\"}");
                     } else {
                         response.sendRedirect("/clientes/login");
                     }
