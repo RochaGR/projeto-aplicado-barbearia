@@ -8,6 +8,10 @@
   }
 </div>
 
+@if (isLoggedIn()) {
+  <app-chat-widget />
+}
+
 @if (showTelefoneModal()) {
   <div class="modal-overlay" (click)="showTelefoneModal.set(false)">
     <div class="modal-content" (click)="$event.stopPropagation()">

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -6,11 +6,12 @@ import { AuthService } from './core/auth.service';
 import { ApiService } from './core/api.service';
 import { MainFooterComponent } from './shared/layout/main-footer/main-footer.component';
 import { MainNavbarComponent } from './shared/layout/main-navbar/main-navbar.component';
+import { ChatWidgetComponent } from './features/chat-ia/chat-widget.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, MainNavbarComponent, MainFooterComponent, FormsModule],
+  imports: [RouterOutlet, MainNavbarComponent, MainFooterComponent, FormsModule, ChatWidgetComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
@@ -20,6 +21,10 @@ export class AppComponent implements OnInit {
 
   readonly showMiniFooter = signal(true);
   readonly showTelefoneModal = signal(false);
+  readonly isLoggedIn = computed(() => {
+    const u = this.auth.user();
+    return u !== null && u !== undefined;
+  });
   telefone = '';
 
   ngOnInit(): void {
