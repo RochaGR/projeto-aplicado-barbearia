@@ -57,11 +57,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // Verifica se é Cliente
         Cliente cliente = clienteRepository.findByEmail(email).orElse(null);
         if (cliente != null) {
-            List<GrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_CLIENTE"));
-            // Clientes OAuth2 podem ter senha nula
-            String senha = cliente.getSenha() != null ? cliente.getSenha() : "";
-            return new User(cliente.getEmail(), senha, authorities);
+            // Cliente implements UserDetails, retornamos diretamente
+            // para que o Principal seja o próprio Cliente
+            if (cliente.getSenha() == null) {
+                // OAuth2: precisa de uma senha não-nula para o UserDetails
+                return new User(cliente.getEmail(), "", 
+                    List.of(new SimpleGrantedAuthority("ROLE_CLIENTE")));
+            }
+            return cliente;
         }
 
         // Nenhum usuário encontrado

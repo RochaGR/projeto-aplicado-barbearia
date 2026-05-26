@@ -90,8 +90,8 @@ public class EmailService {
             helper.setText(corpoHtml, true);
             mailSender.send(msg);
             log.info("E-mail enviado para {} | Assunto: {}", para, assunto);
-        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
-            log.error("Falha ao enviar e-mail para {}: {}", para, e.getMessage());
+        } catch (Exception e) {
+            log.error("Falha ao enviar e-mail para {}: {} ({})", para, e.getMessage(), e.getClass().getSimpleName());
         }
     }
 
