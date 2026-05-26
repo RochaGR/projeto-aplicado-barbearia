@@ -1,0 +1,174 @@
+<button
+  class="chat-fab"
+  (click)="toggleChat()"
+  [attr.aria-label]="aberto() ? 'Fechar chat' : 'Abrir assistente de agendamento'"
+  [class.chat-fab--open]="aberto()"
+>
+  @if (aberto()) {
+    <i class="fas fa-times"></i>
+  } @else {
+    <i class="fas fa-comments"></i>
+  }
+</button>
+
+@if (aberto()) {
+  <div class="chat-window" role="dialog" aria-label="Assistente de agendamento">
+    <div class="chat-header">
+      <div class="chat-header__brand">
+        <div class="chat-header__icon">
+          <i class="fas fa-cut" aria-hidden="true"></i>
+        </div>
+        <div>
+          <span class="chat-header__title">Assistente</span>
+          <span class="chat-header__sub">Barbearia Souza</span>
+        </div>
+      </div>
+      <button class="chat-close" (click)="fechar()" aria-label="Fechar chat">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="chat-messages" #mensagensContainer>
+      @for (msg of mensagens(); track $index) {
+        <div
+          class="chat-msg"
+          [class.chat-msg--user]="msg.role === 'user'"
+          [class.chat-msg--bot]="msg.role === 'assistant'"
+        >
+          @if (msg.role === 'assistant') {
+            <div class="chat-msg__avatar" aria-hidden="true">
+              <i class="fas fa-cut"></i>
+            </div>
+          }
+          <div class="chat-msg__bubble">
+            <span [innerHTML]="renderizarMensagem(msg.content)"></span>
+          </div>
+        </div>
+      }
+
+      @if (!agendamentoOk() && etapa === 'servico' && servicos().length > 0) {
+        <div class="chat-opcoes">
+          <div class="chat-opcoes__label">✂️ Escolha um serviço:</div>
+          <div class="chat-opcoes__grid">
+            @for (s of servicos(); track s.id) {
+              <button class="chat-opcao-btn chat-opcao-btn--servico" (click)="selecionarServico(s)">
+                <span class="chat-opcao-btn__nome">{{ s.nome }}</span>
+                <span class="chat-opcao-btn__info">{{ s.preco }} · {{ s.duracao }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (!agendamentoOk() && etapa === 'barbeiro' && barbeiros().length > 0) {
+        <div class="chat-opcoes">
+          <div class="chat-opcoes__label">👤 Escolha o barbeiro:</div>
+          <div class="chat-opcoes__grid">
+            @for (b of barbeiros(); track b.id) {
+              <button class="chat-opcao-btn chat-opcao-btn--barbeiro" (click)="selecionarBarbeiro(b)">
+                <span class="chat-opcao-btn__nome">{{ b.nome }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (!agendamentoOk() && etapa === 'horario' && horariosDisponiveis().length > 0) {
+        <div class="chat-opcoes">
+          <div class="chat-opcoes__label">🕐 Escolha o horário:</div>
+          <div class="chat-opcoes__grid chat-opcoes__grid--horarios">
+            @for (h of horariosDisponiveis(); track h.id) {
+              <button
+                class="chat-opcao-btn chat-opcao-btn--horario"
+                [class.chat-opcao-btn--selected]="horarioSelecionado?.id === h.id"
+                (click)="selecionarHorario(h)"
+              >
+                {{ h.nome }}
+              </button>
+            }
+          </div>
+          <button class="chat-form__confirmar" [disabled]="!horarioSelecionado" (click)="confirmarHorario()">
+            ✅ Confirmar Horário
+          </button>
+        </div>
+      }
+
+      @if (carregando()) {
+        <div class="chat-msg chat-msg--bot">
+          <div class="chat-msg__avatar" aria-hidden="true">
+            <i class="fas fa-cut"></i>
+          </div>
+          <div class="chat-msg__bubble chat-msg__bubble--loading">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (!agendamentoOk()) {
+      <div class="chat-form">
+        @if (etapa === 'resumo' && dataExtraida && servicoSelecionado && barbeiroSelecionado) {
+          <div class="chat-form__fields">
+            <div class="chat-form__resumo">
+              <div class="resumo-linha">✂️ <strong>{{ servicoSelecionado.nome }}</strong></div>
+              <div class="resumo-linha">👤 <strong>{{ barbeiroSelecionado.nome }}</strong></div>
+              <div class="resumo-linha">📅 <strong>{{ dataExtraidaFormatada }}</strong></div>
+              <div class="resumo-pergunta">Confirmar agendamento?</div>
+            </div>
+            <div class="resumo-botoes">
+              <button class="resumo-btn resumo-btn--sim" (click)="confirmarResumo()">
+                ✅ Sim
+              </button>
+              <button class="resumo-btn resumo-btn--nao" (click)="cancelarResumo()">
+                ❌ Não
+              </button>
+            </div>
+          </div>
+        }
+        @if (etapa === 'confirmacao' && dataExtraida) {
+          <div class="chat-form__fields">
+            <div class="chat-form__resumo">
+              <div class="resumo-linha">✂️ <strong>{{ servicoSelecionado?.nome }}</strong></div>
+              <div class="resumo-linha">👤 <strong>{{ barbeiroSelecionado?.nome }}</strong></div>
+              <div class="resumo-linha">📅 <strong>{{ dataExtraidaFormatada }}</strong></div>
+            </div>
+            <button
+              class="chat-form__confirmar"
+              (click)="confirmarAgendamento()"
+              [disabled]="!podeConfirmar"
+            >
+              @if (agendando()) {
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              } @else {
+                ✅ Confirmar Agendamento
+              }
+            </button>
+          </div>
+        }
+        @if (etapa !== 'resumo' && etapa !== 'confirmacao') {
+          <div class="chat-input">
+            <textarea
+              class="chat-input__field"
+              [(ngModel)]="textoInput"
+              (keydown)="onKeydown($event)"
+              placeholder="Digite sua mensagem..."
+              rows="1"
+              [disabled]="carregando()"
+              aria-label="Mensagem para o assistente"
+            ></textarea>
+            <button
+              class="chat-input__send"
+              (click)="enviar()"
+              [disabled]="carregando() || !textoInput.trim()"
+              aria-label="Enviar mensagem"
+            >
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
