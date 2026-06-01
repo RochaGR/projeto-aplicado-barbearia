@@ -18,9 +18,9 @@ export class CadastroComponent {
   private readonly router = inject(Router);
 
   readonly form = new FormGroup({
-    nome: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
-    telefone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    nome: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3), Validators.maxLength(60)] }),
+    telefone: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(14)] }),
+    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)] }),
     senha: new FormControl('', {
       nonNullable: true,
       validators: [
@@ -102,7 +102,10 @@ export class CadastroComponent {
       return 'Senha é obrigatória.';
     }
     if (name === 'nome' && c.errors['minlength']) return 'Nome deve ter no mínimo 3 caracteres.';
+    if (name === 'nome' && c.errors['maxlength']) return 'Nome deve ter no máximo 60 caracteres.';
+    if (name === 'telefone' && c.errors['minlength']) return 'Telefone inválido.';
     if (name === 'email' && c.errors['email']) return 'Informe um email válido.';
+    if (name === 'email' && c.errors['pattern']) return 'Informe um email válido (ex: nome@dominio.com).';
     if (name === 'senha') {
       if (c.errors['minlength']) return 'A senha deve ter no mínimo 8 caracteres.';
       if (!/.*[A-Z].*/.test(c.value)) return 'A senha deve conter pelo menos 1 letra maiúscula.';
@@ -123,5 +126,33 @@ export class CadastroComponent {
     if (score <= 2) return 'fraca';
     if (score === 3) return 'media';
     return 'forte';
+  }
+
+  onTelefoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 11) { value = value.substring(0, 11); }
+
+    let formatted = '';
+    if (value.length <= 10) {
+      if (value.length > 6) {
+        formatted = '(' + value.substring(0,2) + ') ' + value.substring(2,6) + '-' + value.substring(6);
+      } else if (value.length > 2) {
+        formatted = '(' + value.substring(0,2) + ') ' + value.substring(2);
+      } else if (value.length > 0) {
+        formatted = '(' + value;
+      }
+    } else {
+      if (value.length > 7) {
+        formatted = '(' + value.substring(0,2) + ') ' + value.substring(2,7) + '-' + value.substring(7);
+      } else if (value.length > 2) {
+        formatted = '(' + value.substring(0,2) + ') ' + value.substring(2);
+      } else if (value.length > 0) {
+        formatted = '(' + value;
+      }
+    }
+
+    this.form.patchValue({ telefone: formatted }, { emitEvent: false });
+    input.value = formatted;
   }
 }

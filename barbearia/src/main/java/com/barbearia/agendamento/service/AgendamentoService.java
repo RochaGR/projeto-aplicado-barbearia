@@ -191,6 +191,9 @@ public class AgendamentoService {
         }
 
          public List<Map<String, Object>> listarHorariosDisponiveis(Long barbeiroId, Long servicoId, LocalDate data) {
+             if (data.isBefore(LocalDate.now())) {
+                 return List.of();
+             }
              Servico servico = servicoService.buscarPorId(servicoId)
                      .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
              int duracaoMinutos = servico.getDuracaoMinutos() != null ? servico.getDuracaoMinutos() : 30;

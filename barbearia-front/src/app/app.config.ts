@@ -1,8 +1,14 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { routes } from './app.routes';
+import { AuthService } from './core/auth.service';
 import { credentialsInterceptor } from './core/credentials.interceptor';
+
+function initializeAuth(auth: AuthService): () => Promise<void> {
+  return () => firstValueFrom(auth.refreshUser()).then(() => undefined);
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -11,5 +17,11 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([credentialsInterceptor])
     ),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeAuth,
+      deps: [AuthService],
+      multi: true,
+    },
   ],
 };

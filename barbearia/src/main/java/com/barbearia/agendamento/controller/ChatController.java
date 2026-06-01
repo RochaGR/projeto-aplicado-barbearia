@@ -29,6 +29,7 @@ public class ChatController {
     private final ConfiguracaoHorarioService horarioService;
     private final ClienteService clienteService;
     private final FidelidadeService fidelidadeService;
+    private final FeriadoService feriadoService;
 
     @Value("${GROQ_API_KEY:}")
     private String apiKey;
@@ -40,13 +41,15 @@ public class ChatController {
                           AgendamentoService agendamentoService,
                           ConfiguracaoHorarioService horarioService,
                           ClienteService clienteService,
-                          FidelidadeService fidelidadeService) {
+                          FidelidadeService fidelidadeService,
+                          FeriadoService feriadoService) {
         this.servicoService = servicoService;
         this.barbeiroService = barbeiroService;
         this.agendamentoService = agendamentoService;
         this.horarioService = horarioService;
         this.clienteService = clienteService;
         this.fidelidadeService = fidelidadeService;
+        this.feriadoService = feriadoService;
     }
 
     public record ChatRequest(String mensagem, List<Map<String, String>> historico) {}
@@ -175,11 +178,24 @@ public class ChatController {
     public ResponseEntity<?> horariosDisponiveis(@RequestParam Long barbeiroId, @RequestParam String data) {
         try {
             LocalDate dia = LocalDate.parse(data);
+            if (dia.isBefore(LocalDate.now()) || feriadoService.isFeriado(dia)) {
+                return ResponseEntity.ok(List.of());
+            }
+
+            int diaSemana = dia.getDayOfWeek().getValue();
+            diaSemana = dia.getDayOfWeek() == java.time.DayOfWeek.SUNDAY ? 1 : diaSemana + 1;
+
+            ConfiguracaoHorario config = horarioService.buscarPorDiaSemana(diaSemana).orElse(null);
+            if (config == null || !config.getAtivo()) {
+                return ResponseEntity.ok(List.of());
+            }
+
+            LocalTime ABERTURA = config.getAbertura() != null ? config.getAbertura() : LocalTime.of(8, 0);
+            LocalTime FECHAMENTO = config.getFechamento() != null ? config.getFechamento() : LocalTime.of(19, 0);
+
             List<String> horarios = new java.util.ArrayList<>();
-            LocalTime ABERTURA = LocalTime.of(8, 0);
-            LocalTime FECHAMENTO = LocalTime.of(19, 0);
             LocalTime hora = ABERTURA;
-            while (!hora.isAfter(FECHAMENTO)) {
+            while (hora.isBefore(FECHAMENTO)) {
                 LocalDateTime dt = LocalDateTime.of(dia, hora);
                 if (dt.isAfter(LocalDateTime.now()) && !agendamentoService.existeConflitoHorario(barbeiroId, dt)) {
                     horarios.add(hora.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
@@ -253,6 +269,11 @@ public class ChatController {
             } else if (principal instanceof org.springframework.security.core.userdetails.User u) {
                 String email = u.getUsername();
                 cliente = clienteService.buscarPorEmail(email).orElse(null);
+            } else if (principal instanceof org.springframework.security.oauth2.core.user.DefaultOAuth2User o) {
+                String email = (String) o.getAttributes().get("email");
+                if (email != null) {
+                    cliente = clienteService.buscarPorEmail(email).orElse(null);
+                }
             }
             if (cliente == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(

@@ -28,7 +28,6 @@ export class AppComponent implements OnInit {
   telefone = '';
 
   ngOnInit(): void {
-    this.auth.refreshUser().subscribe();
     const setFooter = () => {
       const path = this.router.url.split('?')[0];
       this.showMiniFooter.set(path !== '/' && path !== '');
@@ -39,15 +38,11 @@ export class AppComponent implements OnInit {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('oauth2') === 'success') {
       window.history.replaceState({}, document.title, window.location.pathname);
-      
-      setTimeout(() => {
-        this.auth.refreshUser().subscribe((data) => {
-          const d = data as unknown as Record<string, unknown>;
-          if (d && d['telefonePendente']) {
-            this.showTelefoneModal.set(true);
-          }
-        });
-      }, 1000);
+      const u = this.auth.user();
+      const d = u as unknown as Record<string, unknown> | null;
+      if (d && d['telefonePendente']) {
+        this.showTelefoneModal.set(true);
+      }
     }
   }
 

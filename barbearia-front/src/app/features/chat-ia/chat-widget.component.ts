@@ -160,6 +160,9 @@ export class ChatWidgetComponent implements AfterViewChecked {
       this.dataAgendamento = dia;
       this.chatService.getHorariosDisponiveis(this.barbeiroSelecionado.id, dia).subscribe({
         next: horarios => {
+          if (horarios.length === 0) {
+            this.mensagens.update(msgs => [...msgs, { role: 'assistant', content: '❌ Essa data já passou ou não há horários disponíveis. Escolha outra data.' }]);
+          }
           this.horariosDisponiveis.set(horarios.map((h, i) => ({ id: i, nome: h })));
         },
       });

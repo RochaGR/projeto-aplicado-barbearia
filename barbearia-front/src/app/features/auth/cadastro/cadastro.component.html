@@ -11,21 +11,21 @@
     }
     <div class="field" [class.field--invalid]="controlInvalid('nome')">
       <label for="nome">Nome completo</label>
-      <input id="nome" type="text" formControlName="nome" autocomplete="name" />
+      <input id="nome" type="text" formControlName="nome" autocomplete="name" maxlength="60" placeholder="Seu nome completo" />
       @if (controlInvalid('nome')) {
         <small class="field-error">{{ controlMessage('nome') }}</small>
       }
     </div>
     <div class="field" [class.field--invalid]="controlInvalid('telefone')">
       <label for="telefone">Telefone</label>
-      <input id="telefone" type="tel" formControlName="telefone" autocomplete="tel" />
+      <input id="telefone" type="tel" formControlName="telefone" autocomplete="tel" (input)="onTelefoneInput($event)" maxlength="15" placeholder="(11) 99999-9999" />
       @if (controlInvalid('telefone')) {
         <small class="field-error">{{ controlMessage('telefone') }}</small>
       }
     </div>
     <div class="field" [class.field--invalid]="controlInvalid('email')">
       <label for="email">E-mail</label>
-      <input id="email" type="email" formControlName="email" autocomplete="email" />
+      <input id="email" type="email" formControlName="email" autocomplete="email" maxlength="100" placeholder="seu@email.com" />
       @if (controlInvalid('email')) {
         <small class="field-error">{{ controlMessage('email') }}</small>
       }
