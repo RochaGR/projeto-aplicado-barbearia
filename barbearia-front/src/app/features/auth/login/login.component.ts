@@ -37,15 +37,9 @@ export class LoginComponent {
     this.erro.set(null);
     this.carregando.set(true);
     this.auth.login(email.trim(), senha).subscribe({
-      next: (u) => {
+      next: () => {
         this.carregando.set(false);
-        if (u.roles.includes('ADMIN')) {
-          void this.router.navigateByUrl('/admin/dashboard');
-        } else if (u.roles.includes('BARBEIRO')) {
-          void this.router.navigateByUrl('/barbeiro/agendamentos');
-        } else {
-          void this.router.navigateByUrl('/agendamentos');
-        }
+        void this.router.navigateByUrl('/');
       },
       error: (e: Error) => {
         this.carregando.set(false);
