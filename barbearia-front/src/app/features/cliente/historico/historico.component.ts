@@ -34,7 +34,7 @@ export class HistoricoComponent implements OnInit {
   readonly erro = signal<string | null>(null);
   readonly fidelidadeData = signal<Record<string, unknown> | null>(null);
 
-  readonly statusOpts = ['', 'AGENDADO', 'CONFIRMADO', 'CONCLUIDO', 'CANCELADO'];
+  readonly statusOpts = ['', 'AGENDADO', 'CONCLUIDO', 'CANCELADO'];
 
   ngOnInit(): void {
     this.buscar();

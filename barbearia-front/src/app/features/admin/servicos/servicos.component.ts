@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from '../../../core/api.service';
 import { Servico } from '../../../core/models';
+import { ConfirmService } from '../../../shared/confirm-modal/confirm.service';
 
 @Component({
   selector: 'app-admin-servicos',
@@ -14,6 +15,7 @@ import { Servico } from '../../../core/models';
 })
 export class AdminServicosComponent implements OnInit {
   private readonly api = inject(ApiService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly lista = signal<Servico[]>([]);
   readonly carregando = signal(true);
@@ -167,8 +169,8 @@ export class AdminServicosComponent implements OnInit {
     });
   }
 
-  excluir(s: Servico): void {
-    if (!confirm(`Excluir o serviço "${s.nome}"?`)) {
+  async excluir(s: Servico): Promise<void> {
+    if (!(await this.confirm.confirm(`Excluir o serviço "${s.nome}"?`))) {
       return;
     }
     this.acaoId.set(s.id);

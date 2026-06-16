@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from '../../../core/api.service';
 import { Barbeiro } from '../../../core/models';
+import { ConfirmService } from '../../../shared/confirm-modal/confirm.service';
 
 @Component({
   selector: 'app-admin-barbeiros',
@@ -13,6 +14,7 @@ import { Barbeiro } from '../../../core/models';
 })
 export class AdminBarbeirosComponent implements OnInit {
   private readonly api = inject(ApiService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly lista = signal<Barbeiro[]>([]);
   readonly carregando = signal(true);
@@ -161,8 +163,8 @@ export class AdminBarbeirosComponent implements OnInit {
     });
   }
 
-  excluir(b: Barbeiro): void {
-    if (!confirm(`Excluir permanentemente ${b.nome}?`)) {
+  async excluir(b: Barbeiro): Promise<void> {
+    if (!(await this.confirm.confirm(`Excluir permanentemente ${b.nome}?`))) {
       return;
     }
     this.acaoId.set(b.id);

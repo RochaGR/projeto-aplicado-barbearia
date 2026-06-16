@@ -64,9 +64,12 @@
             <label for="fer-motivo">Motivo</label>
             <input id="fer-motivo" type="text" [(ngModel)]="novoFeriadoMotivo" placeholder="Ex: Feriado municipal" />
           </div>
-          <button class="btn-brand" (click)="adicionarFeriado()" [disabled]="criandoFeriado() || !novoFeriadoData || !novoFeriadoMotivo.trim()">
-            {{ criandoFeriado() ? 'Adicionando...' : 'Adicionar' }}
-          </button>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button class="btn-brand" (click)="adicionarFeriado()" [disabled]="criandoFeriado() || !novoFeriadoData || !novoFeriadoMotivo.trim()">
+              {{ criandoFeriado() ? 'Adicionando...' : 'Adicionar Feriado' }}
+            </button>
+          </div>
         </div>
 
         @if (feriados().length === 0) {

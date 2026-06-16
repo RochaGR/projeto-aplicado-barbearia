@@ -20,9 +20,11 @@
           Nome
         </label>
         <input id="nome" type="text" formControlName="nome" />
-        @if (controlInvalid('nome')) {
-          <small class="field-error">{{ controlMessage('nome') }}</small>
-        }
+        <div class="field__error">
+          @if (controlInvalid('nome')) {
+            <small class="field-error">{{ controlMessage('nome') }}</small>
+          }
+        </div>
       </div>
       <div class="field" [class.field--invalid]="controlInvalid('email')">
         <label for="email">
@@ -30,9 +32,11 @@
           E-mail
         </label>
         <input id="email" type="email" formControlName="email" />
-        @if (controlInvalid('email')) {
-          <small class="field-error">{{ controlMessage('email') }}</small>
-        }
+        <div class="field__error">
+          @if (controlInvalid('email')) {
+            <small class="field-error">{{ controlMessage('email') }}</small>
+          }
+        </div>
       </div>
       <div class="field" [class.field--invalid]="controlInvalid('telefone')">
         <label for="tel">
@@ -40,9 +44,11 @@
           Telefone
         </label>
         <input id="tel" type="tel" formControlName="telefone" />
-        @if (controlInvalid('telefone')) {
-          <small class="field-error">{{ controlMessage('telefone') }}</small>
-        }
+        <div class="field__error">
+          @if (controlInvalid('telefone')) {
+            <small class="field-error">{{ controlMessage('telefone') }}</small>
+          }
+        </div>
       </div>
       <div class="field" [class.field--invalid]="controlInvalid('senha')">
         <label for="senha">
@@ -50,12 +56,14 @@
           Senha inicial
         </label>
         <input id="senha" type="password" formControlName="senha" autocomplete="new-password" />
-        @if (senhaStrength(); as level) {
-          <small class="field-hint">Senha {{ level }}</small>
-        }
-        @if (controlInvalid('senha')) {
-          <small class="field-error">{{ controlMessage('senha') }}</small>
-        }
+        <div class="field__error">
+          @if (senhaStrength(); as level) {
+            <small class="field-hint">Senha {{ level }}</small>
+          }
+          @if (controlInvalid('senha')) {
+            <small class="field-error">{{ controlMessage('senha') }}</small>
+          }
+        </div>
       </div>
       <div class="field field--check">
         <label class="toggle">
@@ -63,11 +71,13 @@
           <span class="toggle__slider"></span>
           Ativo
         </label>
+        <div class="field__error"></div>
       </div>
       <div class="field field--action">
         <button type="submit" class="btn-brand" [disabled]="criando() || form.invalid">
           {{ criando() ? 'Salvando…' : 'Cadastrar' }}
         </button>
+        <div class="field__error"></div>
       </div>
     </form>
   </div>

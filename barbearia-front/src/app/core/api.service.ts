@@ -102,11 +102,19 @@ export class ApiService {
     return this.http.post(`/api/barbeiro/agendamentos/${id}/cancelar`, {});
   }
 
-  dashboardAdmin(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>('/api/admin/dashboard');
+  dashboardAdmin(periodo?: string): Observable<DashboardStats> {
+    let params = new HttpParams();
+    if (periodo && periodo !== 'TUDO') {
+      params = params.set('periodo', periodo);
+    }
+    return this.http.get<DashboardStats>('/api/admin/dashboard', { params });
   }
 
-  todosAgendamentosAdmin(data?: string, status?: string): Observable<Record<string, unknown>> {
+  concluirAgAdmin(id: number): Observable<unknown> {
+    return this.http.post(`/api/admin/agendamentos/${id}/concluir`, {});
+  }
+
+  todosAgendamentosAdmin(data?: string, status?: string, page = 0, size = 20): Observable<Record<string, unknown>> {
     let params = new HttpParams();
     if (data) {
       params = params.set('data', data);
@@ -114,11 +122,8 @@ export class ApiService {
     if (status) {
       params = params.set('status', status);
     }
+    params = params.set('page', page).set('size', size);
     return this.http.get<Record<string, unknown>>('/api/admin/agendamentos', { params });
-  }
-
-  confirmarAgAdmin(id: number): Observable<unknown> {
-    return this.http.post(`/api/admin/agendamentos/${id}/confirmar`, {});
   }
 
   cancelarAgAdmin(id: number): Observable<unknown> {

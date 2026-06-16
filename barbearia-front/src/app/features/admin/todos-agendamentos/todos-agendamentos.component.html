@@ -47,6 +47,14 @@
   } @else {
     <div class="table-wrap surface">
       <table>
+        <colgroup>
+          <col />
+          <col />
+          <col />
+          <col />
+          <col />
+          <col class="col-actions" />
+        </colgroup>
         <thead>
           <tr>
             <th><i class="fas fa-calendar"></i> Data</th>
@@ -60,17 +68,12 @@
         <tbody>
           @for (a of lista(); track a.id) {
             <tr>
-              <td>{{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ a.cliente?.nome }}</td>
-              <td>{{ a.barbeiro?.nome }}</td>
-              <td>{{ a.servico?.nome }}</td>
-              <td>{{ a.status }}</td>
-              <td class="actions">
-                @if (podeConfirmar(a.status)) {
-                  <button type="button" class="btn-brand btn--sm" [disabled]="acaoId() === a.id" (click)="confirmar(a)">
-                    Confirmar
-                  </button>
-                }
+              <td data-label="Data">{{ a.dataHora | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td data-label="Cliente">{{ a.cliente?.nome }}</td>
+              <td data-label="Barbeiro">{{ a.barbeiro?.nome }}</td>
+              <td data-label="Serviço">{{ a.servico?.nome }}</td>
+              <td data-label="Status">{{ a.status }}</td>
+              <td data-label="Ações" class="actions">
                 @if ((a.status ?? '').toUpperCase() !== 'CANCELADO' && (a.status ?? '').toUpperCase() !== 'CONCLUIDO') {
                   <button
                     type="button"
@@ -86,6 +89,35 @@
           }
         </tbody>
       </table>
+    </div>
+    <div class="pagination">
+      <button
+        type="button"
+        class="btn-ghost btn--sm"
+        [disabled]="currentPage() === 0"
+        (click)="paginaAnterior()"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      @for (p of paginas(); track p) {
+        <button
+          type="button"
+          class="btn-ghost btn--sm"
+          [class.btn--active]="p === currentPage()"
+          (click)="irParaPagina(p)"
+        >
+          {{ p + 1 }}
+        </button>
+      }
+      <button
+        type="button"
+        class="btn-ghost btn--sm"
+        [disabled]="currentPage() >= totalPages() - 1"
+        (click)="proximaPagina()"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <span class="pagination__info">{{ totalElements() }} registro(s)</span>
     </div>
   }
   </div>

@@ -12,6 +12,8 @@
   <app-chat-widget />
 }
 
+<app-confirm-modal />
+
 @if (showTelefoneModal()) {
   <div class="modal-overlay" (click)="showTelefoneModal.set(false)">
     <div class="modal-content" (click)="$event.stopPropagation()">

@@ -9,9 +9,11 @@
     <div class="field" [class.field--invalid]="controlInvalid('email')">
       <label for="email">E-mail</label>
       <input id="email" type="email" formControlName="email" autocomplete="username" />
-      @if (controlInvalid('email')) {
-        <small class="field-error">{{ controlMessage('email') }}</small>
-      }
+      <div class="field__error">
+        @if (controlInvalid('email')) {
+          <small class="field-error">{{ controlMessage('email') }}</small>
+        }
+      </div>
     </div>
     <div class="field" [class.field--invalid]="controlInvalid('senha')">
       <label for="senha">Senha</label>
@@ -30,9 +32,11 @@
           }
         </button>
       </div>
-      @if (controlInvalid('senha')) {
-        <small class="field-error">{{ controlMessage('senha') }}</small>
-      }
+      <div class="field__error">
+        @if (controlInvalid('senha')) {
+          <small class="field-error">{{ controlMessage('senha') }}</small>
+        }
+      </div>
     </div>
     <button type="submit" class="btn-brand btn-block" [disabled]="carregando() || form.invalid">
       {{ carregando() ? 'Entrando…' : 'Entrar' }}

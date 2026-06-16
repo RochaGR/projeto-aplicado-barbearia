@@ -1,6 +1,6 @@
 <div class="admin-dashboard-page" style="--bg-img: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-1.2.1&auto=format&fit=crop&q=80&w=1920')">
   <div class="admin-dashboard-page__overlay"></div>
-  
+
   <div class="admin-dashboard-page__content">
     <div class="admin-dashboard-header">
       <div class="admin-dashboard-header__brand">
@@ -8,100 +8,123 @@
         <span>Barbearia Souza</span>
       </div>
       <h1 class="admin-dashboard-header__title">Dashboard Administrativo</h1>
-      <p class="admin-dashboard-header__subtitle">Gerencie sua barbearia com eficiência</p>
     </div>
 
-  @if (carregando()) {
-    <p class="muted">Carregando…</p>
-  } @else if (erro()) {
-    <div class="alert alert--err">{{ erro() }}</div>
-  } @else {
-    @if (stats(); as s) {
-      <div class="kpis">
-        <div class="surface kpi">
-          <span class="kpi__label">Agendamentos (total)</span>
-          <span class="kpi__value">{{ s.totalAgendamentos }}</span>
-        </div>
-        <div class="surface kpi">
-          <span class="kpi__label">Clientes</span>
-          <span class="kpi__value">{{ s.totalClientes }}</span>
-        </div>
-        <div class="surface kpi">
-          <span class="kpi__label">Barbeiros</span>
-          <span class="kpi__value">{{ s.totalBarbeiros }}</span>
-        </div>
-        <div class="surface kpi">
-          <span class="kpi__label">Receita (mês)</span>
-          <span class="kpi__value">{{ s.receitaMes | number: '1.2-2' }} R$</span>
-        </div>
-      </div>
+    @if (carregando()) {
+      <p class="muted">Carregando…</p>
+    } @else if (erro()) {
+      <div class="alert alert--err">{{ erro() }}</div>
+    } @else {
+      @if (stats(); as s) {
 
-      <div class="grid2">
-        <div class="surface block">
-          <h2>Por status</h2>
-          <ul class="plain">
-            <li>Agendados: <strong>{{ s.agendados }}</strong></li>
-            <li>Confirmados: <strong>{{ s.confirmados }}</strong></li>
-            <li>Concluídos: <strong>{{ s.concluidos }}</strong></li>
-            <li>Cancelados: <strong>{{ s.cancelados }}</strong></li>
-          </ul>
+        <div class="periodo-filtro">
+          <button type="button" class="btn-periodo" [class.ativo]="filtroPeriodo() === 'TUDO'" (click)="filtrarPorPeriodo('TUDO')">Tudo</button>
+          <button type="button" class="btn-periodo" [class.ativo]="filtroPeriodo() === 'HOJE'" (click)="filtrarPorPeriodo('HOJE')">Hoje</button>
+          <button type="button" class="btn-periodo" [class.ativo]="filtroPeriodo() === 'SEMANA'" (click)="filtrarPorPeriodo('SEMANA')">Semana</button>
+          <button type="button" class="btn-periodo" [class.ativo]="filtroPeriodo() === 'MES'" (click)="filtrarPorPeriodo('MES')">Mês</button>
         </div>
-        <div class="surface block">
-          <h2>Período</h2>
-          <ul class="plain">
-            <li>Hoje: <strong>{{ s.agendamentosHoje }}</strong></li>
-            <li>Semana: <strong>{{ s.agendamentosSemana }}</strong></li>
-            <li>Mês: <strong>{{ s.agendamentosMes }}</strong></li>
-            <li>Taxa cancelamento: <strong>{{ s.taxaCancelamento }}</strong></li>
-          </ul>
-        </div>
-        <div class="surface block">
-          <h2>Destaques</h2>
-          <ul class="plain">
-            <li>Barbeiro: <strong>{{ s.barbeiroDestaque || '—' }}</strong></li>
-            <li>Serviço: <strong>{{ s.servicoDestaque || '—' }}</strong></li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="surface block block--table">
-        <h2>Próximos agendamentos</h2>
-        @if (s.proximosAgendamentos && s.proximosAgendamentos.length > 0) {
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Cliente</th>
-                <th>Barbeiro</th>
-                <th>Serviço</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (a of s.proximosAgendamentos; track a.id) {
+        <div class="kpis">
+          <div class="surface kpi">
+            <span class="kpi__label">📅 Agendamentos</span>
+            <span class="kpi__value">{{ s.totalAgendamentos }}</span>
+          </div>
+          <div class="surface kpi">
+            <span class="kpi__label">👥 Clientes</span>
+            <span class="kpi__value">{{ s.totalClientes }}</span>
+          </div>
+          <div class="surface kpi">
+            <span class="kpi__label">✂️ Barbeiros</span>
+            <span class="kpi__value">{{ s.totalBarbeiros }}</span>
+          </div>
+          <div class="surface kpi">
+            <span class="kpi__label">💰 Receita</span>
+            <span class="kpi__value">{{ s.receita | number: '1.2-2' }} R$</span>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="surface block">
+            <h2>📋 Status</h2>
+            <ul class="status-list">
+              <li><span class="status-badge status--agendado">AGENDADO</span><span class="num">{{ s.agendados }}</span></li>
+              <li><span class="status-badge status--concluido">CONCLUÍDO</span><span class="num">{{ s.concluidos }}</span></li>
+              <li><span class="status-badge status--cancelado">CANCELADO</span><span class="num">{{ s.cancelados }}</span></li>
+            </ul>
+            <hr>
+            <p class="muted">Taxa de cancelamento: <strong>{{ s.taxaCancelamento }}</strong>%</p>
+          </div>
+          <div class="surface block">
+            <h2>🏆 Destaques</h2>
+            <ul class="plain">
+              <li>👤 Barbeiro: <strong>{{ s.barbeiroDestaque }}</strong></li>
+              <li>✂️ Serviço: <strong>{{ s.servicoDestaque }}</strong></li>
+            </ul>
+            <hr>
+            <ul class="plain">
+              <li>📅 Hoje: <strong>{{ s.agendamentosHoje }}</strong></li>
+              <li>📅 Semana: <strong>{{ s.agendamentosSemana }}</strong></li>
+              <li>📅 Mês: <strong>{{ s.agendamentosMes }}</strong></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="surface block block--table-wrap">
+          <div class="table-header">
+            <h2>⏰ Próximos agendamentos (24h)</h2>
+          </div>
+          @if ((s.proximosAgendamentos ?? []).length === 0) {
+            <p class="muted" style="padding: 1rem 1.25rem;">Nenhum agendamento nas próximas 24h.</p>
+          } @else {
+            <table class="data-table">
+              <thead>
                 <tr>
-                  <td>{{ a.dataHora | date: 'dd/MM HH:mm' }}</td>
-                  <td>{{ a.cliente?.nome }}</td>
-                  <td>{{ a.barbeiro?.nome }}</td>
-                  <td>{{ a.servico?.nome }}</td>
-                  <td>{{ a.status }}</td>
+                  <th>Cliente</th>
+                  <th>Serviço</th>
+                  <th>Barbeiro</th>
+                  <th>Data/Hora</th>
+                  <th>Status</th>
+                  <th>Ações</th>
                 </tr>
-              }
-            </tbody>
-          </table>
-        } @else {
-          <p class="muted">Nenhum agendamento próximo.</p>
-        }
-      </div>
+              </thead>
+              <tbody>
+                  @for (a of s.proximosAgendamentos; track a.id) {
+                    <tr>
+                      <td data-label="Cliente">{{ a.cliente?.nome }}</td>
+                      <td data-label="Serviço">{{ a.servico?.nome }}</td>
+                      <td data-label="Barbeiro">{{ a.barbeiro?.nome }}</td>
+                      <td data-label="Data/Hora">{{ a.dataHora }}</td>
+                      <td data-label="Status">
+                        <span class="status-badge"
+                          [class.status--agendado]="(a.status ?? '').toUpperCase() === 'AGENDADO'"
+                          [class.status--concluido]="(a.status ?? '').toUpperCase() === 'CONCLUIDO'"
+                          [class.status--cancelado]="(a.status ?? '').toUpperCase() === 'CANCELADO'">
+                          {{ a.status }}
+                        </span>
+                      </td>
+                      <td data-label="Ações" class="actions-cell">
+                        @if (podeAcao(a.status)) {
+                          <button type="button" class="btn-ghost btn-ghost--success btn-sm"
+                            (click)="concluir(a)" [disabled]="acaoId() === a.id">
+                            Concluir
+                          </button>
+                          <button type="button" class="btn-ghost btn-ghost--danger btn-sm"
+                            (click)="cancelar(a)" [disabled]="acaoId() === a.id">
+                            Cancelar
+                          </button>
+                        }
+                        @if (acaoId() === a.id) {
+                          <span class="muted">…</span>
+                        }
+                      </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
 
-      <p class="quick">
-        <a routerLink="/admin/agendamentos" class="btn-brand">Ver todos os agendamentos</a>
-        <a routerLink="/admin/barbeiros" class="btn-ghost">Barbeiros</a>
-        <a routerLink="/admin/servicos" class="btn-ghost">Serviços</a>
-        <a routerLink="/admin/horarios" class="btn-ghost">Horários</a>
-        <a routerLink="/admin/fidelidade" class="btn-ghost">Fidelidade</a>
-      </p>
+      }
     }
-  }
   </div>
 </div>

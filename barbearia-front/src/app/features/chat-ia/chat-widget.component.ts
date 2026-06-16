@@ -241,6 +241,23 @@ export class ChatWidgetComponent implements AfterViewChecked {
     ]);
   }
 
+  reiniciar(): void {
+    this.agendamentoOk.set(null);
+    this.servicoSelecionado = undefined;
+    this.barbeiroSelecionado = undefined;
+    this.horarioSelecionado = undefined;
+    this.dataAgendamento = undefined;
+    this.etapa = 'servico';
+    this.mensagens.set([{
+      role: 'assistant',
+      content: 'Olá! 👋 Sou o assistente da Barbearia Souza. Posso ajudar você a agendar um horário. Escolha um serviço abaixo:',
+    }]);
+    this.chatService.iniciar().subscribe(res => {
+      this.servicos.set(res.servicos);
+      this.barbeiros.set(res.barbeiros);
+    });
+  }
+
   private extrairDataHoraDeTexto(text: string): { data: string; horario: string } | null {
     const agora = new Date();
     let horaMatch = text.match(/(\d{1,2})[:h](\d{2})/);

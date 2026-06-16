@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
 import { Agendamento } from '../../../core/models';
+import { ConfirmService } from '../../../shared/confirm-modal/confirm.service';
 
 function agendamentosDe(res: Record<string, unknown>): Agendamento[] {
   for (const k of ['agendamentos', 'Agendamentos']) {
@@ -23,6 +24,7 @@ function agendamentosDe(res: Record<string, unknown>): Agendamento[] {
 })
 export class AgendamentosBarbeiroComponent implements OnInit {
   private readonly api = inject(ApiService);
+  private readonly confirm = inject(ConfirmService);
 
   filtroData = '';
   readonly lista = signal<Agendamento[]>([]);
@@ -64,8 +66,13 @@ export class AgendamentosBarbeiroComponent implements OnInit {
     });
   }
 
-  cancelar(a: Agendamento): void {
-    if (!confirm('Cancelar este agendamento?')) {
+  async cancelar(a: Agendamento): Promise<void> {
+    const detalhes = [
+      a.servico?.nome ? `✂️ ${a.servico.nome}` : '',
+      a.barbeiro?.nome ? `👤 ${a.barbeiro.nome}` : '',
+      a.dataHora ? `📅 ${a.dataHora}` : '',
+    ].filter(Boolean).join('\n');
+    if (!(await this.confirm.confirm(`Tem certeza que deseja cancelar?\n\n${detalhes}`))) {
       return;
     }
     this.acaoId.set(a.id);
@@ -83,6 +90,6 @@ export class AgendamentosBarbeiroComponent implements OnInit {
 
   podeConcluir(status: string | undefined): boolean {
     const s = (status ?? '').toUpperCase();
-    return s === 'CONFIRMADO' || s === 'AGENDADO';
+    return s === 'AGENDADO';
   }
 }

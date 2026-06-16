@@ -107,7 +107,15 @@
       }
     </div>
 
-    @if (!agendamentoOk()) {
+    @if (agendamentoOk()) {
+      <div class="chat-form">
+        <div class="chat-form__fields">
+          <button class="chat-form__confirmar" (click)="reiniciar()">
+            ➕ Novo Agendamento
+          </button>
+        </div>
+      </div>
+    } @else {
       <div class="chat-form">
         @if (etapa === 'resumo' && dataExtraida && servicoSelecionado && barbeiroSelecionado) {
           <div class="chat-form__fields">

@@ -56,13 +56,12 @@ export interface DashboardStats {
   totalClientes: number;
   totalBarbeiros: number;
   agendados: number;
-  confirmados: number;
   concluidos: number;
   cancelados: number;
   agendamentosHoje: number;
   agendamentosSemana: number;
   agendamentosMes: number;
-  receitaMes: number;
+  receita: number;
   barbeiroDestaque: string;
   servicoDestaque: string;
   taxaCancelamento: string;

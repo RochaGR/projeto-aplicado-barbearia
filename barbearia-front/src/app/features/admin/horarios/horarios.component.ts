@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { ApiService } from '../../../core/api.service';
 import { ConfigHorario, Feriado } from '../../../core/models';
+import { ConfirmService } from '../../../shared/confirm-modal/confirm.service';
 
 @Component({
   selector: 'app-admin-horarios',
@@ -13,6 +14,7 @@ import { ConfigHorario, Feriado } from '../../../core/models';
 })
 export class AdminHorariosComponent implements OnInit {
   private readonly api = inject(ApiService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly horarios = signal<ConfigHorario[]>([]);
   readonly feriados = signal<Feriado[]>([]);
@@ -84,8 +86,8 @@ export class AdminHorariosComponent implements OnInit {
     });
   }
 
-  excluirFeriado(f: Feriado): void {
-    if (!confirm(`Excluir feriado "${f.motivo}" (${f.data})?`)) return;
+  async excluirFeriado(f: Feriado): Promise<void> {
+    if (!(await this.confirm.confirm(`Excluir feriado "${f.motivo}" (${f.data})?`))) return;
     this.api.excluirFeriadoAdmin(f.id).subscribe({
       next: () => this.carregarFeriados(),
       error: () => this.erro.set('Erro ao excluir feriado.'),

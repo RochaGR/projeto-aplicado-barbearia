@@ -7,11 +7,12 @@ import { ApiService } from './core/api.service';
 import { MainFooterComponent } from './shared/layout/main-footer/main-footer.component';
 import { MainNavbarComponent } from './shared/layout/main-navbar/main-navbar.component';
 import { ChatWidgetComponent } from './features/chat-ia/chat-widget.component';
+import { ConfirmModalComponent } from './shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, MainNavbarComponent, MainFooterComponent, FormsModule, ChatWidgetComponent],
+  imports: [RouterOutlet, MainNavbarComponent, MainFooterComponent, FormsModule, ChatWidgetComponent, ConfirmModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
@@ -30,7 +31,9 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     const setFooter = () => {
       const path = this.router.url.split('?')[0];
-      this.showMiniFooter.set(path !== '/' && path !== '');
+      const adminPaths = ['/admin/', '/barbeiro/'];
+      const isAdminRoute = adminPaths.some(p => path.startsWith(p));
+      this.showMiniFooter.set(path !== '/' && path !== '' && !isAdminRoute);
     };
     setFooter();
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => setFooter());

@@ -20,9 +20,11 @@
           Nome
         </label>
         <input id="nome" type="text" formControlName="nome" />
-        @if (controlInvalid('nome')) {
-          <small class="field-error">{{ controlMessage('nome') }}</small>
-        }
+        <div class="field__error">
+          @if (controlInvalid('nome')) {
+            <small class="field-error">{{ controlMessage('nome') }}</small>
+          }
+        </div>
       </div>
       <div class="field field--wide" [class.field--invalid]="controlInvalid('descricao')">
         <label for="desc">
@@ -30,9 +32,11 @@
           Descrição
         </label>
         <input id="desc" type="text" formControlName="descricao" />
-        @if (controlInvalid('descricao')) {
-          <small class="field-error">{{ controlMessage('descricao') }}</small>
-        }
+        <div class="field__error">
+          @if (controlInvalid('descricao')) {
+            <small class="field-error">{{ controlMessage('descricao') }}</small>
+          }
+        </div>
       </div>
       <div class="field" [class.field--invalid]="controlInvalid('preco')">
         <label for="preco">
@@ -40,9 +44,11 @@
           Preço (R$)
         </label>
         <input id="preco" type="number" step="0.01" min="0" formControlName="preco" />
-        @if (controlInvalid('preco')) {
-          <small class="field-error">{{ controlMessage('preco') }}</small>
-        }
+        <div class="field__error">
+          @if (controlInvalid('preco')) {
+            <small class="field-error">{{ controlMessage('preco') }}</small>
+          }
+        </div>
       </div>
       <div class="field field--wide">
         <label for="img">
@@ -74,9 +80,11 @@
           <option [ngValue]="45">45 min</option>
           <option [ngValue]="60">60 min</option>
         </select>
-        @if (controlInvalid('duracaoMinutos')) {
-          <small class="field-error">{{ controlMessage('duracaoMinutos') }}</small>
-        }
+        <div class="field__error">
+          @if (controlInvalid('duracaoMinutos')) {
+            <small class="field-error">{{ controlMessage('duracaoMinutos') }}</small>
+          }
+        </div>
       </div>
       <div class="field field--check">
         <label class="toggle">
@@ -84,11 +92,13 @@
           <span class="toggle__slider"></span>
           Ativo
         </label>
+        <div class="field__error"></div>
       </div>
       <div class="field field--action">
         <button type="submit" class="btn-brand" [disabled]="criando() || form.invalid">
           {{ criando() ? 'Salvando…' : 'Cadastrar' }}
         </button>
+        <div class="field__error"></div>
       </div>
     </form>
   </div>

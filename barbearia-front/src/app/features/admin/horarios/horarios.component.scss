@@ -155,7 +155,7 @@ h2 {
 .feriado-form {
   display: flex;
   gap: 0.75rem;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: 1rem;
   flex-wrap: wrap;
 
@@ -177,6 +177,12 @@ h2 {
       color: #fff;
       font-size: 0.9rem;
     }
+  }
+
+  .btn-brand {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
   }
 }
 
@@ -308,6 +314,7 @@ h2 {
 
     .btn-brand {
       width: 100%;
+      text-align: center;
     }
   }
 }

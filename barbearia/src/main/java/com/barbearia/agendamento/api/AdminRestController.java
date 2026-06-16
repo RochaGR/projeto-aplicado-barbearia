@@ -10,6 +10,9 @@ import com.barbearia.agendamento.service.ConfiguracaoFidelidadeService;
 import com.barbearia.agendamento.service.ConfiguracaoHorarioService;
 import com.barbearia.agendamento.service.FeriadoService;
 import com.barbearia.agendamento.service.ServicoService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,13 +57,22 @@ public class AdminRestController {
     }
 
     @GetMapping("/dashboard")
-    public Map<String, Object> dashboard() {
+    public Map<String, Object> dashboard(
+            @RequestParam(defaultValue = "TUDO") String periodo) {
         List<Agendamento> todos = agendamentoService.listarTodos();
 
-        long agendados = todos.stream().filter(a -> "AGENDADO".equals(a.getStatus())).count();
-        long confirmados = todos.stream().filter(a -> "CONFIRMADO".equals(a.getStatus())).count();
-        long concluidos = todos.stream().filter(a -> "CONCLUIDO".equals(a.getStatus())).count();
-        long cancelados = todos.stream().filter(a -> "CANCELADO".equals(a.getStatus())).count();
+        periodo = periodo.toUpperCase();
+        PeriodBounds pb = getPeriodBounds(periodo);
+        List<Agendamento> filtrados = "TUDO".equals(periodo)
+                ? todos
+                : todos.stream()
+                        .filter(a -> !a.getDataHora().isBefore(pb.inicio)
+                                && !a.getDataHora().isAfter(pb.fim))
+                        .collect(Collectors.toList());
+
+        long agendados = filtrados.stream().filter(a -> "AGENDADO".equals(a.getStatus())).count();
+        long concluidos = filtrados.stream().filter(a -> "CONCLUIDO".equals(a.getStatus())).count();
+        long cancelados = filtrados.stream().filter(a -> "CANCELADO".equals(a.getStatus())).count();
 
         LocalDateTime inicioDia = LocalDate.now().atStartOfDay();
         LocalDateTime fimDia = LocalDate.now().atTime(23, 59, 59);
@@ -82,16 +94,13 @@ public class AdminRestController {
                 .filter(a -> !a.getDataHora().isBefore(inicioMes) && !a.getDataHora().isAfter(fimMes))
                 .count();
 
-        double receitaMes = todos.stream()
-                .filter(a -> "CONCLUIDO".equals(a.getStatus())
-                        && !a.getDataHora().isBefore(inicioMes)
-                        && !a.getDataHora().isAfter(fimMes))
+        double receita = filtrados.stream()
+                .filter(a -> "CONCLUIDO".equals(a.getStatus()))
                 .mapToDouble(a -> a.getServico().getPreco())
                 .sum();
 
         Map<String, Long> porBarbeiro = new HashMap<>();
-        todos.stream()
-                .filter(a -> !a.getDataHora().isBefore(inicioMes) && !a.getDataHora().isAfter(fimMes))
+        filtrados.stream()
                 .forEach(a -> porBarbeiro.merge(a.getBarbeiro().getNome(), 1L, (oldVal, newVal) -> oldVal + newVal));
         String barbeiroDestaque = porBarbeiro.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -99,15 +108,15 @@ public class AdminRestController {
                 .orElse("Nenhum");
 
         Map<String, Long> porServico = new HashMap<>();
-        todos.stream()
-                .filter(a -> !a.getDataHora().isBefore(inicioMes) && !a.getDataHora().isAfter(fimMes))
+        filtrados.stream()
                 .forEach(a -> porServico.merge(a.getServico().getNome(), 1L, (oldVal, newVal) -> oldVal + newVal));
         String servicoDestaque = porServico.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse("Nenhum");
 
-        double taxaCancelamento = agendamentosMes > 0 ? (cancelados * 100.0) / agendamentosMes : 0;
+        double totalFiltrado = agendados + concluidos + cancelados;
+        double taxaCancelamento = totalFiltrado > 0 ? (cancelados * 100.0) / totalFiltrado : 0;
 
         LocalDateTime agora = LocalDateTime.now();
         LocalDateTime prox24 = agora.plusHours(24);
@@ -121,17 +130,16 @@ public class AdminRestController {
                 .collect(Collectors.toList());
 
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("totalAgendamentos", todos.size());
+        m.put("totalAgendamentos", filtrados.size());
         m.put("totalClientes", clienteService.listarTodosClientes().size());
         m.put("totalBarbeiros", barbeiroService.listarTodos().size());
         m.put("agendados", agendados);
-        m.put("confirmados", confirmados);
         m.put("concluidos", concluidos);
         m.put("cancelados", cancelados);
         m.put("agendamentosHoje", agendamentosHoje);
         m.put("agendamentosSemana", agendamentosSemana);
         m.put("agendamentosMes", agendamentosMes);
-        m.put("receitaMes", receitaMes);
+        m.put("receita", receita);
         m.put("barbeiroDestaque", barbeiroDestaque);
         m.put("servicoDestaque", servicoDestaque);
         m.put("taxaCancelamento", String.format(Locale.ROOT, "%.1f", taxaCancelamento));
@@ -139,37 +147,61 @@ public class AdminRestController {
         return m;
     }
 
+    private record PeriodBounds(LocalDateTime inicio, LocalDateTime fim) {}
+
+    private PeriodBounds getPeriodBounds(String periodo) {
+        return switch (periodo.toUpperCase()) {
+            case "HOJE" -> {
+                LocalDateTime inicio = LocalDate.now().atStartOfDay();
+                LocalDateTime fim = LocalDate.now().atTime(23, 59, 59);
+                yield new PeriodBounds(inicio, fim);
+            }
+            case "SEMANA" -> {
+                LocalDateTime inicio = LocalDate.now().atStartOfDay()
+                        .minusDays(LocalDate.now().getDayOfWeek().getValue() - 1L);
+                LocalDateTime fim = inicio.plusDays(6).withHour(23).withMinute(59).withSecond(59);
+                yield new PeriodBounds(inicio, fim);
+            }
+            case "MES" -> {
+                YearMonth mes = YearMonth.now();
+                LocalDateTime inicio = mes.atDay(1).atStartOfDay();
+                LocalDateTime fim = mes.atEndOfMonth().atTime(23, 59, 59);
+                yield new PeriodBounds(inicio, fim);
+            }
+            default -> new PeriodBounds(
+                    LocalDateTime.of(2000, 1, 1, 0, 0),
+                    LocalDateTime.of(2099, 12, 31, 23, 59));
+        };
+    }
+
     @GetMapping("/agendamentos")
     public Map<String, Object> todosAgendamentos(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
-            @RequestParam(required = false) String status) {
-        Agendamento[] arr = agendamentoService.listarTodosOrdenados();
-        List<Agendamento> lista = new ArrayList<>(Arrays.asList(arr));
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageRequest pageReq = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dataHora"));
+        Page<Agendamento> result;
         if (data != null) {
-            lista = lista.stream()
-                    .filter(a -> a.getDataHora().toLocalDate().equals(data))
-                    .collect(Collectors.toList());
+            LocalDateTime inicio = data.atStartOfDay();
+            LocalDateTime fim = data.plusDays(1).atStartOfDay();
+            if (status != null && !status.isEmpty()) {
+                result = agendamentoService.findByDataHoraBetweenAndStatus(inicio, fim, status, pageReq);
+            } else {
+                result = agendamentoService.findByDataHoraBetween(inicio, fim, pageReq);
+            }
+        } else if (status != null && !status.isEmpty()) {
+            result = agendamentoService.findByStatus(status, pageReq);
+        } else {
+            result = agendamentoService.listarTodos(pageReq);
         }
-        if (status != null && !status.isEmpty()) {
-            lista = lista.stream()
-                    .filter(a -> a.getStatus().equalsIgnoreCase(status))
-                    .collect(Collectors.toList());
-        }
-        return Map.of("agendamentos",
-                lista.stream().map(ApiMapper::agendamento).collect(Collectors.toList()));
-    }
-
-    @PostMapping("/agendamentos/{id}/confirmar")
-    public ResponseEntity<?> confirmar(@PathVariable @NonNull Long id) {
-        try {
-            Agendamento ag = agendamentoService.buscarPorId(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
-            ag.setStatus("CONFIRMADO");
-            agendamentoService.salvar(ag);
-            return ResponseEntity.ok(Map.of("ok", true));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("agendamentos", result.getContent().stream().map(ApiMapper::agendamento).collect(Collectors.toList()));
+        m.put("totalPages", result.getTotalPages());
+        m.put("totalElements", result.getTotalElements());
+        m.put("currentPage", result.getNumber());
+        m.put("pageSize", result.getSize());
+        return m;
     }
 
     @PostMapping("/agendamentos/{id}/cancelar")
@@ -178,6 +210,19 @@ public class AdminRestController {
             Agendamento ag = agendamentoService.buscarPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
             ag.setStatus("CANCELADO");
+            agendamentoService.salvar(ag);
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/agendamentos/{id}/concluir")
+    public ResponseEntity<?> concluir(@PathVariable @NonNull Long id) {
+        try {
+            Agendamento ag = agendamentoService.buscarPorId(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
+            ag.setStatus("CONCLUIDO");
             agendamentoService.salvar(ag);
             return ResponseEntity.ok(Map.of("ok", true));
         } catch (Exception e) {
