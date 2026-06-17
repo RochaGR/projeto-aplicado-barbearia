@@ -46,7 +46,7 @@ public class HistoricoController {
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
         // Buscar todos os agendamentos do cliente
-        List<Agendamento> historico = agendamentoService.listarPorBarbeiro(cliente.getId());
+        List<Agendamento> historico = agendamentoService.listarPorCliente(cliente.getId());
 
         // Aplicar filtros
         if (dataInicio != null) {

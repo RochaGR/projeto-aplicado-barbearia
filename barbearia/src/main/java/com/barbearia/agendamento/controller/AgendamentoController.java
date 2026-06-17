@@ -137,7 +137,7 @@ public class AgendamentoController {
         Cliente cliente = clienteService.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
-        List<Agendamento> agendamentos = agendamentoService.listarPorBarbeiro(cliente.getId());
+        List<Agendamento> agendamentos = agendamentoService.listarPorCliente(cliente.getId());
 
         // Filtrar por data se fornecida
         if (data != null) {
